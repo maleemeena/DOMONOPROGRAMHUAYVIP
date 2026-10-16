@@ -112,7 +112,7 @@
         <a href="https://line.me" target="_blank" class="contact-admin">💬 ติดต่อขอรับรหัสผ่าน Line ID: momongmo</a>
     </div>
 
-    <script>
+<script>
         function checkLogin() {
             let password = document.getElementById('vipPassword').value.trim();
             if (!password) {
@@ -123,7 +123,6 @@
             document.getElementById('loading').style.display = "block";
 
             // 🔗 ลิงก์ Apps Script API ของคุณ
-          // 🔗 ลิงก์ Apps Script API ของคุณ
             let scriptURL = "https://script.google.com/macros/s/AKfycbycXQnCzYjSEngOzKbzsIJ_P7FU1DukCWq49qWiKQ_KzE-B23nWxARUG8qeK5byaLKx/exec";
 
             let formData = new FormData();
@@ -137,15 +136,20 @@
             .then(response => response.text())
             .then(result => {
                 document.getElementById('loading').style.display = "none";
+                
+                // 🌟 บันทึกรหัสผ่านหรือจำลองวันหมดอายุ (หรือจะปรับให้ Google Apps Script ส่งวันหมดอายุจริงกลับมาด้วยก็ได้ครับ)
+                localStorage.setItem("expireDate", "30 วัน (VIP)"); // หรือกำหนดค่าตามที่ต้องการแสดง
+
                 // เข้าสู่ระบบสำเร็จ พาไปหน้า Hub รวมโปรแกรม
                 window.location.href = "hub.html";
             })
             .catch(error => {
                 document.getElementById('loading').style.display = "none";
                 // กรณีติด CORS ให้พาข้ามไปหน้า Hub ทันทีเพื่อให้ใช้งานต่อได้ไม่ติดขัด
+                localStorage.setItem("expireDate", "VIP Access");
                 window.location.href = "hub.html";
             });
         }
     </script>
-</body>
+    </body>
 </html>
