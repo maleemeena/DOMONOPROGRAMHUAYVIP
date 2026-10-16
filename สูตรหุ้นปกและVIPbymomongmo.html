@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Master Premium v2026 - Stocks Normal & VIP Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --text-color: #2d3436;
+            --accent-color: #00cec9;
+            --border-radius: 12px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Prompt', sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            padding: 8px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 14px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            margin: 0 0 2px 0;
+            font-size: 16px;
+        }
+
+        #currentDate {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .control-panel {
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bulk-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bulk-box label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #636e72;
+        }
+
+        textarea {
+            width: 100%;
+            height: 60px;
+            padding: 6px;
+            border: 1.5px solid #dfe6e9;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 10px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 500;
+            font-size: 11px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            table-layout: auto;
+        }
+
+        th {
+            background-color: #dfe6e9;
+            color: #2d3436;
+            padding: 8px 4px;
+            font-weight: 600;
+            font-size: 10.5px;
+            border: none;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 6px 4px;
+            font-size: 10px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f2f6;
+        }
+
+        .section-header-row th {
+            background-color: #ffeaa7;
+            color: #d63031;
+            font-size: 11px;
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #fff;
+            font-size: 9.5px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+            white-space: nowrap;
+        }
+
+        .result-input, .edit-input {
+            width: 65px;
+            padding: 4px;
+            text-align: center;
+            border: 1.5px solid #b2bec3;
+            border-radius: 6px;
+            font-family: 'Prompt', sans-serif;
+            background: #fff;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .number-grid {
+            display: inline-flex;
+            gap: 3px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            white-space: nowrap;
+            max-width: 100%;
+            align-items: center;
+        }
+
+        .grid-item {
+            padding: 3px 5px;
+            border-radius: 6px;
+            font-size: 9.5px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .col-orig .grid-item { background: #fff0f3; border: 1.5px solid #ff7979; color: #d63031; }
+        .col-den .grid-item { background: #e0f7fa; border: 1.5px solid #00bcd4; color: #00838f; }
+        .col-rong .grid-item { background: #fdf2f8; border: 1.5px solid #ffb6c1; color: #d81b60; }
+        .col-win .grid-item { background: #fff8e1; border: 1.5px solid #ffb300; color: #ff8f00; }
+        .col-jeaw2 .grid-item { background: #f3e5f5; border: 1.5px solid #ab47bc; color: #6a1b9a; }
+        .col-jeaw3 .grid-item { background: #e8f5e9; border: 1.5px solid #66bb6a; color: #2e7d32; }
+
+        @keyframes blinkGreenEffect {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .grid-item.hit {
+            animation: blinkGreenEffect 1s infinite ease-in-out;
+            background-color: #2ed573 !important;
+            color: #fff !important;
+            border-color: #26af5f !important;
+            font-weight: bold;
+        }
+
+        .copy-row-btn {
+            background-color: #00b894;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📈 สูตรหุ้น รอบปกติ & VIP v2026 LINE ID:momongmo</h1>
+        <div id="currentDate">📅 กำลังโหลดวันที่...</div>
+    </header>
+
+    <div class="control-panel">
+        <div class="bulk-box">
+            <label>📋 ช่องกรอกสถิติรวมแบบยาว</label>
+            <textarea id="bulkText" placeholder="วางข้อความสถิติรวมที่นี่..."></textarea>
+        </div>
+        <div class="btn-group">
+            <button style="background-color: #0984e3;" onclick="parseBulkData()">⚡ ดึงลงช่องเลขเดิมอัตโนมัติ</button>
+            <button style="background-color: #00b894;" onclick="copyAllSummary()">📋 คัดลอกสรุปทั้งหมด</button>
+            <button style="background-color: #d63031;" onclick="clearAll()">🗑️ ล้างข้อมูลทั้งหมด</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>รอบหุ้น</th>
+                    <th>เลขเดิม</th>
+                    <th>เด่น</th>
+                    <th>รอง</th>
+                    <th>วิน</th>
+                    <th>เจาะ 2 ตัว (6 ชุด)</th>
+                    <th>เจาะ 3 ตัว (4 ชุด)</th>
+                    <th>ผลออก</th>
+                    <th>คัดลอก</th>
+                </tr>
+            </thead>
+            <tbody id="stockTableBody">
+                <!-- สร้างแถวผ่าน JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const todayStr = new Date().toLocaleDateString('th-TH', options);
+    document.getElementById('currentDate').innerText = `📅 วันที่: ${todayStr}`;
+
+    const stockData = [
+        // 🌟 รอบปกติ
+        { type: "header", name: "🌟 --- หุ้นรอบปกติ ---" },
+        { name: "🇯🇵 นิคเคอิเช้า", color: "#e17055", bg: "#fff5f3" },
+        { name: "🇨🇳 จีนเช้า", color: "#d63031", bg: "#fff0f0" },
+        { name: "🇭🇰 ฮั่งเส็งเช้า", color: "#e84393", bg: "#fdf2f8" },
+        { name: "🇹🇼 ไต้หวัน", color: "#0984e3", bg: "#f0f8ff" },
+        { name: "🇯🇵 นิคเคอิบ่าย", color: "#e17055", bg: "#fff5f3" },
+        { name: "🇰🇷 เกาหลี", color: "#6c5ce7", bg: "#f4f2ff" },
+        { name: "🇨🇳 จีนบ่าย", color: "#d63031", bg: "#fff0f0" },
+        { name: "🇭🇰 ฮั่งเส็งบ่าย", color: "#e84393", bg: "#fdf2f8" },
+        { name: "🇸🇬 สิงคโปร์", color: "#00b894", bg: "#f0fdf4" },
+        { name: "🇹🇭 ไทยเย็น", color: "#fdcb6e", bg: "#fffdf0" },
+        { name: "🇮🇳 อินเดีย", color: "#e17055", bg: "#fff5f3" },
+        { name: "🇪🇬 อียิปต์", color: "#636e72", bg: "#f8f9fa" },
+        { name: "🇬🇧 อังกฤษ", color: "#2d3436", bg: "#f1f2f6" },
+        { name: "🇩🇪 เยอรมัน", color: "#00cec9", bg: "#e6fffa" },
+        { name: "🇷🇺 รัสเซีย", color: "#b2bec3", bg: "#f8f9fa" },
+
+        // 👑 รอบ VIP
+        { type: "header", name: "👑 --- หุ้นรอบ VIP ---" },
+        { name: "🇯🇵 นิคเคอิ VIP เช้า", color: "#d63031", bg: "#fff0f0" },
+        { name: "🇨🇳 จีน VIP เช้า", color: "#e17055", bg: "#fff5f3" },
+        { name: "🇭🇰 ฮั่งเส็ง VIP เช้า", color: "#e84393", bg: "#fdf2f8" },
+        { name: "🇹🇼 ไต้หวัน VIP", color: "#0984e3", bg: "#f0f8ff" },
+        { name: "🇰🇷 เกาหลี VIP", color: "#6c5ce7", bg: "#f4f2ff" },
+        { name: "🇯🇵 นิคเคอิ VIP บ่าย", color: "#d63031", bg: "#fff0f0" },
+        { name: "🇨🇳 จีน VIP บ่าย", color: "#e17055", bg: "#fff5f3" },
+        { name: "🇭🇰 ฮั่งเส็ง VIP บ่าย", color: "#e84393", bg: "#fdf2f8" },
+        { name: "🇸🇬 สิงคโปร์ VIP", color: "#00b894", bg: "#f0fdf4" },
+        { name: "🇬🇧 อังกฤษ VIP", color: "#2d3436", bg: "#f1f2f6" },
+        { name: "🇩🇪 เยอรมัน VIP", color: "#00cec9", bg: "#e6fffa" },
+        { name: "🇷🇺 รัสเซีย VIP", color: "#b2bec3", bg: "#f8f9fa" }
+    ];
+
+    function renderTable() {
+        const tbody = document.getElementById('stockTableBody');
+        tbody.innerHTML = "";
+
+        stockData.forEach((item, index) => {
+            if (item.type === "header") {
+                tbody.innerHTML += `<tr class="section-header-row"><th colspan="9">${item.name}</th></tr>`;
+                return;
+            }
+
+            let savedOrig = localStorage.getItem(`stock-orig-${index}`) || "";
+            let savedRes = localStorage.getItem(`stock-res-${index}`) || "";
+
+            let row = `
+                <tr style="background-color: ${item.bg};">
+                    <td><span class="stock-badge" style="background-color: ${item.color};">${item.name}</span></td>
+                    <td class="col-orig"><input type="text" class="edit-input" id="orig-${index}" value="${savedOrig}" oninput="saveAndCalculate()"></td>
+                    <td class="col-den" id="den-${index}">-</td>
+                    <td class="col-rong" id="rong-${index}">-</td>
+                    <td class="col-win" id="win-${index}">-</td>
+                    <td class="col-jeaw2" id="jeaw2-${index}">-</td>
+                    <td class="col-jeaw3" id="jeaw3-${index}">-</td>
+                    <td><input type="text" class="result-input" id="res-${index}" value="${savedRes}" placeholder="ผลออก" maxlength="7" oninput="saveAndCalculate()"></td>
+                    <td><button class="copy-row-btn" onclick="copySingleRow(${index})">📋</button></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+
+        calculateFormulas();
+    }
+
+    function saveData() {
+        stockData.forEach((item, index) => {
+            if (item.type === "header") return;
+            let origVal = document.getElementById(`orig-${index}`).value;
+            let resVal = document.getElementById(`res-${index}`).value;
+            localStorage.setItem(`stock-orig-${index}`, origVal);
+            localStorage.setItem(`stock-res-${index}`, resVal);
+        });
+    }
+
+    function saveAndCalculate() {
+        saveData();
+        calculateFormulas();
+    }
+
+    function parseBulkData() {
+        let text = document.getElementById('bulkText').value;
+        let lines = text.split('\n');
+
+        lines.forEach(line => {
+            stockData.forEach((item, index) => {
+                if (item.type === "header") return;
+                let cleanName = item.name.replace(/[^ก-ฮa-zA-Z]/g, '');
+                let cleanLine = line.replace(/[^ก-ฮa-zA-Z0-9\-]/g, '');
+
+                if (cleanLine.includes(cleanName) || line.includes(item.name.split(' ')[1] || item.name)) {
+                    let matches = line.match(/\d{3,4}[\-\/]\d{2}/g);
+                    if (matches && matches.length > 0) {
+                        let parts = matches[0].split(/[\-\/]/);
+                        let fullNum = parts[0] + parts[1];
+                        document.getElementById(`orig-${index}`).value = fullNum;
+                    }
+                }
+            });
+        });
+
+        saveAndCalculate();
+        alert('ดึงผลเดิมลงตารางเรียบร้อยแล้ว!');
+    }
+
+    function calculateFormulas() {
+        stockData.forEach((item, index) => {
+            if (item.type === "header") return;
+
+            let origVal = document.getElementById(`orig-${index}`).value;
+            let resVal = document.getElementById(`res-${index}`).value.trim().replace(/\D/g, '');
+            
+            let denCell = document.getElementById(`den-${index}`);
+            let rongCell = document.getElementById(`rong-${index}`);
+            let winCell = document.getElementById(`win-${index}`);
+            let jeaw2Cell = document.getElementById(`jeaw2-${index}`);
+            let jeaw3Cell = document.getElementById(`jeaw3-${index}`);
+
+            if (!origVal.trim()) {
+                denCell.innerHTML = "-";
+                rongCell.innerHTML = "-";
+                winCell.innerHTML = "-";
+                jeaw2Cell.innerHTML = "-";
+                jeaw3Cell.innerHTML = "-";
+                return;
+            }
+
+            let rawStr = origVal.replace(/\D/g, '');
+            let calcVal = 0;
+            if (rawStr.length >= 3) {
+                let formattedNum = parseFloat(rawStr.slice(0, 3) + '.' + rawStr.slice(3)) || parseFloat(rawStr);
+                calcVal = Math.pow(formattedNum, 1.2) * 2.49;
+            } else {
+                calcVal = Math.pow(parseFloat(rawStr) || 1, 3) * 2.49;
+            }
+
+            let strResult = calcVal.toFixed(4).replace('.', '');
+
+            let counts = {};
+            for (let i = 0; i <= 9; i++) counts[i] = 0;
+            for (let char of strResult) {
+                if (counts[char] !== undefined) counts[char]++;
+            }
+
+            let sortedDigits = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+
+            let top1 = sortedDigits[0]; // เด่น
+            let top2 = sortedDigits[1]; // รอง
+            let win6 = sortedDigits.slice(0, 6).sort((a, b) => a - b); // วิน 6 ตัว
+
+            // ตัดผลออกเป็น 2 ตัวบน และ 2 ตัวล่าง
+            let topResult = "";
+            let botResult = "";
+            let threeTop = "";
+            if (resVal.length >= 5) {
+                threeTop = resVal.substring(resVal.length - 5, resVal.length - 2);
+                topResult = resVal.substring(resVal.length - 4, resVal.length - 2); 
+                botResult = resVal.substring(resVal.length - 2); 
+            } else if (resVal.length === 4) {
+                topResult = resVal.substring(0, 2);
+                botResult = resVal.substring(2, 4);
+            } else if (resVal.length === 2) {
+                topResult = resVal;
+                botResult = resVal;
+            }
+
+            let isPairHit = (targetPair, resultStr) => {
+                if (!targetPair || targetPair.length !== 2 || !resultStr || resultStr.length !== 2) return false;
+                let revPair = targetPair[1] + targetPair[0];
+                return targetPair === resultStr || revPair === resultStr;
+            };
+
+            let jeaw2Pairs = [];
+            for(let i=0; i<win6.length; i++) {
+                for(let j=i+1; j<win6.length; j++) {
+                    let p = win6[i] + win6[j];
+                    if(!jeaw2Pairs.includes(p)) jeaw2Pairs.push(p);
+                    if(jeaw2Pairs.length >= 6) break;
+                }
+                if(jeaw2Pairs.length >= 6) break;
+            }
+
+            let jeaw3Pairs = [];
+            for(let i=0; i<win6.length-2; i++) {
+                let p = win6[i] + win6[i+1] + win6[i+2];
+                if(!jeaw3Pairs.includes(p)) jeaw3Pairs.push(p);
+                if(jeaw3Pairs.length >= 4) break;
+            }
+            while(jeaw3Pairs.length < 4 && win6.length >= 3) {
+                jeaw3Pairs.push(win6[0] + win6[1] + win6[2]);
+            }
+
+            let isDenHit = (topResult.length === 2 && (topResult[0] === top1 || topResult[1] === top1)) ||
+                           (botResult.length === 2 && (botResult[0] === top1 || botResult[1] === top1));
+            let isRongHit = (topResult.length === 2 && (topResult[0] === top2 || topResult[1] === top2)) ||
+                            (botResult.length === 2 && (botResult[0] === top2 || botResult[1] === top2));
+
+            denCell.innerHTML = `<div class="number-grid"><span class="grid-item ${isDenHit ? 'hit' : ''}">${top1}</span></div>`;
+            rongCell.innerHTML = `<div class="number-grid"><span class="grid-item ${isRongHit ? 'hit' : ''}">${top2}</span></div>`;
+
+            // ✅ ตรวจสอบเลขวิน: จะกระพริบก็ต่อเมื่อตัวเลขนี้จับคู่กับเลขวินตัวอื่น แล้วผลจับคู่นั้นไปตรงกับ 2 ตัวบน หรือ 2 ตัวล่างจริง
+            let winGrid = `<div class="number-grid">` + win6.map(d => {
+                let isWinHit = false;
+                win6.forEach(d2 => {
+                    if (d !== d2) {
+                        let combinedPair1 = d + d2;
+                        let combinedPair2 = d2 + d;
+                        if (isPairHit(combinedPair1, topResult) || isPairHit(combinedPair1, botResult) ||
+                            isPairHit(combinedPair2, topResult) || isPairHit(combinedPair2, botResult)) {
+                            isWinHit = true;
+                        }
+                    }
+                });
+                return `<span class="grid-item ${isWinHit ? 'hit' : ''}">${d}</span>`;
+            }).join('') + `</div>`;
+            winCell.innerHTML = winGrid;
+
+            let jeaw2Html = `<div class="number-grid">` + jeaw2Pairs.map(p => {
+                let isHit = isPairHit(p, topResult) || isPairHit(p, botResult);
+                return `<span class="grid-item ${isHit ? 'hit' : ''}">${p}</span>`;
+            }).join('') + `</div>`;
+            jeaw2Cell.innerHTML = jeaw2Html;
+
+            let jeaw3Html = `<div class="number-grid">` + jeaw3Pairs.map(p => {
+                let isHit = threeTop && p.includes(threeTop);
+                return `<span class="grid-item ${isHit ? 'hit' : ''}">${p}</span>`;
+            }).join('') + `</div>`;
+            jeaw3Cell.innerHTML = jeaw3Html;
+        });
+    }
+
+    function clearAll() {
+        if (confirm('คุณต้องการล้างข้อมูลทั้งหมดในตารางใช่หรือไม่?')) {
+            stockData.forEach((item, index) => {
+                if (item.type === "header") return;
+                localStorage.removeItem(`stock-orig-${index}`);
+                localStorage.removeItem(`stock-res-${index}`);
+                document.getElementById(`orig-${index}`).value = "";
+                document.getElementById(`res-${index}`).value = "";
+            });
+            calculateFormulas();
+            alert('ล้างข้อมูลเรียบร้อยแล้ว!');
+        }
+    }
+
+    function getRowDataString(index) {
+        let item = stockData[index];
+        let orig = document.getElementById(`orig-${index}`).value || "-";
+        
+        let denElem = document.getElementById(`den-${index}`).querySelector('.grid-item');
+        let den = denElem ? denElem.innerText : "-";
+        let isDenHit = denElem ? denElem.classList.contains('hit') : false;
+
+        let rongElem = document.getElementById(`rong-${index}`).querySelector('.grid-item');
+        let rong = rongElem ? rongElem.innerText : "-";
+        let isRongHit = rongElem ? rongElem.classList.contains('hit') : false;
+        
+        let winElems = document.getElementById(`win-${index}`).querySelectorAll('.grid-item');
+        let winList = [];
+        winElems.forEach(el => winList.push(el.innerText));
+
+        let jeaw2Elems = document.getElementById(`jeaw2-${index}`).querySelectorAll('.grid-item');
+        let jeaw2List = [];
+        jeaw2Elems.forEach(el => jeaw2List.push(el.innerText));
+
+        let jeaw3Elems = document.getElementById(`jeaw3-${index}`).querySelectorAll('.grid-item');
+        let jeaw3List = [];
+        jeaw3Elems.forEach(el => jeaw3List.push(el.innerText));
+
+        let res = document.getElementById(`res-${index}`).value || "-";
+
+        let text = `📈 สูตรหุ้นรอบปกและVIP v2026 \n📅 วันที่: ${todayStr}\n`;
+        text += `📌 ${item.name}\n`;
+        text += ` • เลขเดิม: ${orig}\n`;
+        text += ` • เด่น: ${den} ${isDenHit ? '✅(เข้า)' : ''}\n`;
+        text += ` • รอง: ${rong} ${isRongHit ? '✅(เข้า)' : ''}\n`;
+        text += ` • วิน: ${winList.join('')}\n`;
+        text += ` • เจาะ 2 ตัว: ${jeaw2List.join(', ')}\n`;
+        text += ` • เจาะ 3 ตัว: ${jeaw3List.join(', ')}\n`;
+        text += ` • ผลออก: ${res}\n`;
+        return text;
+    }
+
+    function copySingleRow(index) {
+        let rowText = getRowDataString(index);
+        navigator.clipboard.writeText(rowText).then(() => {
+            alert(`คัดลอกผล "${stockData[index].name}" สำเร็จ!`);
+        });
+    }
+
+    function copyAllSummary() {
+        let summaryText = `📈 สรุปสูตรหุ้น รอบปกติ & VIP v2026\n📅 วันที่: ${todayStr}\nLINE ID: momongmo\n======================\n`;
+        
+        stockData.forEach((item, index) => {
+            if (item.type === "header") {
+                summaryText += `\n${item.name}\n`;
+            } else {
+                summaryText += getRowDataString(index) + `----------------------\n`;
+            }
+        });
+
+        navigator.clipboard.writeText(summaryText).then(() => {
+            alert('คัดลอกสรุปผลหุ้นทั้งหมดสำเร็จ!');
+        });
+    }
+
+    window.onload = renderTable;
+</script>
+
+</body>
+</html>

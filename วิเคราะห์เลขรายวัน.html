@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI วิเคราะห์หวย Master Pro 2026</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --primary: #4f46e5; --secondary: #f43f5e; --success: #10b981; --bg: #f1f5f9; --dark: #1e293b; --gold: #fbbf24; }
+        body { font-family: 'Kanit', sans-serif; background-color: var(--bg); padding: 15px; margin: 0; color: var(--dark); }
+        .container { max-width: 650px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        h2 { text-align: center; color: var(--primary); margin: 0 0 15px 0; font-size: 22px; }
+        label { font-size: 14px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block; }
+        textarea { width: 100%; height: 100px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; box-sizing: border-box; font-family: inherit; font-size: 14px; margin-bottom: 10px; resize: none; }
+        
+        .btn { border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; width: 100%; color: white; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
+        .btn-main { background: var(--primary); margin-bottom: 10px; }
+        .btn-check { background: var(--success); }
+        .btn-copy-mini { background: #6366f1; padding: 10px; font-size: 13px; margin-top: 10px; border-radius: 8px; }
+
+        /* แยกกลุ่มชื่อหวย */
+        .filter-section { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+        select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 16px; font-family: 'Kanit'; }
+
+        /* แสดงสถิติจริง */
+        .stat-card { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--secondary); font-size: 14px; }
+        .highlight-num { color: var(--secondary); font-weight: bold; background: #fff1f2; padding: 2px 5px; border-radius: 4px; }
+
+        /* รายงานตรวจผล */
+        .checker-display { display: none; margin-bottom: 15px; }
+        .report-section { background: #1e293b; color: #fff; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid var(--gold); }
+        .report-header { font-size: 12px; color: var(--gold); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.2); word-break: break-all; }
+        .report-content { font-size: 13px; white-space: pre-wrap; line-height: 1.6; }
+
+        .result-area { display: none; }
+        .summary-box { background: var(--dark); color: #f8fafc; padding: 20px; border-radius: 20px; }
+        .share-text { font-size: 13.5px; white-space: pre-wrap; line-height: 1.7; border-left: 3px solid var(--gold); padding-left: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>📊 AI วิเคราะห์ & ตรวจผล 2026</h2>
+        <label>1. วางสถิติเพื่อ "วิเคราะห์":</label>
+        <textarea id="dataAnalyze" placeholder="วางสถิติย้อนหลังที่นี่..."></textarea>
+        <button class="btn btn-main" onclick="analyzeData()">วิเคราะห์เจาะเลขเด่น-รอง</button>
+        
+        <label style="margin-top: 10px;">2. วางผลรางวัลเพื่อ "ตรวจผล":</label>
+        <textarea id="dataCheck" placeholder="วางผลรางวัลล่าสุด..."></textarea>
+        <button class="btn btn-check" onclick="checkWinResults()">ตรวจผลแยก 3 รายงาน</button>
+    </div>
+
+    <!-- ส่วนแสดงรายงานตรวจรางวัลแยกหัวข้อ -->
+    <div id="checkerDisplay" class="checker-display">
+        <h4 style="text-align:center; color: var(--success);">🏆 รายงานผลการตรวจรางวัล (ประจำวันที่ 2026)</h4>
+        
+        <!-- รายงานชุดเด่น -->
+        <div class="report-section">
+            <div id="headD" class="report-header"></div>
+            <div id="contentD" class="report-content"></div>
+            <button class="btn btn-copy-mini" onclick="copyIndividual('contentD', 'headD', '[ชุดเด่น]')">📋 คัดลอกผลตรวจ [ชุดเด่น]</button>
+        </div>
+
+        <!-- รายงานชุดรอง -->
+        <div class="report-section" style="border-left-color: #a855f7;">
+            <div id="headR" class="report-header"></div>
+            <div id="contentR" class="report-content"></div>
+            <button class="btn btn-copy-mini" style="background:#a855f7" onclick="copyIndividual('contentR', 'headR', '[ชุดรอง]')">📋 คัดลอกผลตรวจ [ชุดรอง]</button>
+        </div>
+
+        <!-- รายงานชุดสถิติจริง -->
+        <div class="report-section" style="border-left-color: var(--secondary);">
+            <div id="headS" class="report-header"></div>
+            <div id="contentS" class="report-content"></div>
+            <button class="btn btn-copy-mini" style="background:var(--secondary)" onclick="copyIndividual('contentS', 'headS', '[ชุดสถิติจริง]')">📋 คัดลอกผลตรวจ [ชุดสถิติ]</button>
+        </div>
+    </div>
+
+    <!-- ส่วนแสดงการวิเคราะห์ -->
+    <div id="resultArea" class="result-area">
+        <div class="filter-section">
+            <label style="font-size: 13px;">📂 แยกกลุ่มอัตโนมัติ:</label>
+            <select id="groupFilter" onchange="renderView()"></select>
+        </div>
+
+        <div class="stat-card">
+            <div style="font-weight:600; color:var(--secondary); margin-bottom:5px;">📈 สถิติจริง TOP 8 (นับรวมสลับ/แสดงชุดเดียว):</div>
+            <div id="realStatsDisplay"></div>
+        </div>
+        
+        <div class="summary-box">
+            <div id="shareContent" class="share-text"></div>
+            <button class="btn" style="background: var(--success); margin-top:15px;" onclick="copySimple('shareContent')">📋 คัดลอกผลวิเคราะห์แชร์ลงกลุ่ม</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let db = []; // ฐานข้อมูลแยกกลุ่ม
+    let saved = { D2:[], D3:[], R2:[], R3:[], S2:[], S3:[], D_Lbl:"", R_Lbl:"", S_Lbl:"" };
+    const sortDigits = (s) => s.split('').sort().join('');
+
+    function analyzeData() {
+        const text = document.getElementById('dataAnalyze').value;
+        if(!text.trim()) return alert("กรุณาวางข้อมูลในช่องที่ 1");
+
+        db = [];
+        let groups = new Set();
+        let counts = Array(10).fill(0).map((_, i) => ({ n: i, c: 0 }));
+        let t3Freq = {}, b2Freq = {};
+
+        text.split('\n').forEach(line => {
+            const m = line.match(/(\d{3})-(\d{2})\s+(.+)/);
+            if(m) {
+                const top = m[1], bottom = m[2], fullName = m[3].trim();
+                
+                // --- 1. คำสั่งแยกกลุ่มชื่อหวย (คงเดิม) ---
+                let g = "หุ้น/หวยปกติ";
+                if(fullName.includes("ลาว")) g = "กลุ่ม ลาว";
+                else if(fullName.includes("ฮานอย") || fullName.includes("เวียดนาม")) g = "กลุ่ม ฮานอย";
+                else if(fullName.includes("VISA")) g = "กลุ่ม VISA";
+                else if(fullName.includes("VIP")) g = "กลุ่ม VIP";
+                else if(fullName.includes("พิเศษ")) g = "กลุ่ม พิเศษ";
+
+                db.push({ top, bottom, fullName, g });
+                groups.add(g);
+
+                // นับสถิติเลขเดี่ยว 0-9
+                (top + bottom).split('').forEach(d => { if(!isNaN(d)) counts[d].c++; });
+                
+                // นับสถิติชุดรวมเลขสลับ
+                t3Freq[sortDigits(top)] = (t3Freq[sortDigits(top)] || 0) + 1;
+                b2Freq[sortDigits(bottom)] = (b2Freq[sortDigits(bottom)] || 0) + 1;
+            }
+        });
+
+        // อัปเดต Dropdown กลุ่ม
+        const sel = document.getElementById('groupFilter');
+        sel.innerHTML = '<option value="all">-- รวมทุกกลุ่ม --</option>';
+        Array.from(groups).sort().forEach(g => sel.innerHTML += `<option value="${g}">${g}</option>`);
+
+        // --- 2. สถิติจริง TOP 8 (นับรวมสลับโชว์ชุดเดียว) ---
+        let r2 = Object.entries(b2Freq).filter(x => x[1] > 1).sort((a,b)=>b[1]-a[1]).slice(0, 8);
+        let r3 = Object.entries(t3Freq).filter(x => x[1] > 1).sort((a,b)=>b[1]-a[1]).slice(0, 8);
+        saved.S2 = r2.map(x => x[0]);
+        saved.S3 = r3.map(x => x[0]);
+
+        document.getElementById('realStatsDisplay').innerHTML = 
+            `<b>2 ตัว:</b> ${saved.S2.map(x=>`<span class="highlight-num">${x}</span>`).join(' ') || '-'} <br> ` +
+            `<b>3 ตัว:</b> ${saved.S3.map(x=>`<span class="highlight-num">${x}</span>`).join(' ') || '-'}`;
+
+        document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('checkerDisplay').style.display = 'none';
+        renderView();
+    }
+
+    function renderView() {
+        const filter = document.getElementById('groupFilter').value;
+        const data = filter === 'all' ? db : db.filter(d => d.g === filter);
+        
+        let counts = Array(10).fill(0).map((_, i) => ({ n: i, c: 0 }));
+        data.forEach(d => {
+            (d.top + d.bottom).split('').forEach(digit => { if(!isNaN(digit)) counts[digit].c++; });
+        });
+
+        const T = counts.sort((a,b) => b.c - a.c).map(x => x.n);
+        const D5 = T.slice(0, 5), R5 = T.slice(5, 10);
+        
+        // --- 3. วินเลขครบชุดเด่น/รอง ---
+        const win2 = (arr) => {
+            let res = [];
+            for(let i=0; i<arr.length; i++) for(let j=i+1; j<arr.length; j++) res.push(arr[i].toString()+arr[j].toString());
+            return res;
+        };
+        const win3 = (arr) => {
+            let res = [];
+            for(let i=0; i<arr.length; i++) for(let j=i+1; j<arr.length; j++) for(let k=j+1; k<arr.length; k++) 
+            res.push(arr[i].toString()+arr[j].toString()+arr[k].toString());
+            return res;
+        };
+
+        saved.D2 = win2(D5); saved.D3 = win3(D5);
+        saved.R2 = win2(R5); saved.R3 = win3(R5);
+
+        saved.D_Lbl = `วินเด่น5ตัว: ${D5.join('')} | เจาะ: ${saved.D2.join(' ')}`;
+        saved.R_Lbl = `วินรอง5ตัว: ${R5.join('')} | เจาะ: ${saved.R2.join(' ')}`;
+        saved.S_Lbl = `สถิติซ้ำ: 2ตัว(${saved.S2.join(' ')}) 3ตัว(${saved.S3.join(' ')})`;
+
+        let s = `📊 ผลวิเคราะห์เลขเจาะ 2026\n━━━━━━━━━━━━━━━━━\n`;
+        s += `🔴 [ชุดเด่น]: ${D5.join('')}\n👉 2ตัว: ${saved.D2.join(' ')}\n👉 3ตัว: ${saved.D3.join(' | ')}\n`;
+        s += `━━━━━━━━━━━━━━━━━\n💡 [ชุดรอง]: ${R5.join('')}\n👉 2ตัว: ${saved.R2.join(' ')}\n👉 3ตัว: ${saved.R3.join(' | ')}\n`;
+        s += `━━━━━━━━━━━━━━━━━\n📈 สถิติซ้ำ TOP 8: ${[...saved.S2, ...saved.S3].join(' ') || '-'}\n━━━━━━━━━━━━━━━━━\nAI Master 2026 🚀`;
+        
+        document.getElementById('shareContent').innerText = s;
+    }
+
+    function checkWinResults() {
+        const text = document.getElementById('dataCheck').value;
+        if(!saved.D2.length) return alert("กรุณาวินเลขก่อนครับ");
+        if(!text.trim()) return alert("กรุณาวางผลในช่องที่ 2");
+
+        document.getElementById('headD').innerText = "📌 ชุดเลขวินเด่นที่ตรวจ: " + saved.D_Lbl;
+        document.getElementById('headR').innerText = "📌 ชุดเลขวินรองที่ตรวจ: " + saved.R_Lbl;
+        document.getElementById('headS').innerText = "📌 ชุดเลขสถิติที่ตรวจ: " + saved.S_Lbl;
+
+        let resD = "", resR = "", resS = "";
+
+        text.split('\n').forEach(line => {
+            const m = line.match(/(\d{3})-(\d{2})\s+(.+)/);
+            if(m) {
+                const draw3 = m[1], draw2 = m[2], name = m[3].trim();
+                const check = (set2, set3) => {
+                    let hits = [];
+                    set2.forEach(n => {
+                        if(sortDigits(n) === sortDigits(draw2)) hits.push(`2ล่าง(${n})`);
+                        if(sortDigits(n) === sortDigits(draw3.substring(1))) hits.push(`2บน(${n})`);
+                    });
+                    if(set3) set3.forEach(n => { if(sortDigits(n) === sortDigits(draw3)) hits.push(`3ตัว(${n})`); });
+                    return hits;
+                };
+
+                let hD = check(saved.D2, saved.D3), hR = check(saved.R2, saved.R3), hS = check(saved.S2, saved.S3);
+                
+                if(hD.length) resD += `📍 ${name}: ${draw3}-${draw2} 👉 ${hD.join(', ')}\n`;
+                if(hR.length) resR += `📍 ${name}: ${draw3}-${draw2} 👉 ${hR.join(', ')}\n`;
+                if(hS.length) resS += `📍 ${name}: ${draw3}-${draw2} 👉 ${hS.join(', ')}\n`;
+            }
+        });
+
+        document.getElementById('contentD').innerText = resD || "❌ ไม่พบเลขเข้าในชุดเด่น";
+        document.getElementById('contentR').innerText = resR || "❌ ไม่พบเลขเข้าในชุดรอง";
+        document.getElementById('contentS').innerText = resS || "❌ ไม่พบเลขเข้าในชุดสถิติ";
+        document.getElementById('checkerDisplay').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันคัดลอกรายงานแยกหัวข้อ (โชว์ชุดเลขไว้ด้านบน)
+    function copyIndividual(contentId, headId, typeLabel) {
+        const head = document.getElementById(headId).innerText;
+        const body = document.getElementById(contentId).innerText;
+        const fullText = `✅ รายงานผลตรวจ ${typeLabel} 2026\n${head}\n━━━━━━━━━━━━━━━━━\n${body}\n━━━━━━━━━━━━━━━━━\nAI ตรวจผลอัตโนมัติ 🚀`;
+        
+        const el = document.createElement('textarea');
+        el.value = fullText; document.body.appendChild(el);
+        if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+            const range = document.createRange(); range.selectNodeContents(el);
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+            el.setSelectionRange(0, 999999);
+        } else { el.select(); }
+        document.execCommand('copy'); document.body.removeChild(el);
+        alert(`คัดลอกรายงาน ${typeLabel} สำเร็จ!`);
+    }
+
+    function copySimple(id) {
+        const text = document.getElementById(id).innerText;
+        const el = document.createElement('textarea');
+        el.value = text; document.body.appendChild(el);
+        el.select(); document.execCommand('copy'); document.body.removeChild(el);
+        alert("คัดลอกสำเร็จ!");
+    }
+</script>
+</body>
+</html>

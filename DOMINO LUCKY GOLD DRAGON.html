@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DOMINO LUCKY DRAGON - MOBILE PRO</title>
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <style>
+        :root { --red: #d00000; --gold: #ffb703; --dark-red: #6a040f; }
+        /* ป้องกันการคลุมดำข้อความ */
+        * { box-sizing: border-box; font-family: 'Tahoma', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; margin: 0; overflow-x: hidden; touch-action: manipulation; }
+        .neon-bg { position: fixed; inset: 0; background: radial-gradient(circle, var(--dark-red) 0%, #000 100%); z-index: -1; }
+        
+        .app-card { background: #fff; border: 6px double var(--red); border-radius: 30px; max-width: 450px; margin: 10px auto; padding: 20px; text-align: center; box-shadow: 0 0 30px rgba(208,0,0,0.5); position: relative; width: 95%; }
+        h1 { color: var(--red); text-shadow: 1px 1px 0px var(--gold); margin: 0; font-size: 24px; }
+        
+        .incense-box { background: #fdf0d5; border-radius: 20px; padding: 12px; margin: 10px 0; border: 2px dashed var(--red); }
+        .incense-num { font-size: 32px; font-weight: bold; color: var(--red); letter-spacing: 8px; display: block; min-height: 40px; }
+        
+        input, select { width: 100%; padding: 15px; margin: 8px 0; border: 2px solid var(--gold); border-radius: 15px; font-size: 16px; text-align: center; font-weight: bold; background: #fffcf2; color: var(--red); outline: none; appearance: none; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        button { padding: 16px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; color: #fff; font-size: 15px; active: transform: scale(0.95); transition: 0.1s; }
+        .btn-main { background: linear-gradient(to bottom, #ff4d4d, var(--red)); grid-column: span 2; font-size: 18px; box-shadow: 0 4px 0 #800000; }
+        .btn-incense { background: #370617; color: var(--gold); width: 100%; font-size: 16px; margin-bottom: 5px; }
+        .btn-copy { background: #38b000; } .btn-print { background: #0077b6; }
+        .btn-img { background: #ff8500; grid-column: span 2; }
+        .btn-clear { background: #6c757d; font-size: 12px; }
+
+        #result { margin-top: 20px; border-top: 3px dashed var(--red); padding-top: 15px; display: none; }
+        .num-circle { width: 42px; height: 42px; background: linear-gradient(135deg, var(--gold), #ffea00); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; margin: 3px; color: var(--red); border: 2px solid var(--red); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .tag { display: inline-block; background: var(--red); color: var(--gold); padding: 5px 12px; border-radius: 10px; margin: 3px; font-weight: bold; font-size: 15px; border: 1px solid var(--gold); }
+        
+        .money-pop { position: fixed; pointer-events: none; z-index: 9999; animation: pop 1s ease-out forwards; font-size: 25px; }
+        @keyframes pop { 0% { transform: translate(-50%,-50%) scale(0.5); opacity: 1; } 100% { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) rotate(var(--r)) scale(1.2); opacity: 0; } }
+        
+        /* ปรับแต่งสำหรับ Print */
+        @media print { .neon-bg, button, input, select { display: none !important; } .app-card { border: none; box-shadow: none; margin: 0; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div class="neon-bg"></div>
+
+<div class="app-card" id="captureTarget">
+    <h1>🧧 เจ้าพ่อมังกรทอง 🧧</h1>
+    <div style="font-size:10px; font-weight:bold; color:var(--dark-red); letter-spacing:1px;">DOMINO LUCKY DRAGON</div>
+    
+    <input type="text" id="nameIn" placeholder="ระบุชื่อหวย (เช่น ลาวพัฒน์)" autocomplete="off">
+    <input type="number" id="numIn" placeholder="เลขมงคล 5 หลัก" inputmode="numeric" pattern="[0-9]*">
+    
+    <div class="incense-box">
+        <span class="incense-num" id="incenseDisplay">???</span>
+        <button class="btn-incense" onclick="burn(event)">🏮 จุดธูปรับเลข 🏮</button>
+    </div>
+
+    <select id="baseIn">
+        <option value="gov">สูตรหวยรัฐบาล (มหาจักร)</option>
+        <option value="lao">สูตรลาวพัฒนา (คู่อันดับ)</option>
+        <option value="hanoi">สูตรฮานอย (เลขไหล VIP)</option>
+        <option value="stock">สูตรหุ้นต่างประเทศ (ดัชนี)</option>
+        <option value="yiki">สูตรยี่กี (วินมหาเฮง)</option>
+    </select>
+
+    <div class="grid">
+        <button class="btn-main" onclick="calc(event)">🏮 วิเคราะห์เลขมังกร 🏮</button>
+        <button class="btn-copy" onclick="copyResult(event)">📋 คัดลอกเลข</button>
+        <button class="btn-print" onclick="window.print()">🖨️ พิมพ์ใบเลข</button>
+        <button class="btn-img" onclick="saveImg(event)">📸 บันทึกภาพลงมือถือ</button>
+        <button class="btn-clear" onclick="location.reload()">🧹 ล้างข้อมูล</button>
+    </div>
+
+    <div id="result">
+        <h2 id="outName" style="color:var(--red); font-size: 20px; margin: 5px 0;"></h2>
+        <div id="outInc" style="font-weight:bold; color:var(--red); font-size:16px;"></div>
+        <hr style="border:1px dashed var(--red);">
+        <div style="color:var(--gold); font-weight:bold; background:var(--red); border-radius:10px; padding:6px; font-size:14px;">👑 4 เลขเด่นมหาเฮง 👑</div>
+        <div id="top4" style="margin: 10px 0;"></div>
+        <div style="font-weight:bold; color:var(--dark-red); font-size:14px;">💎 ชุด 3 ตัว (เน้นรวย) 💎</div>
+        <div id="res3" style="margin-bottom: 10px;"></div>
+        <div style="font-weight:bold; color:var(--dark-red); font-size:14px;">💕 ชุด 2 ตัว (เน้นเฮง) 💕</div>
+        <div id="res2"></div>
+        <div id="resTime" style="font-size:9px; color:#999; margin-top:15px;"></div>
+        <div style="font-size:12px; color:var(--red); font-weight:bold; margin-top:8px;">✨ โดย DOMINO LUCKY DRAGON ✨</div>
+    </div>
+</div>
+
+<script>
+    // 🛡️ ส่วนป้องกันการคัดลอกและตรวจสอบสิทธิ์
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i' || e.key === 'j')) e.preventDefault();
+        if (e.key === 'F12') e.preventDefault();
+    });
+
+    let globalInc = "";
+
+    function moneyPop(e) {
+        const icons = ['🧧','💰','🏮'];
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        for(let i=0; i<15; i++) {
+            const m = document.createElement('div'); m.className='money-pop';
+            m.innerText = icons[Math.floor(Math.random()*icons.length)];
+            m.style.left = (x || window.innerWidth/2) + 'px';
+            m.style.top = (y || window.innerHeight/2) + 'px';
+            m.style.setProperty('--x', (Math.random()*300-150)+'px');
+            m.style.setProperty('--y', (Math.random()*300-150)+'px');
+            m.style.setProperty('--r', (Math.random()*360)+'deg');
+            document.body.appendChild(m); setTimeout(()=>m.remove(),1000);
+        }
+    }
+
+    function burn(e) {
+        moneyPop(e);
+        document.getElementById('incenseDisplay').innerText = "⏳";
+        globalInc = Math.floor(Math.random()*1000).toString().padStart(3,'0');
+        setTimeout(() => { document.getElementById('incenseDisplay').innerText = globalInc.split('').join(' '); }, 800);
+    }
+
+    function calc(e) {
+        const raw = document.getElementById('numIn').value;
+        const mode = document.getElementById('baseIn').value;
+        if(raw.length < 5) { alert('กรุณากรอกเลข 5 หลักมงคล'); return; }
+        moneyPop(e);
+        
+        let n = parseFloat(raw);
+        let pool = "";
+        // สูตรตามที่สรุปไว้
+        if(mode === 'gov') pool = (n * 1.07).toFixed(2) + (n + 789);
+        else if(mode === 'lao') pool = (n * 1.35).toFixed(2) + (n * 0.88).toFixed(2);
+        else if(mode === 'hanoi') pool = (n * 0.55).toFixed(2) + (n * 0.99).toFixed(2);
+        else if(mode === 'stock') pool = (n / 1.618).toFixed(2) + (n * 0.33).toFixed(2);
+        else if(mode === 'yiki') pool = (n % 88).toString() + (n * 0.12).toFixed(2);
+        
+        let digits = pool.replace(/\./g,"").split("");
+        let freq = {}; digits.forEach(d => freq[d] = (freq[d]||0)+1);
+        let top = Object.entries(freq).sort((a,b)=>b-a).slice(0,4).map(x => x[0]);
+
+        let s2 = new Set(), s3 = new Set();
+        const getS = (v) => v.split('').sort().join('');
+        for(let i=0; i<digits.length-1; i++){
+            let n2 = digits[i]+digits[i+1];
+            if(n2.length==2 && ![...s2].some(x => getS(x)==getS(n2))) s2.add(n2);
+            if(i<digits.length-2){
+                let n3 = digits[i]+digits[i+1]+digits[i+2];
+                if(n3.length==3 && ![...s3].some(x => getS(x)==getS(n3))) s3.add(n3);
+            }
+        }
+
+        document.getElementById('outName').innerText = "🧧 " + (document.getElementById('nameIn').value || "หวยมหาเฮง") + " 🧧";
+        document.getElementById('outInc').innerText = globalInc ? "🏮 เลขธูปมังกรทอง: " + globalInc : "";
+        document.getElementById('top4').innerHTML = top.map(x => `<div class="num-circle">${x}</div>`).join("");
+        document.getElementById('res3').innerHTML = Array.from(s3).slice(0,8).map(x => `<span class="tag">${x}</span>`).join("");
+        document.getElementById('res2').innerHTML = Array.from(s2).slice(0,12).map(x => `<span class="tag">${x}</span>`).join("");
+        document.getElementById('resTime').innerText = "คำนวณเมื่อ: " + new Date().toLocaleString('th-TH');
+        document.getElementById('result').style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    async function saveImg(e) {
+        moneyPop(e);
+        const card = document.getElementById('captureTarget');
+        const canvas = await html2canvas(card, { backgroundColor: "#000", scale: 2 });
+        const link = document.createElement('a');
+        link.download = 'LuckyDragon_' + Date.now() + '.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+function copyResult(e) {
+    moneyPop(e);
+    
+    // ดึงข้อมูลจากหน้าจอ
+    const name = document.getElementById('outName').innerText;
+    const incense = globalInc ? `🏮 เลขธูปมังกรทอง: ${globalInc}\n` : "";
+    const top4 = Array.from(document.querySelectorAll('#top4 .num-circle')).map(el => el.innerText).join(", ");
+    const s3 = Array.from(document.querySelectorAll('#res3 .tag')).map(x => x.innerText).join(", ");
+    const s2 = Array.from(document.querySelectorAll('#res2 .tag')).map(x => x.innerText).join(", ");
+    const time = document.getElementById('resTime').innerText; // ดึง "คำนวณเมื่อ: วัน/เดือน/ปี เวลา"
+
+    // จัดรูปแบบข้อความใหม่
+    const text = `🧧 ผลเลขมงคลเจ้าพ่อมังกรทอง 🧧\n` +
+                 `👤 ${name}\n` +
+                 `--------------------------\n` +
+                 `${incense}` +
+                 `🔥 เลขเด่นมหาเฮง: ${top4}\n` +
+                 `💎 ชุด 3 ตัว (เน้นรวย): ${s3}\n` +
+                 `💕 ชุด 2 ตัว (เน้นเฮง): ${s2}\n` +
+                 `--------------------------\n` +
+                 `🕒 ${time}\n` + // เพิ่มบรรทัดวันเวลา
+                 `💰 โดย DOMINO LUCKY DRAGON`;
+
+    // ระบบคัดลอก (Copy to Clipboard)
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    el.setSelectionRange(0, 99999); // สำหรับมือถือ
+    
+    try {
+        document.execCommand('copy');
+        alert('✅ คัดลอกชุดเลข + เลขธูป + วันเวลา เรียบร้อยแล้ว!');
+    } catch (err) {
+        alert('❌ ไม่สามารถคัดลอกได้ กรุณาลองใหม่อีกครั้ง');
+    }
+    document.body.removeChild(el);
+}
+
+</script>
+</body>
+</html>

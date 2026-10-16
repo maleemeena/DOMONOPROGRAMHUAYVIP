@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบวิเคราะห์และเก็บสถิติชุดเลขมืออาชีพ</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #111827;
+            --accent-color: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background-color: var(--accent-color); color: var(--bg-primary); }
+        .btn-primary:hover { background-color: var(--accent-hover); }
+        .btn-success { background-color: var(--success); color: #fff; }
+        .btn-danger { background-color: var(--danger); color: #fff; }
+
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        .accordion-header {
+            background-color: var(--bg-secondary);
+            padding: 12px 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .accordion-header::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.3s;
+            color: var(--accent-color);
+        }
+
+        .accordion-item.active .accordion-header::after {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            padding: 15px;
+            display: none;
+        }
+
+        .accordion-item.active .accordion-content {
+            display: block;
+        }
+
+        /* ตารางผังเลข Grid */
+        .num-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-width: 100%;
+        }
+
+        /* บังคับตารางเลข 2 ตัวตรงให้เรียง 10 คอลัมน์ (00-99) */
+        .grid-2dig {
+            grid-template-columns: repeat(10, 1fr) !important;
+        }
+
+        @media (max-width: 500px) {
+            .grid-2dig {
+                grid-template-columns: repeat(5, 1fr) !important;
+            }
+        }
+
+        .num-cell {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .num-cell.hit {
+            background-color: #22c55e;
+            color: #fff;
+            border-color: #4ade80;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 9px;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .analysis-box {
+            background-color: rgba(56, 189, 248, 0.05);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .summary-text {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ระบบสถิติและวิเคราะห์ชุดเลขแบบตารางกริด</h1>
+    </header>
+
+    <div class="grid-layout">
+        <!-- ฝั่งกรอกข้อมูล -->
+        <div class="card">
+            <div class="form-group">
+                <label>ชื่อแอดมิน</label>
+                <input type="text" id="adminName" placeholder="ระบุชื่อแอดมิน...">
+            </div>
+            <div class="form-group">
+                <label>ชื่อหวย/รอบ (ดึงอัตโนมัติหากมีบรรทัดแรก)</label>
+                <input type="text" id="lotteryName" placeholder="เช่น ยี่กี DNAfour264">
+            </div>
+            <div class="form-group">
+                <label>วางข้อความสถิติหวย</label>
+                <textarea id="rawStats" placeholder="วางสถิติที่นี่ เช่น&#10;🩷 ยี่กี DNAfour264 🩷&#10;69: 11:40 ➡️ 6381 - 58&#10;70: 11:45 ➡️ 5813 - 31"></textarea>
+            </div>
+            <div class="btn-group">
+                <button class="btn-primary" onclick="processData()">วิเคราะห์ข้อมูล</button>
+                <button class="btn-danger" onclick="clearData()">ล้างข้อมูล</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn-success" onclick="copyResult()">คัดลอกรายงานสรุป</button>
+            </div>
+        </div>
+
+        <!-- ฝั่งแสดงผังและวิเคราะห์ -->
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <h3>บทวิเคราะห์ช่วงเลขแนะนำ</h3>
+                <div class="analysis-box">
+                    <div id="analysisSummary" class="summary-text">กรุณากรอกข้อมูลสถิติและกดปุ่มวิเคราะห์ข้อมูล</div>
+                </div>
+            </div>
+
+            <!-- ผังตารางกริดพับเก็บได้ ครบทุกประเภทเลขตามเงื่อนไข -->
+            <div id="accordionGroup">
+                
+                <!-- 4 ตัวตรง -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">ผังเลข 4 ตัวตรง</div>
+                    <div class="accordion-content">
+                        <div id="grid4Digits" class="num-grid">--- ไม่มีข้อมูลเลขเข้า ---</div>
+                    </div>
+                </div>
+
+                <!-- 3 ตัวหน้า -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">ผังเลข 3 ตัวหน้า (หัว 4 ตัว)</div>
+                    <div class="accordion-content">
+                        <div id="grid3Front" class="num-grid">--- ไม่มีข้อมูลเลขเข้า ---</div>
+                    </div>
+                </div>
+
+                <!-- 3 ตัวตรง -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">ผังเลข 3 ตัวตรง (ท้าย 4 ตัว)</div>
+                    <div class="accordion-content">
+                        <div id="grid3Digits" class="num-grid">--- ไม่มีข้อมูลเลขเข้า ---</div>
+                    </div>
+                </div>
+
+                <!-- 2 ตัวบนหน้า -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">ผังเลข 2 ตัวบนหน้า (หัว 4 ตัว)</div>
+                    <div class="accordion-content">
+                        <div id="grid2TopFront" class="num-grid">--- ไม่มีข้อมูลเลขเข้า ---</div>
+                    </div>
+                </div>
+
+                <!-- 2 ตัวบนตรง -->
+                <div class="accordion-item active">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">ผังเลข 2 ตัวบนตรง (00-99)</div>
+                    <div class="accordion-content">
+                        <div id="grid2TopDirect" class="num-grid grid-2dig"></div>
+                    </div>
+                </div>
+
+                <!-- 2 ตัวล่างตรง -->
+                <div class="accordion-item active">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">ผังเลข 2 ตัวล่างตรง (00-99)</div>
+                    <div class="accordion-content">
+                        <div id="grid2BottomDirect" class="num-grid grid-2dig"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // ฟังก์ชันเริ่มต้น: สร้างตารางเลข 2 ตัวบนตรง และ 2 ตัวล่างตรง (00-99) ให้ครบถ้วน
+    function init2DigitGrids() {
+        const topGrid = document.getElementById('grid2TopDirect');
+        const bottomGrid = document.getElementById('grid2BottomDirect');
+        
+        if (topGrid) topGrid.innerHTML = '';
+        if (bottomGrid) bottomGrid.innerHTML = '';
+        
+        for (let i = 0; i < 100; i++) {
+            const numStr = i.toString().padStart(2, '0');
+            if (topGrid) {
+                topGrid.innerHTML += `<div class="num-cell" id="top-${numStr}">${numStr}</div>`;
+            }
+            if (bottomGrid) {
+                bottomGrid.innerHTML += `<div class="num-cell" id="bottom-${numStr}">${numStr}</div>`;
+            }
+        }
+    }
+    
+    // เรียกทำงานทันทีเมื่อโหลดหน้าเว็บครั้งแรก
+    init2DigitGrids();
+
+    // ฟังก์ชันเปิด-ปิด กล่องผังเลขพับเก็บได้ (Accordion)
+    function toggleAccordion(header) {
+        header.parentElement.classList.toggle('active');
+    }
+
+    // ฟังก์ชันล้างข้อมูลทั้งหมดบนหน้าจอ
+    function clearData() {
+        document.getElementById('rawStats').value = '';
+        document.getElementById('lotteryName').value = '';
+        document.getElementById('analysisSummary').innerHTML = 'กรุณากรอกข้อมูลสถิติและกดปุ่มวิเคราะห์ข้อมูล';
+        init2DigitGrids(); // ล้างและสร้างตาราง 00-99 ใหม่ทั้งบนและล่าง
+        document.getElementById('grid4Digits').innerHTML = '--- ไม่มีข้อมูลเลขเข้า ---';
+        document.getElementById('grid3Front').innerHTML = '--- ไม่มีข้อมูลเลขเข้า ---';
+        document.getElementById('grid3Digits').innerHTML = '--- ไม่มีข้อมูลเลขเข้า ---';
+        document.getElementById('grid2TopFront').innerHTML = '--- ไม่มีข้อมูลเลขเข้า ---';
+    }
+
+    // ฟังก์ชันหลักในการแยกแยะตัวเลขและวิเคราะห์สถิติครบทุกมิติ
+    function processData() {
+        const rawText = document.getElementById('rawStats').value;
+        if (!rawText.trim()) {
+            alert('กรุณากรอกข้อมูลสถิติก่อนทำการวิเคราะห์');
+            return;
+        }
+
+        // รีเซ็ตสร้างตารางเปล่า 00-99 ทั้งบนและล่างเพื่อเคลียร์สีไฮไลต์เดิม
+        init2DigitGrids();
+        
+        const lines = rawText.split('\n');
+        
+        // ค้นหาและดึงชื่อหวยอัตโนมัติจากบรรทัดที่มีอิโมจิหัวใจ 🩷
+        for (let line of lines) {
+            if (line.includes('🩷')) {
+                const cleanName = line.replace(/🩷/g, '').trim();
+                document.getElementById('lotteryName').value = cleanName;
+                break;
+            }
+        }
+
+        // โครงสร้างฐานข้อมูลสำหรับเก็บสถิติ
+        let stats = {
+            four: {},          
+            threeFront: {},    
+            threeDirect: {},   
+            twoTopFront: {},   
+            twoTopDirect: {},  
+            twoBottomDirect: {}
+        };
+
+        // สำหรับนับความถี่ตัวเลขเดี่ยว (0-9) ทุกตำแหน่งเพื่อจัดอันดับ 6 อันดับแรก
+        let digitFrequency = Array(10).fill(0);
+        let totalRounds = 0;
+        
+        // จับกลุ่มสถิติรูปแบบ เลข4ตัว - เลข2ตัว (รองรับลูกศรและเว้นวรรค)
+        const regex = /(\d{4})\s*[-➡️]\s*(\d{2})|(\d{4})\s*-\s*(\d{2})/;
+
+        lines.forEach(line => {
+            // ดัดแปลงให้รองรับทั้งเครื่องหมาย - และ ➡️
+            const cleanLine = line.replace('➡️', '-');
+            const match = cleanLine.match(/(\d{4})\s*-\s*(\d{2})/);
+            
+            if (match) {
+                totalRounds++;
+                const top4 = match[1];      // เลข 4 ตัวตรง (เช่น 6381)
+                const bottom2 = match[2];   // เลข 2 ตัวล่าง (เช่น 58)
+
+                // ตัดแบ่งชุดเลขตามเงื่อนไขระบุเป๊ะๆ
+                const four = top4;
+                const threeFront = top4.substring(0, 3);
+                const threeDirect = top4.substring(1, 4);
+                const twoTopFront = top4.substring(0, 2);
+                const twoTopDirect = top4.substring(2, 4);
+                const twoBottomDirect = bottom2;
+
+                // สะสมคะแนนสถิติชุดเลข
+                stats.four[four] = (stats.four[four] || 0) + 1;
+                stats.threeFront[threeFront] = (stats.threeFront[threeFront] || 0) + 1;
+                stats.threeDirect[threeDirect] = (stats.threeDirect[threeDirect] || 0) + 1;
+                stats.twoTopFront[twoTopFront] = (stats.twoTopFront[twoTopFront] || 0) + 1;
+                stats.twoTopDirect[twoTopDirect] = (stats.twoTopDirect[twoTopDirect] || 0) + 1;
+                stats.twoBottomDirect[twoBottomDirect] = (stats.twoBottomDirect[twoBottomDirect] || 0) + 1;
+
+                // นับความถี่เลขเดี่ยวทั้งหมดที่ออกในรอบนั้นๆ
+                const allDigits = top4 + bottom2;
+                for (let char of allDigits) {
+                    digitFrequency[parseInt(char)]++;
+                }
+            }
+        });
+
+        if (totalRounds === 0) {
+            alert('ไม่พบรูปแบบสถิติหวยที่ระบบรองรับ (ตัวอย่างรูปแบบที่ถูกต้อง: 1234 - 56 หรือ 1234 ➡️ 56)');
+            return;
+        }
+
+        // ไฮไลต์ลงตารางเลข 2 ตัวบนตรง และ 2 ตัวล่างตรง (00-99)
+        highlightGrid('top', stats.twoTopDirect);
+        highlightGrid('bottom', stats.twoBottomDirect);
+
+        // สร้างช่องผังข้อมูลอัตโนมัติลงกล่องพับแต่ละประเภท
+        renderDynamicGrid('grid4Digits', stats.four);
+        renderDynamicGrid('grid3Front', stats.threeFront);
+        renderDynamicGrid('grid3Digits', stats.threeDirect);
+        renderDynamicGrid('grid2TopFront', stats.twoTopFront);
+
+        // วิเคราะห์หากลุ่มเลขและช่วงสถิติเด่นรายประเภท
+        const analysis4 = analyzeTopItems(stats.four);
+        const analysis3F = analyzeTopItems(stats.threeFront);
+        const analysis3D = analyzeTopItems(stats.threeDirect);
+        const analysis2TF = analyzeTopItems(stats.twoTopFront);
+        const analysis2TD = analyzeTopItems(stats.twoTopDirect);
+        const analysis2BD = analyzeTopItems(stats.twoBottomDirect);
+
+        // คำนวณจัดอันดับความถี่ตัวเลขเดี่ยว (0-9) เอาเฉพาะ 6 อันดับแรก
+        let digitObjects = digitFrequency.map((count, num) => ({ num, count }));
+        digitObjects.sort((a, b) => b.count - a.count);
+        let top6Digits = digitObjects.slice(0, 6).map(item => `<b>${item.num}</b> (${item.count} ครั้ง)`).join(', ');
+
+        // ดึงค่าผู้ใช้งาน แอดมิน และ ชื่อหวย
+        const admin = document.getElementById('adminName').value || 'แอดมิน';
+        const lottoName = document.getElementById('lotteryName').value || 'หวยยี่กี';
+
+        // ประกอบร่างรายงานสรุปผลวิเคราะห์
+        let reportHtml = `📊 <b>รายงานวิเคราะห์สถิติเจาะลึก (${totalRounds} รอบ)</b><br>`;
+        reportHtml += `🏆 <b>ผู้สรุป:</b> ${admin} | <b>หวย:</b> ${lottoName}<br>`;
+        reportHtml += `🔥 <b>ความถี่ตัวเลขเดี่ยวเด่น 6 อันดับแรก:</b> ${top6Digits}<br><br>`;
+        
+        reportHtml += `🎯 <b>สรุปช่วงกลุ่มเลขที่ออกบ่อยที่สุดในแต่ละประเภท:</b><br>`;
+        reportHtml += `• <b>4ตัวตรง:</b> ${analysis4}<br>`;
+        reportHtml += `• <b>3ตัวหน้า:</b> ${analysis3F}<br>`;
+        reportHtml += `• <b>3ตัวตรง:</b> ${analysis3D}<br>`;
+        reportHtml += `• <b>2ตัวบนหน้า:</b> ${analysis2TF}<br>`;
+        reportHtml += `• <b>2ตัวบนตรง:</b> ${analysis2TD}<br>`;
+        reportHtml += `• <b>2ตัวล่างตรง:</b> ${analysis2BD}<br><br>`;
+        reportHtml += `💡 <i>ข้อแนะนำ: เลือกนำชุดเลขเด่นในกลุ่มช่วงสถิติข้างต้นร่วมกับเลขเด่น 6 อันดับแรกไปพิจารณาวางแผนลงทุนในรอบถัดไป</i>`;
+
+        document.getElementById('analysisSummary').innerHTML = reportHtml;
+    }
+
+    // ฟังก์ชันสำหรับใส่สีเขียวไฮไลต์และติดตัวนับสถิติในตาราง 100 ช่อง
+    function highlightGrid(prefix, dataObj) {
+        Object.keys(dataObj).forEach(num => {
+            const cell = document.getElementById(`${prefix}-${num}`);
+            if (cell) {
+                cell.classList.add('hit');
+                const count = dataObj[num];
+                if (count > 1) {
+                    // ป้องกันการซ้อนของ Badge เดิม
+                    const existingBadge = cell.querySelector('.badge-count');
+                    if (existingBadge) existingBadge.remove();
+                    cell.innerHTML += `<span class="badge-count">${count}</span>`;
+                }
+            }
+        });
+    }
+
+    // ฟังก์ชันสร้างกล่องเลขสีเขียวไหลอัตโนมัติ ลงผังเลขแบบสุ่มตรวจพบ
+    function renderDynamicGrid(elementId, dataObj) {
+        const grid = document.getElementById(elementId);
+        if (!grid) return;
+        grid.innerHTML = '';
+        const keys = Object.keys(dataObj);
+        if (keys.length === 0) {
+            grid.innerHTML = '--- ไม่มีข้อมูลเลขเข้า ---';
+            return;
+        }
+        keys.forEach(num => {
+            const count = dataObj[num];
+            const badge = count > 1 ? ` (${count}หน)` : '';
+            grid.innerHTML += `<div class="num-cell hit">${num}${badge}</div>`;
+        });
+    }
+
+    // อัลกอริทึมคำนวณหานิยมสูงสุด และหาช่วงเลขหลักสิบเด่นแบบแยกรายประเภท
+    function analyzeTopItems(typeObj) {
+        const keys = Object.keys(typeObj);
+        if (keys.length === 0) return "ยังไม่มีข้อมูล";
+        
+        keys.sort((a, b) => typeObj[b] - typeObj[a]);
+        const topItem = keys[0];
+        const topCount = typeObj[topItem];
+        
+        if (topItem.length >= 3) {
+            const currentPrefix = topItem.substring(0, 2);
+            return `ชุดนิยมสุดคือ <b>${topItem}</b> (${topCount} ครั้ง) เน้นกลุ่มหน้าแนว <b>${currentPrefix}X</b>`;
+        } else {
+            let tensCount = Array(10).fill(0);
+            keys.forEach(num => { tensCount[Math.floor(parseInt(num) / 10)] += typeObj[num]; });
+            let maxTens = 0, maxTensCount = -1;
+            for(let i=0; i<10; i++) {
+                if(tensCount[i] > maxTensCount) { maxTensCount = tensCount[i]; maxTens = i; }
+            }
+            return `ช่วงหลักเด่นคือ <b>${maxTens}0 ถึง ${maxTens}9</b> (รวมออก ${maxTensCount} ครั้ง) ชุดนิยมสุดคือ <b>${topItem}</b>`;
+        }
+    }
+
+    // ฟังก์ชันคัดลอกเฉพาะข้อความรายงานสรุปวิเคราะห์ทั้งหมดเข้า Clipboard ใน 1 คลิก
+    // ฟังก์ชันคัดลอกเฉพาะข้อความรายงานสรุปวิเคราะห์ทั้งหมดเข้า Clipboard ใน 1 คลิก
+    function copyResult() {
+        const container = document.getElementById('analysisSummary');
+        let text = container.innerHTML
+            .replace(/<br>/g, '\n')
+            .replace(/•/g, '• ')
+            .replace(/<b>/g, '')
+            .replace(/<\/b>/g, '')
+            .replace(/<i>/g, '')
+            .replace(/<\/i>/g, '');
+            
+        if (text.includes('กรุณากรอกข้อมูล')) {
+            alert('โปรดกดปุ่มวิเคราะห์ข้อมูลก่อนทำรายการคัดลอก');
+            return;
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert('คัดลอกรายงานสรุปวิเคราะห์ครบทุกมิติเรียบร้อยแล้ว!');
+        }).catch(err => {
+            alert('ระบบไม่สามารถคัดลอกอัตโนมัติได้: ' + err);
+        });
+    }
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domino Lucky 4-5 Correct</title>
+    <style>
+        @import url('https://fonts.googleapis.com');
+        :root { --p1: #ff85a1; --p2: #ff1493; --bg: #fff5f8; }
+        body { font-family: 'Kanit', sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #4b3f46; }
+        .card { background: white; padding: 20px; border-radius: 25px; box-shadow: 0 8px 20px rgba(255, 20, 147, 0.1); margin-bottom: 20px; border: 1px solid #ffe4ed; }
+        h3 { color: var(--p2); text-align: center; margin: 0 0 15px 0; }
+        
+        .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        input { border: 2px solid #ffe4ed; border-radius: 12px; padding: 12px; font-size: 16px; outline: none; width: 100%; text-align: center; }
+        .root-input { width: 80px; }
+
+        button { background: linear-gradient(to right, var(--p1), var(--p2)); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; }
+        
+        .main-num-box { background: #fff0f5; padding: 15px; border-radius: 20px; text-align: center; border: 2px dashed var(--p1); margin: 15px 0; }
+        .digit-13 { font-size: 1.5rem; font-weight: bold; letter-spacing: 4px; color: #be185d; }
+        
+        .label { font-size: 13px; color: #9d8d96; margin: 15px 0 5px 5px; font-weight: bold; border-left: 3px solid var(--p2); padding-left: 8px; }
+        .flex-wrap { display: flex; flex-wrap: wrap; gap: 8px; padding: 5px 0; }
+        .num-pill { background: white; border: 1px solid #ffd1dc; padding: 8px 14px; border-radius: 12px; font-size: 16px; color: #db2777; font-weight: 600; min-width: 35px; text-align: center; }
+        .repeat { background: var(--p2) !important; color: white !important; border: none; box-shadow: 0 3px 8px rgba(255, 20, 147, 0.3); }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        th { color: var(--p2); padding: 10px; border-bottom: 2px solid #ffe4ed; }
+        td { padding: 10px 5px; border-bottom: 1px solid #fff0f5; text-align: center; }
+        
+        .win-blink { animation: blink 0.6s linear infinite; border: 2px solid var(--p2) !important; }
+        @keyframes blink { 50% { background-color: #ff1493; color: white; } }
+        
+        .badge { background: #ffe4ed; color: #db2777; padding: 2px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: bold; }
+        .btn-share { background: #6366f1; margin-top: 15px; border-radius: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h3>🎰 โดมิโน่พารวย (หลัก 4-5) 🎰</h3>
+    <div class="input-group">
+        <input type="number" id="inputNum" placeholder="เลขตั้งต้น">
+        <input type="number" id="rootVal" class="root-input" value="2">
+    </div>
+    <button onclick="calculate()">✨ คำนวณสูตร ✨</button>
+</div>
+
+<div id="resultArea" class="card" style="display:none;">
+    <div class="main-num-box">
+        <div style="font-size: 12px; color: #9d8d96; margin-bottom: 5px;">เลข 13 หลักหลังทศนิยม</div>
+        <div id="display13" class="digit-13"></div>
+        <div style="display:flex; justify-content:space-around; margin-top:15px; border-top: 1px solid #ffd1dc; padding-top: 10px;">
+            <div>เด่น (หลัก 4): <b id="d4" style="color:var(--p2); font-size:32px;"></b></div>
+            <div>รอง (หลัก 5): <b id="d5" style="color:#8b5cf6; font-size:32px;"></b></div>
+        </div>
+    </div>
+
+    <div class="label">💖 ชุดเลข 2 ตัว (เด่น/รอง + 13 หลัก)</div>
+    <div id="pairList" class="flex-wrap"></div>
+
+    <div class="label">🔄 ชุดเลขเลื่อน (2, 3, 4 ตัว)</div>
+    <div id="slide2" class="flex-wrap"></div>
+    <div id="slide3" class="flex-wrap"></div>
+    <div id="slide4" class="flex-wrap"></div>
+    
+    <button class="btn-share" onclick="copyToShare()">📋 คัดลอกผลเพื่อแชร์</button>
+</div>
+
+<div class="card">
+    <h3>📊 ตารางบันทึกสถิติ</h3>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>เลขต้น</th>
+                    <th>เด่น/รอง</th>
+                    <th>ชุดซ้ำ</th>
+                    <th>เลขออก</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let cur = {};
+
+    function calculate() {
+        const val = document.getElementById('inputNum').value;
+        const r = document.getElementById('rootVal').value || 2;
+        if(!val) return;
+
+        let start = parseFloat(val) / 100;
+        let rootRes = Math.pow(start, 1/r);
+        
+        let s = rootRes.toFixed(20).split('.');
+        let thirteen = s[1].substring(0, 13); // ดึง 13 หลักแรกหลังจุด
+        
+        let d4 = thirteen[3]; // หลักที่ 4 (index เริ่มจาก 0)
+        let d5 = thirteen[4]; // หลักที่ 5
+
+        // จับคู่ เด่น(1ตัว) + 13หลัก และ รอง(1ตัว) + 13หลัก
+        let allPairs = [];
+        for(let char of thirteen) {
+            allPairs.push(d4 + char);
+            allPairs.push(d5 + char);
+        }
+        
+        let counts = {};
+        allPairs.forEach(p => counts[p] = (counts[p] || 0) + 1);
+        let duplicates = [...new Set(allPairs.filter(p => counts[p] > 1))];
+
+        const getSlide = (len) => {
+            let arr = [];
+            for(let i=0; i <= thirteen.length - len; i++) arr.push(thirteen.substring(i, i+len));
+            return arr;
+        };
+
+        cur = { 
+            val, thirteen, d4, d5, allPairs, duplicates, counts,
+            s2: getSlide(2), s3: getSlide(3), s4: getSlide(4),
+            time: new Date().toLocaleString('th-TH')
+        };
+        
+        render();
+        save();
+    }
+
+    function render() {
+        document.getElementById('display13').innerText = cur.thirteen;
+        document.getElementById('d4').innerText = cur.d4;
+        document.getElementById('d5').innerText = cur.d5;
+
+        // แสดงชุด 2 ตัว และไฮไลท์ตัวที่ซ้ำ (สีชมพูเข้ม)
+        document.getElementById('pairList').innerHTML = cur.allPairs.map(p => 
+            `<div class="num-pill ${cur.counts[p] > 1 ? 'repeat' : ''}">${p}</div>`
+        ).join('');
+
+        document.getElementById('slide2').innerHTML = cur.s2.map(n => `<div class="num-pill" style="font-size:12px;">${n}</div>`).join('');
+        document.getElementById('slide3').innerHTML = cur.s3.map(n => `<div class="num-pill" style="font-size:12px;">${n}</div>`).join('');
+        document.getElementById('slide4').innerHTML = cur.s4.map(n => `<div class="num-pill" style="font-size:12px;">${n}</div>`).join('');
+        
+        document.getElementById('resultArea').style.display = 'block';
+    }
+
+    function save() {
+        let db = JSON.parse(localStorage.getItem('domino_final') || "[]");
+        db.push({ ...cur, id: Date.now(), win: "" });
+        localStorage.setItem('domino_final', JSON.stringify(db));
+        loadHistory();
+    }
+
+    function loadHistory() {
+        let db = JSON.parse(localStorage.getItem('domino_final') || "[]");
+        document.getElementById('historyBody').innerHTML = db.reverse().map(item => `
+            <tr id="row-${item.id}">
+                <td>${item.val}</td>
+                <td><b>${item.d4},${item.d5}</b></td>
+                <td>${item.duplicates.map(d => `<span class="badge">${d}</span>`).join('')}</td>
+                <td><input type="number" class="check-input" style="width:60px; text-align:center;" value="${item.win}" oninput="check(${item.id}, this.value, '${item.duplicates.join('|')}')"></td>
+                <td><button onclick="del(${item.id})" style="background:none; border:none; color:#ccc;">✕</button></td>
+            </tr>
+        `).join('');
+    }
+
+    function check(id, val, dups) {
+        let row = document.getElementById('row-'+id);
+        if(val.length < 2) { row.classList.remove('win-blink'); return; }
+        let win = dups.split('|').some(d => val.includes(d) || val.includes(d.split('').reverse().join('')));
+        if(win) row.classList.add('win-blink');
+        else row.classList.remove('win-blink');
+        
+        let db = JSON.parse(localStorage.getItem('domino_final'));
+        let idx = db.findIndex(i => i.id === id);
+        if(idx > -1) { db[idx].win = val; localStorage.setItem('domino_final', JSON.stringify(db)); }
+    }
+
+    function copyToShare() {
+        let text = `✨ สรุปเลขโดมิโน่ ✨\n📅 ${cur.time}\n------------------\n🔢 เลขต้น: ${cur.val}\n🎯 เด่น: ${cur.d4} | รอง: ${cur.d5}\n💖 ชุดซ้ำ: ${cur.duplicates.join(', ')}\n------------------\n🔄 เลื่อน 2 ตัว: ${cur.s2.slice(0,5).join(' ')}\n🔄 เลื่อน 3 ตัว: ${cur.s3.slice(0,4).join(' ')}\n🔄 เลื่อน 4 ตัว: ${cur.s4.slice(0,3).join(' ')}\n------------------\nขอให้เฮงๆ รวยๆ ครับ 💰`;
+        navigator.clipboard.writeText(text);
+        alert("คัดลอกผลสำเร็จ!");
+    }
+
+    function del(id) {
+        let db = JSON.parse(localStorage.getItem('domino_final')).filter(i => i.id !== id);
+        localStorage.setItem('domino_final', JSON.stringify(db));
+        loadHistory();
+    }
+
+    window.onload = loadHistory;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>โปรแกรมคำนวณหวยมือถือ</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            margin: 0;
+            padding: 12px;
+            font-size: 15px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: #d63384;
+            text-align: center;
+            margin: 5px 0 15px 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .form-group { margin-bottom: 10px; }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #495057;
+            font-size: 13px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fdfdfd;
+            -webkit-appearance: none;
+        }
+        input:focus, textarea:focus {
+            border-color: #d63384;
+            outline: none;
+            background: #fff;
+        }
+        textarea {
+            height: 130px;
+            font-family: ui-monospace, SFMono-Regular, SF Pro Text, monospace;
+            resize: none;
+        }
+        .btn-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-calc { background-color: #d63384; color: white; }
+        .btn-calc:active { background-color: #b8236c; }
+        .btn-clear { background-color: #6c757d; color: white; }
+        .btn-clear:active { background-color: #5a6268; }
+        .btn-copy {
+            background-color: #198754;
+            color: white;
+            width: 100%;
+            margin-top: 12px;
+            padding: 16px;
+            font-size: 16px;
+        }
+        .btn-copy:active { background-color: #157347; }
+        .result-section {
+            display: none;
+            background: #fff0f6;
+            border: 2px dashed #d63384;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+        .preview-box {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            white-space: pre-wrap;
+            font-family: ui-monospace, Menlo, monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔮 ระบบสรุปเลขยี่กี/หวยลาว มือถือ 🔮</h2>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="lottoName">ชื่อหวย / รายการ:</label>
+            <input type="text" id="lottoName" value="🩷 ยี่กี DNAfour264 🩷">
+        </div>
+        <div class="form-group">
+            <label for="adminName">ชื่อแอดมิน:</label>
+            <input type="text" id="adminName" placeholder="ระบุชื่อ">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="statsInput">วางสถิติยาวๆ (กดค้างแล้วเลือก วาง):</label>
+        <textarea id="statsInput" placeholder="แตะค้างเพื่อวางสถิติที่นี่..."></textarea>
+    </div>
+    
+    <div class="btn-group">
+        <button class="btn-calc" onclick="generateFlexibleGuideline()">⚡ คำนวณแนวทาง</button>
+        <button class="btn-clear" onclick="clearAll()">🧹 ล้าง</button>
+    </div>
+
+    <div id="resultSection" class="result-section">
+        <label>📋 ข้อความพร้อมก๊อปปี้ไปวางในกลุ่ม:</label>
+        <div id="previewText" class="preview-box"></div>
+        <button class="btn-copy" onclick="copyToClipboard()">📋 กดปุ่มนี้เพื่อคัดลอกข้อความ</button>
+    </div>
+</div>
+
+<script>
+function getCombinations(array, k) {
+    let result = [];
+    function helper(start, combo) {
+        if (combo.length === k) { result.push(combo.join('')); return; }
+        for (let i = start; i < array.length; i++) {
+            helper(i + 1, combo.concat(array[i]));
+        }
+    }
+    helper(0, []);
+    return result;
+}
+
+function generateFlexibleGuideline() {
+    const lottoName = document.getElementById('lottoName').value || 'แนวทางหวย';
+    const adminName = document.getElementById('adminName').value || 'ระบบอัตโนมัติ';
+    const rawText = document.getElementById('statsInput').value;
+
+    if (!rawText.trim()) {
+        alert('กรุณากรอกสถิติตัวเลขก่อนคำนวณครับ');
+        return;
+    }
+
+    const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    let processedData = [];
+    let allDigits = [];
+
+    lines.forEach(line => {
+        const match = line.match(/(\d{3,4})\s*[-\s|]\s*(\d{2})/);
+        if (match) {
+            const topNum = match[1];
+            const bottomNum = match[2];
+            processedData.push({ top: topNum, bottom: bottomNum });
+            (topNum + bottomNum).split('').forEach(d => allDigits.push(parseInt(d)));
+        }
+    });
+
+    if (processedData.length === 0) {
+        alert('ไม่พบรูปแบบสถิติที่รองรับ กรุณาเช็คข้อความที่วางอีกครั้งครับ');
+        return;
+    }
+
+    let counts = {};
+    for (let i = 0; i < 10; i++) counts[i] = 0;
+    allDigits.forEach(d => counts[d]++);
+    let sortedDigits = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).map(Number);
+
+    const latest = processedData[processedData.length - 1];
+    const topArr = latest.top.split('').map(Number);
+    const botArr = latest.bottom.split('').map(Number);
+    
+    let f_base = (topArr[topArr.length - 1] + botArr[botArr.length - 1]) % 10;
+    let mainDigits = [f_base, (f_base + 1) % 10];
+
+    let winSet = [...new Set([...mainDigits, ...sortedDigits])].slice(0, 5);
+
+    let pairs2D = getCombinations(winSet, 2);
+    let pairs3D = getCombinations(winSet, 3);
+    let pairs4D = getCombinations(winSet, 4);
+
+    const today = new Date();
+    const dateStr = String(today.getDate()).padStart(2, '0') + '/' + 
+                    String(today.getMonth() + 1).padStart(2, '0') + '/' + 
+                    today.getFullYear();
+
+    let output = `วันที่: ${dateStr}\n`;
+    output += `${lottoName}\n`;
+    if(adminName.trim() !== "") { output += `แอดมิน: ${adminName}\n`; }
+    output += `---------------------------\n`;
+    output += `🔮 วิเคราะห์แนวทางรอบถัดไป 🔮\n`;
+    output += `เลขเด่นวิ่ง/รูด: ${mainDigits.join(' - ')}\n`;
+    output += `เลขวินเด่น: ${winSet.join(', ')}\n\n`;
+    output += `👉 ชุด 2 ตัวบน-ล่าง:\n${pairs2D.join(' - ')}\n\n`;
+    output += `👉 ชุด 3 ตัวตรง-โต๊ด:\n${pairs3D.join(' - ')}\n\n`;
+    output += `🎯 ชุด 4 ตัววิน:\n${pairs4D.join(' - ')}\n`;
+    output += `---------------------------\n`;
+    output += `คำนวณด้วยโปรแกรมวิเคราะห์สถิติเฉพาะของDOMINOPROHUAY`;
+
+    document.getElementById('previewText').innerText = output;
+    document.getElementById('resultSection').style.display = 'block';
+    
+    // เลื่อนหน้าจอลงมาให้เห็นผลลัพธ์ทันทีบนมือถือ
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyToClipboard() {
+    const textToCopy = document.getElementById('previewText').innerText;
+    
+    // โครงสร้างคำสั่งคัดลอกแบบอัปเกรดเพื่อมือถือทุกระบบ
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('📋 คัดลอกแนวทางเรียบร้อย! ไปวางส่งในกลุ่มได้เลยครับ');
+        }).catch(() => { fallbackCopy(textToCopy); });
+    } else {
+        fallbackCopy(textToCopy);
+    }
+}
+
+function fallbackCopy(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed"; 
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        alert('📋 คัดลอกแนวทางเรียบร้อย! (ระบบสำรอง)');
+    } catch (err) {
+        alert('มือถือไม่รองรับการคัดลอกอัตโนมัติ กรุณากดค้างที่ข้อความเพื่อคัดลอกเองครับ');
+    }
+    document.body.removeChild(textArea);
+}
+
+function clearAll() {
+    document.getElementById('statsInput').value = '';
+    document.getElementById('resultSection').style.display = 'none';
+    document.getElementById('previewText').innerText = '';
+}
+</script>
+
+</body>
+</html>

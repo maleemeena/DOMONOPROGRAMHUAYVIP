@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App</title>
+    <style>
+        * { box-sizing: border-box; font-family: monospace, sans-serif; font-size: 14px; }
+        body { margin: 8px; background: #f4f4f4; color: #000; }
+        .box { background: #fff; padding: 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #ccc; }
+        .title { font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .grid-top { display: flex; gap: 4px; margin-bottom: 6px; padding-left: 54px; }
+        .grid-top input { background: #ffccd5; text-align: center; font-weight: bold; } /* ช่องสีชมพู */
+        .pair-row { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; }
+        .p-side { width: 50px; background: #ffeeba; text-align: center; font-weight: bold; border: 1px solid #999; border-radius: 4px; padding: 6px 0; } /* ช่องสีฟ้า/เหลืองอ่อนสำหรับจับคู่ 12 ชุด */
+        .p-res { flex: 1; background: #fff; text-align: center; color: #555; border: 1px solid #ddd; border-radius: 4px; padding: 6px 0; font-size: 13px; }
+        input, select { width: 100%; padding: 6px; border: 1px solid #999; border-radius: 4px; text-align: center; font-weight: bold; }
+        .btn-group { display: flex; gap: 4px; }
+        .btn { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn.clear { background: #d9534f; }
+        .btn.calc { background: #4CAF50; }
+        .btn:active { opacity: 0.8; }
+        .output-text { background: #fafafa; border: 1px dashed #999; padding: 8px; border-radius: 4px; margin-top: 8px; white-space: pre-wrap; word-break: break-all; line-height: 1.4; font-size: 14px; }
+        .check-row { display: flex; gap: 8px; margin: 6px 0; flex-wrap: wrap; background: #e9ecef; padding: 6px; border-radius: 4px; }
+        .check-item { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: bold; }
+        .check-item input { width: auto; }
+        .date-input { text-align: left; background: #fff; padding: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- ช่องเพิ่มผลรางวัลสำหรับการคำนวณ 4 สูตรอัตโนมัติ -->
+    <div class="box" style="background: #e3f2fd; border-color: #90caf9;">
+        <div class="title" style="color: #0d47a1;">กรอกผลรางวัลเพื่อคำนวณ 4 สูตรอัตโนมัติ</div>
+        <div style="display: flex; gap: 6px;">
+            <input type="text" id="mainInputResult" placeholder="เช่น 12345" style="background: #fff; flex: 1;">
+            <button class="btn calc" onclick="applyFormulasFromInput()">คำนวณอัตโนมัติ</button>
+        </div>
+    </div>
+
+    <!-- พื้นที่แสดงกล่องสูตร 1 - 5 -->
+    <div id="formulas-container"></div>
+
+    <!-- ช่อง 6 สรุปเลขชนกัน -->
+    <div class="box">
+        <div class="title">
+            สรุป เลขชนกัน (อัตโนมัติ)
+            <button class="btn" onclick="cp('out6')">คัดลอก</button>
+        </div>
+        <div class="check-row">
+            <label class="check-item"><input type="checkbox" id="chk1" checked onchange="svChk(); updateAll();"> ดว1</label>
+            <label class="check-item"><input type="checkbox" id="chk2" checked onchange="svChk(); updateAll();"> นว1</label>
+            <label class="check-item"><input type="checkbox" id="chk3" onchange="svChk(); updateAll();"> ดว2</label>
+            <label class="check-item"><input type="checkbox" id="chk4" onchange="svChk(); updateAll();"> นว2</label>
+            <label class="check-item"><input type="checkbox" id="chk5" checked onchange="svChk(); updateAll();"> เลขประจำวัน</label>
+        </div>
+        <div class="output-text" id="out6"></div>
+    </div>
+
+    <script>
+        const config = [
+            { id: 1, name: "ดว__1", label: "สูตร 1: รากที่ 2 (4 ตัวบน / 12 คู่)", topCount: 4, type: 'normal' },
+            { id: 2, name: "นว__1", label: "สูตร 2: รากที่ 1.76982 (4 ตัวบน / 12 คู่)", topCount: 4, type: 'normal' },
+            { id: 3, name: "ดว__2", label: "สูตร 3: ยกกำลัง 2 (3 ตัวบน / 12 คู่)", topCount: 3, type: 'normal' },
+            { id: 4, name: "นว__2", label: "สูตร 4: ยกกำลัง 3 (3 ตัวบน / 12 คู่)", topCount: 3, type: 'normal' },
+            { id: 5, name: "ประจำวัน", label: "สูตร 5: เลขประจำวัน 7 วัน (4 ตัวบน / 12 คู่)", topCount: 4, type: 'day' }
+        ];
+
+        // เรนเดอร์ตาราง HTML 
+        let htmlStr = "";
+        config.forEach(f => {
+            htmlStr += `<div class="box">
+                <div class="title">
+                    <span>${f.label}</span>
+                    <div class="btn-group">
+                        <button class="btn clear" onclick="clrFormula(${f.id})">ล้าง</button>
+                        <button class="btn" onclick="cp('out${f.id}')">คัดลอก</button>
+                    </div>
+                </div>`;
+            
+            if (f.type === 'day') {
+                htmlStr += `<div style="margin-bottom:8px;">
+                    <select id="daySel" onchange="localStorage.setItem('daySel', this.value); ldDay(); updateAll();" style="width:100%; padding:6px; font-weight:bold;">
+                        <option value="วันอาทิตย์">วันอาทิตย์</option>
+                        <option value="วันจันทร์">วันจันทร์</option>
+                        <option value="วันอังคาร">วันอังคาร</option>
+                        <option value="วันพุธ">วันพุธ</option>
+                        <option value="วันพฤหัสบดี">วันพฤหัสบดี</option>
+                        <option value="วันศุกร์">วันศุกร์</option>
+                        <option value="วันเสาร์">วันเสาร์</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:6px;"><input type="text" id="h5" placeholder="เลขหัวประจำวัน (เช่น 039)" oninput="svDay(); updateAll();" style="text-align:left;"></div>`;
+            }
+
+            htmlStr += `<div class="grid-top">`;
+            for(let t=1; t<=f.topCount; t++) {
+                htmlStr += `<div><input type="text" maxlength="1" id="f${f.id}_t${t}" oninput="svInput(this); updateAll();"></div>`;
+            }
+            htmlStr += `</div>`;
+
+            for(let r=1; r<=12; r++) {
+                htmlStr += `<div class="pair-row">
+                    <input type="text" maxlength="2" class="p-side" id="f${f.id}_p${r}" placeholder="คู่ ${r}" oninput="svInput(this); updateAll();">`;
+                for(let t=1; t<=f.topCount; t++) {
+                    htmlStr += `<div class="p-res" id="f${f.id}_r_${r}_${t}">-</div>`;
+                }
+                htmlStr += `</div>`;
+            }
+
+            htmlStr += `<div class="output-text" id="out${f.id}"></div></div>`;
+        });
+        document.getElementById('formulas-container').innerHTML = htmlStr;
+
+        // ฟังก์ชันระบบบันทึกจำค่าในเครื่อง (LocalStorage)
+        function sv(id, val) { localStorage.setItem(id, val || document.getElementById(id).value); }
+        function ld(id) { if(document.getElementById(id)) document.getElementById(id).value = localStorage.getItem(id) || ''; }
+        function svInput(el) { 
+            localStorage.setItem(el.id, el.value); 
+            if(el.id.startsWith('f5_')) { svDay(); }
+        }
+
+        // ==========================================
+        // ตรรกะใหม่ 4 สูตร: แปลงผลรางวัล และจับคู่ / หาความถี่
+        // ==========================================
+        function formatResultToDecimal(inputStr) {
+            let cleanStr = inputStr.toString().replace(/\D/g, '');
+            let num = parseFloat(cleanStr);
+            if (isNaN(num)) return 0;
+            let len = cleanStr.length;
+            if (len > 2) {
+                let integerPart = cleanStr.slice(0, len - 2);
+                let decimalPart = cleanStr.slice(len - 2);
+                return parseFloat(integerPart + "." + decimalPart);
+            }
+            return num;
+        }
+
+        function generate12Pairs(numString) {
+            let digits = numString.replace(/\D/g, '');
+            let pairs = [];
+            for (let i = 0; i < digits.length - 1; i++) {
+                if (pairs.length < 12) {
+                    pairs.push(digits.substr(i, 2));
+                }
+            }
+            let index = 0;
+            while (pairs.length < 12 && digits.length >= 2) {
+                let p = digits[index % digits.length] + digits[(index + 2) % digits.length];
+                pairs.push(p);
+                index++;
+            }
+            while (pairs.length < 12) { pairs.push("00"); }
+            return pairs.slice(0, 12);
+        }
+
+        function getTopFrequency(numString, count) {
+            let counts = {};
+            for (let char of numString) {
+                if (!isNaN(char)) {
+                    counts[char] = (counts[char] || 0) + 1;
+                }
+            }
+            let sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+            while (sorted.length < count) { sorted.push("0"); }
+            return sorted.slice(0, count);
+        }
+
+        function applyFormulasFromInput() {
+            let rawInput = document.getElementById("mainInputResult").value.trim();
+            if (!rawInput) {
+                alert("กรุณากรอกตัวเลขผลรางวัลก่อนครับ!");
+                return;
+            }
+            let baseVal = formatResultToDecimal(rawInput);
+
+            // คำนวณสูตร 1 ถึง 4
+            let resultsMap = {
+                1: Math.sqrt(baseVal).toFixed(10).replace('.', ''),
+                2: Math.pow(baseVal, 1 / 1.76982).toFixed(10).replace('.', ''),
+                3: Math.pow(baseVal, 2).toFixed(10).replace('.', ''),
+                4: Math.pow(baseVal, 3).toFixed(10).replace('.', '')
+            };
+
+            for (let id = 1; id <= 4; id++) {
+                let topCount = config.find(x => x.id === id).topCount;
+                let fullNumStr = resultsMap[id];
+                let topValues = getTopFrequency(fullNumStr, topCount);
+                let pairValues = generate12Pairs(fullNumStr);
+
+                // เติมช่องหัวสีชมพู
+                for (let t = 1; t <= topCount; t++) {
+                    let inputEl = document.getElementById(`f${id}_t${t}`);
+                    if (inputEl) {
+                        inputEl.value = topValues[t - 1];
+                        localStorage.setItem(inputEl.id, inputEl.value);
+                    }
+                }
+
+                // เติมช่องคู่ด้านข้าง (ช่องสีฟ้า/เหลืองอ่อน 12 ชุด)
+                for (let r = 1; r <= 12; r++) {
+                    let pairEl = document.getElementById(`f${id}_p${r}`);
+                    if (pairEl) {
+                        pairEl.value = pairValues[r - 1];
+                        localStorage.setItem(pairEl.id, pairEl.value);
+                    }
+                }
+            }
+            updateAll();
+            alert("คำนวณและเติมข้อมูลทั้ง 4 สูตรเรียบร้อยแล้วครับ!");
+        }
+
+        function clrFormula(id) {
+            let f = config.find(x => x.id === id);
+            if(f.type === 'day') {
+                if(document.getElementById('h5')) document.getElementById('h5').value = '';
+                for(let t=1; t<=4; t++) { if(document.getElementById('f5_t' + t)) document.getElementById('f5_t' + t).value = ''; }
+                for(let r=1; r<=12; r++) { if(document.getElementById('f5_p' + r)) document.getElementById('f5_p' + r).value = ''; }
+                svDay();
+            } else {
+                for(let t=1; t<=f.topCount; t++) { if(document.getElementById(`f${id}_t${t}`)) document.getElementById(`f${id}_t${t}`).value = ''; localStorage.removeItem(`f${id}_t${t}`); }
+                for(let r=1; r<=12; r++) { if(document.getElementById(`f${id}_p${r}`)) document.getElementById(`f${id}_p${r}`).value = ''; localStorage.removeItem(`f${id}_p${r}`); }
+            }
+            updateAll();
+        }
+
+        function processFormula(f) {
+            let topArr = [];
+            for(let t=1; t<=f.topCount; t++) {
+                let cellEl = document.getElementById(`f${f.id}_t${t}`);
+                let v = cellEl ? cellEl.value.trim() : '';
+                if(v) topArr.push(v);
+            }
+            
+            let pairArr = [];
+            for(let r=1; r<=12; r++) {
+                let cellEl = document.getElementById(`f${f.id}_p${r}`);
+                let v = cellEl ? cellEl.value.trim() : '';
+                if(v.length === 2) pairArr.push({ row: r, val: v });
+            }
+
+            for(let r=1; r<=12; r++) {
+                for(let t=1; t<=f.topCount; t++) {
+                    let cell = document.getElementById(`f${f.id}_r_${r}_${t}`);
+                    if(cell) {
+                        cell.innerText = '-';
+                        cell.style.background = "";
+                        cell.style.color = "";
+                        cell.style.borderColor = "";
+                    }
+                }
+            }
+
+            if(topArr.length === 0 && pairArr.length === 0) return { text: "", list: [], activeName: f.name };
+
+            let generatedList = [];
+            pairArr.forEach(p => {
+                topArr.forEach((topVal, idx) => {
+                    if(topVal) {
+                        let num3D = p.val.charAt(0) + topVal + p.val.charAt(1);
+                        generatedList.push(num3D);
+                        let cell = document.getElementById(`f${f.id}_r_${p.row}_${idx+1}`);
+                        if(cell) { cell.innerText = num3D; }
+                    }
+                });
+            });
+
+            let currentName = f.name;
+            if(f.type === 'day') {
+                let h5V = document.getElementById('h5') ? document.getElementById('h5').value.trim() : '';
+                currentName = (document.getElementById('daySel') ? document.getElementById('daySel').value : 'วันเสาร์') + (h5V ? "__" + h5V : "");
+            }
+
+            let textResult = genText(currentName, topArr.join(' '), pairArr.map(x => x.val).join(' '));
+            let displayName = currentName.replace("วัน", "");
+            return { text: textResult, list: generatedList, activeName: displayName };
+        }
+
+        function countPermutations(numStr) {
+            let set = new Set(numStr.split(''));
+            if (set.size === 1) return 1; 
+            if (set.size === 2) return 3; 
+            return 6;                     
+        }
+
+        function getSortKey(numStr) {
+            return numStr.split('').sort().join('');
+        }
+
+        function highlightMatchedCells(matchedGroupKeys) {
+            config.forEach(f => {
+                for(let r=1; r<=12; r++) {
+                    for(let t=1; t<=f.topCount; t++) {
+                        let cell = document.getElementById(`f${f.id}_r_${r}_${t}`);
+                        if(cell) {
+                            if(cell.innerText !== '-') {
+                                let cellNumKey = getSortKey(cell.innerText);
+                                if(matchedGroupKeys.includes(cellNumKey)) {
+                                    cell.style.background = "#fef08a"; 
+                                    cell.style.color = "#854d0e";      
+                                    cell.style.borderColor = "#facc15";  
+                                } else {
+                                    cell.style.background = ""; cell.style.color = ""; cell.style.borderColor = "";
+                                }
+                            } else {
+                                cell.style.background = ""; cell.style.color = ""; cell.style.borderColor = "";
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function genText(name, head, pairs) {
+            if (!head && !pairs) return "";
+            let headArr = head.split(' ').filter(x => x);
+            let pairArr = pairs.split(' ').filter(x => x);
+            
+            let gapStr = (headArr.length === 3) ? "_____" : "______";
+            let headStr = headArr.map((x, idx) => {
+                if (idx === 0) return x;
+                return (headArr.length === 3) ? "____" + x : "___" + x;
+            }).join('');
+            
+            let lines = [];
+            lines.push(name);
+            lines.push(gapStr + headStr + "_");
+
+            pairArr.forEach(p => {
+                if(p.length >= 2) {
+                    let subLine = p + "__";
+                    let items = headArr.map(h => p.charAt(0) + h + p.charAt(1));
+                    subLine += items.join('_');
+                    lines.push(subLine);
+                }
+            });
+
+            let total3D = pairArr.length * headArr.length;
+            let totalCost = 0;
+            pairArr.forEach(p => {
+                headArr.forEach(h => {
+                    totalCost += countPermutations(p.charAt(0) + h + p.charAt(1));
+                });
+            });
+            let tod = total3D * 1;  
+            
+            lines.push(" ทุน " + totalCost + "- โต๊ด " + tod + "-");
+            lines.push(" ➖➖➖➖➖➖" + (headArr.length === 3 ? "" : "➖"));
+            return lines.join('\n');
+        }
+
+        function cp(id) {
+            let txt = document.getElementById(id).innerText;
+            if(!txt || txt.indexOf("เลือกติ๊ก") !== -1) return;
+
+            let dt = document.getElementById('tDate') ? document.getElementById('tDate').value : '';
+            let admin = document.getElementById('tAdmin') ? document.getElementById('tAdmin').value : '';
+            
+            let finalArr = [];
+            if(id !== 'out1' && dt && !txt.startsWith(dt)) { finalArr.push(dt); }
+            finalArr.push(txt);
+            if(admin) {
+                if(finalArr[finalArr.length-1].trim().endsWith("➖➖➖➖➖➖➖") || finalArr[finalArr.length-1].trim().endsWith("➖➖➖➖➖➖")) {
+                    finalArr[finalArr.length-1] = finalArr[finalArr.length-1] + "\nผู้ดูแล: " + admin;
+                } else {
+                    finalArr.push("ผู้ดูแล: " + admin);
+                }
+            }
+            
+            navigator.clipboard.writeText(finalArr.join('\n'));
+            alert("คัดลอกข้อความช่องนี้พร้อมวันที่และแอดมินเรียบร้อยแล้ว!");
+        }
+
+        function updateAll() {
+            let dt = document.getElementById('tDate') ? document.getElementById('tDate').value : (localStorage.getItem('tDate') || '');
+            let datePrefix = dt ? dt + "\n" : "";
+
+            let results = config.map(f => {
+                let res = processFormula(f);
+                return { id: f.id, data: res };
+            });
+
+            results.forEach(r => {
+                let prefix = (r.id === 1) ? datePrefix : "";
+                let outEl = document.getElementById(`out${r.id}`);
+                if (outEl) outEl.innerText = r.data.text ? prefix + r.data.text : "";
+            });
+
+            let activeLists = [];
+            let titleParts = [];
+
+            results.forEach(r => {
+                let chkEl = document.getElementById(`chk${r.id}`);
+                let isChecked = chkEl ? chkEl.checked : false;
+                if(isChecked && r.data.list.length > 0) {
+                    activeLists.push({ list: r.data.list, name: r.data.activeName });
+                    titleParts.push(r.data.activeName);
+                }
+            });
+
+            let out6El = document.getElementById('out6');
+            if (out6El) {
+                if (activeLists.length >= 2) {
+                    let baseList = activeLists[0].list;
+                    let matchedNumbers = [];
+                    let matchedKeysForHighlight = [];
+
+                    baseList.forEach(num => {
+                        let baseKey = getSortKey(num);
+                        let matchInAll = true;
+
+                        for (let i = 1; i < activeLists.length; i++) {
+                            let currentList = activeLists[i].list;
+                            let found = currentList.find(targetNum => getSortKey(targetNum) === baseKey);
+                            if (!found) { matchInAll = false; break; }
+                        }
+
+                        if (matchInAll) {
+                            matchedNumbers.push(num);
+                            matchedKeysForHighlight.push(baseKey);
+                        }
+                    });
+
+                    let finalPairs = [...new Set(matchedNumbers)].sort();
+                    let uniqueKeysForHighlight = [...new Set(matchedKeysForHighlight)];
+
+                    highlightMatchedCells(uniqueKeysForHighlight);
+
+                    let lines6 = [];
+                    if (dt) lines6.push(dt);
+                    
+                    let cleanTitles = titleParts.map(name => name.replace(/__/g, ''));
+                    let displayTitle = cleanTitles.join(cleanTitles.length > 3 ? '+\n' : '+');
+                    lines6.push(displayTitle);
+                    lines6.push("สรุป เลขชนกัน");
+                    
+                    if(finalPairs.length > 0) {
+                        for (let i = 0; i < finalPairs.length; i += 4) {
+                            lines6.push(finalPairs.slice(i, i + 4).join('_'));
+                        }
+                        let totalCost6 = 0;
+                        finalPairs.forEach(num => { totalCost6 += countPermutations(num); });
+                        lines6.push("ทุน " + totalCost6 + "- โต๊ด " + finalPairs.length + "-");
+                    } else {
+                        lines6.push("(ไม่มีเลขชนกัน)\nทุน 0- โต๊ด 0-");
+                    }
+                    lines6.push("➖➖➖➖➖➖ ");
+                    out6El.innerText = lines6.join('\n');
+                } else {
+                    highlightMatchedCells([]);
+                    out6El.innerText = "เลือกติ๊กเครื่องหมายถูกอย่างน้อย 2 ช่องที่มีข้อมูล เพื่อสรุปเลขชนกัน";
+                }
+            }
+        }
+
+        function copyAllResults() {
+            let allText = [];
+            let dt = document.getElementById('tDate').value;
+            let admin = document.getElementById('tAdmin').value;
+            
+            let header = [];
+            if(dt) header.push(dt);
+            if(admin) header.push("ผู้ดูแล: " + admin);
+            if(header.length > 0) allText.push(header.join(' | ') + "\n");
+            
+            for(let i=1; i<=5; i++) {
+                let txt = document.getElementById(`out${i}`).innerText;
+                if(txt) {
+                    if(i === 1 && dt) txt = txt.replace(dt + "\n", "");
+                    allText.push(txt);
+                }
+            }
+            
+            let txt6 = document.getElementById('out6').innerText;
+            if(txt6 && txt6.indexOf("เลือกติ๊ก") === -1) { allText.push(txt6); }
+            
+            navigator.clipboard.writeText(allText.join('\n'));
+            alert("คัดลอกชุดข้อมูลสูตรและสรุปเลขชนกันทั้งหมดครบถ้วนแล้วครับ!");
+        }
+
+        function saveSet(setNumber) {
+            let chkStates = ['chk1','chk2','chk3','chk4','chk5'].map(id => document.getElementById(id).checked);
+            localStorage.setItem('custom_set_' + setNumber, JSON.stringify(chkStates));
+            alert('บันทึกรูปแบบการติ๊ก แบบที่ ' + setNumber + ' เรียบร้อย!');
+            updateAll();
+        }
+
+        function loadSet(setNumber) {
+            let saved = localStorage.getItem('custom_set_' + setNumber);
+            if(saved) {
+                let chkStates = JSON.parse(saved);
+                ['chk1','chk2','chk3','chk4','chk5'].forEach((id, idx) => {
+                    let el = document.getElementById(id);
+                    if(el) el.checked = chkStates[idx];
+                });
+                svChk();
+                updateAll();
+            } else { alert('ยังไม่มีข้อมูลบันทึกในแบบที่ ' + setNumber); }
+        }
+
+        function svChk() {
+            ['chk1','chk2','chk3','chk4','chk5'].forEach(id => {
+                let el = document.getElementById(id);
+                if(el) localStorage.setItem(id, el.checked ? '1' : '0');
+            });
+        }
+        
+        function ldChk() {
+            ['chk1','chk2','chk3','chk4','chk5'].forEach(id => {
+                let el = document.getElementById(id);
+                if(el && localStorage.getItem(id) !== null) { el.checked = localStorage.getItem(id) === '1'; }
+            });
+        }
+
+        const defaultDaysData = {
+            "วันจันทร์": { h: "368", t: ["0", "1", "2", "7"], p: ["34", "35", "36", "39", "46", "49", "56", "59", "84", "85", "86", "89"] },
+            "วันอังคาร": { h: "269", t: ["3", "4", "5", "8"], p: ["10", "12", "70", "72", "16", "19", "76", "79", "06", "09", "26", "29"] },
+            "วันพุธ": { h: "037", t: ["4", "5", "6", "9"], p: ["03", "08", "23", "28", "31", "37", "81", "87", "01", "07", "21", "27"] },
+            "วันพฤหัสบดี": { h: "148", t: ["0", "2", "6", "9"], p: ["14", "15", "74", "75", "43", "48", "53", "58", "13", "18", "73", "78"] },
+            "วันศุกร์": { h: "259", t: ["1", "3", "7", "8"], p: ["24", "25", "04", "05", "46", "49", "56", "59", "26", "29", "06", "09"] },
+            "วันเสาร์": { h: "039", t: ["1", "4", "5", "7"], p: ["03", "08", "23", "28", "36", "39", "86", "89", "06", "09", "26", "29"] },
+            "วันอาทิตย์": { h: "067", t: ["3", "4", "5", "8"], p: ["06", "09", "26", "29", "67", "69", "16", "19", "01", "07", "21", "27"] }
+        };
+
+        const defaultAppInit = {
+            "tDate": "วันที่ 10 ส.ค. 2569",
+            "f1_t1":"3","f1_t2":"6","f1_t3":"8","f1_t4":"9",
+            "f1_p1":"57","f1_p2":"51","f1_p3":"47","f1_p4":"41","f1_p5":"72","f1_p6":"70","f1_p7":"12","f1_p8":"10","f1_p9":"52","f1_p10":"50","f1_p11":"42","f1_p12":"40",
+            "f2_t1":"3","f2_t2":"4","f2_t3":"5","f2_t4":"8",
+            "f2_p1":"92","f2_p2":"90","f2_p3":"62","f2_p4":"60","f2_p5":"21","f2_p6":"27","f2_p7":"01","f2_p8":"07","f2_p9":"91","f2_p10":"97","f2_p11":"61","f2_p12":"67",
+            "f3_t1":"3","f3_t2":"6","f3_t3":"8",
+            "f3_p1":"57","f3_p2":"51","f3_p3":"47","f3_p4":"41","f3_p5":"72","f3_p6":"70","f3_p7":"12","f3_p8":"10","f3_p9":"52","f3_p10":"50","f3_p11":"42","f3_p12":"40",
+            "f4_t1":"3","f4_t2":"4","f4_t3":"5",
+            "f4_p1":"92","f4_p2":"90","f4_p3":"62","f4_p4":"60","f4_p5":"21","f4_p6":"27","f4_p7":"01","f4_p8":"07","f4_p9":"91","f4_p10":"97","f4_p11":"61","f4_p12":"67"
+        };
+
+        function initAppDefaultValues() {
+            if (localStorage.getItem('app_initialized_v7') !== '1') {
+                Object.keys(defaultAppInit).forEach(key => { localStorage.setItem(key, defaultAppInit[key]); });
+                localStorage.setItem('app_initialized_v7', '1');
+            }
+        }
+
+        function svDay() {
+            let d = document.getElementById('daySel').value;
+            localStorage.setItem(d + '_has_custom', '1'); 
+            localStorage.setItem(d + '_h', document.getElementById('h5').value);
+            for(let t=1; t<=4; t++) { if(document.getElementById('f5_t' + t)) localStorage.setItem(d + '_t' + t, document.getElementById('f5_t' + t).value); }
+            for(let r=1; r<=12; r++) { if(document.getElementById('f5_p' + r)) localStorage.setItem(d + '_p' + r, document.getElementById('f5_p' + r).value); }
+        }
+
+        function ldDay() {
+            let d = document.getElementById('daySel').value;
+            if (localStorage.getItem(d + '_has_custom') === '1') {
+                if(document.getElementById('h5')) document.getElementById('h5').value = localStorage.getItem(d + '_h') || '';
+                for(let t=1; t<=4; t++) { if(document.getElementById('f5_t' + t)) document.getElementById('f5_t' + t).value = localStorage.getItem(d + '_t' + t) || ''; }
+                for(let r=1; r<=12; r++) { if(document.getElementById('f5_p' + r)) document.getElementById('f5_p' + r).value = localStorage.getItem(d + '_p' + r) || ''; }
+            } else {
+                let def = defaultDaysData[d];
+                if(document.getElementById('h5')) document.getElementById('h5').value = def.h;
+                for(let t=1; t<=4; t++) { if(document.getElementById('f5_t' + t)) document.getElementById('f5_t' + t).value = def.t[t-1] || ''; }
+                for(let r=1; r<=12; r++) { if(document.getElementById('f5_p' + r)) document.getElementById('f5_p' + r).value = def.p[r-1] || ''; }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initAppDefaultValues(); 
+            
+            config.forEach(f => {
+                if(f.type !== 'day') {
+                    for(let t=1; t<=f.topCount; t++) ld(`f${f.id}_t${t}`);
+                    for(let r=1; r<=12; r++) ld(`f${f.id}_p${r}`);
+                }
+            });
+
+            let savedDay = localStorage.getItem('daySel');
+            if(!savedDay) {
+                document.getElementById('daySel').value = "วันเสาร์";
+                localStorage.setItem('daySel', "วันเสาร์");
+            } else {
+                document.getElementById('daySel').value = savedDay;
+            }
+            
+            ldDay(); 
+            ldChk(); 
+
+            let dateVal = localStorage.getItem('tDate') || 'วันที่ 10 ส.ค. 2569';
+            let box6 = document.getElementById('out6').parentElement;
+            if(box6) {
+                let setPanelHtml = `<div style="margin-bottom:10px; background:#f8f9fa; padding:8px; border-radius:4px; border:1px dashed #ccc;">
+                    <div style="font-size:12px; font-weight:bold; margin-bottom:4px; color:#555;">เรียกใช้แบบสูตรชนด่วน:</div>
+                    <div style="display:flex; gap:4px; margin-bottom:6px;">
+                        <button class="btn" style="flex:1; float:none; background:#17a2b8;" onclick="loadSet(1)">เรียกแบบ 1</button>
+                        <button class="btn" style="flex:1; float:none; background:#17a2b8;" onclick="loadSet(2)">เรียกแบบ 2</button>
+                        <button class="btn" style="flex:1; float:none; background:#17a2b8;" onclick="loadSet(3)">เรียกแบบ 3</button>
+                    </div>
+                    <div style="font-size:11px; color:#777; margin-bottom:2px;">ติ๊กเลือกด้านล่างแล้วกดเซฟเก็บไว้ใช้รอบหน้า:</div>
+                    <div style="display:flex; gap:4px;">
+                        <button class="btn" style="flex:1; float:none; background:#6c757d; font-size:11px; padding:3px;" onclick="saveSet(1)">เซฟทับแบบ 1</button>
+                        <button class="btn" style="flex:1; float:none; background:#6c757d; font-size:11px; padding:3px;" onclick="saveSet(2)">เซฟทับแบบ 2</button>
+                        <button class="btn" style="flex:1; float:none; background:#6c757d; font-size:11px; padding:3px;" onclick="saveSet(3)">เซฟทับแบบ 3</button>
+                    </div>
+                </div>`;
+                let checkRow = document.querySelector('.check-row');
+                if(checkRow) {
+                    checkRow.insertAdjacentHTML('beforebegin', setPanelHtml);
+                    let webDateBadgeHtml = `<div id="webDateBadge" style="background:#007bff; color:white; padding:4px 8px; border-radius:4px; display:inline-block; font-weight:bold; margin-top:8px; font-size:14px;">${dateVal}</div>`;
+                    checkRow.insertAdjacentHTML('afterend', webDateBadgeHtml);
+                }
+
+                let bottomInputsHtml = `<div style="margin-top: 12px; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <div class="title">วันที่ทำงาน</div>
+                    <input type="text" id="tDate" class="date-input" value="${dateVal}" placeholder="ตัวอย่าง: วันที่ 10 ส.ค. 2569" oninput="sv('tDate'); document.getElementById('webDateBadge').innerText=this.value; updateAll();">
+                </div>
+                <div style="margin-top: 8px;">
+                    <div class="title">ชื่อแอดมิน</div>
+                    <input type="text" id="tAdmin" class="date-input" placeholder="ตัวอย่าง: Admin" oninput="sv('tAdmin')">
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="btn" style="background:#28a745; width:100%; padding:10px; font-size:14px; float:none; font-weight:bold;" onclick="copyAllResults()">📋 คัดลอกผลลัพธ์ทั้งหมด</button>
+                </div>`;
+                box6.appendChild(document.createRange().createContextualFragment(bottomInputsHtml));
+                ld('tAdmin');
+            }
+
+            let oldDateBox = document.querySelector('body > .box:first-child');
+            if (oldDateBox && oldDateBox.querySelector('#mainInputResult') === null) {
+                // เก็บกล่องใหม่ไว้แล้วลบกล่องเก่าที่ไม่เกี่ยวข้องออกได้
+            }
+
+            updateAll(); 
+        });
+    </script>
+</body>
+</html>

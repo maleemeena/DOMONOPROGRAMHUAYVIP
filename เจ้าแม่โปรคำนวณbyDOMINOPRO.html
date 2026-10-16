@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>เจ้าแม่โปรคำนวณ - เขียวเหนี่ยวทรัพย์</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --emerald: #1b5e20; --gold: #d4af37; --gold-light: #f9d423; --soft-green: #f1f8e9; --white: #ffffff; --red-lucky: #cc0000; }
+        body { font-family: 'Sarabun', sans-serif; background: radial-gradient(circle, #003300, #000); margin: 0; padding: 10px; display: flex; justify-content: center; min-height: 100vh; }
+        .app-card { max-width: 500px; width: 100%; background: var(--white); border: 3px solid var(--gold); border-radius: 25px; box-shadow: 0 0 25px rgba(212,175,55,0.6); overflow: hidden; }
+        .header { background: linear-gradient(180deg, var(--emerald), #002200); color: var(--gold-light); text-align: center; padding: 20px; border-bottom: 4px double var(--gold); }
+        .header h2 { font-family: 'Mitr', sans-serif; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .section-input { padding: 15px; background: var(--soft-green); border-bottom: 1px solid #ddd; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        input, select { padding: 12px; border: 2px solid #ccc; border-radius: 12px; font-size: 16px; width: 100%; box-sizing: border-box; outline: none; }
+        
+        @keyframes gold-pulse { 0% { box-shadow: 0 0 5px var(--gold); transform: scale(1); } 50% { box-shadow: 0 0 15px var(--gold-light); transform: scale(1.03); } 100% { box-shadow: 0 0 5px var(--gold); transform: scale(1); } }
+        @keyframes sparkle { 0% { background: #4caf50; transform: scale(1); box-shadow: 0 0 10px #fff; } 50% { background: var(--red-lucky); transform: scale(1.2); box-shadow: 0 0 30px var(--gold-light); color: #fff; } 100% { background: #2e7d32; transform: scale(1.1); color: #fff; } }
+        
+        .grid-item { background: white; border: 2px solid var(--gold); padding: 8px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 18px; color: var(--emerald); animation: gold-pulse 2s infinite ease-in-out; position: relative; }
+        .match { animation: sparkle 0.5s infinite alternate !important; border: 2px solid white !important; z-index: 10; color: white !important; }
+        .report-box { margin: 10px; padding: 15px; background: #fff; border: 2px solid var(--emerald); border-radius: 20px; }
+        .report-title { text-align: center; color: var(--emerald); font-size: 20px; font-weight: bold; border-bottom: 2px dashed var(--gold); margin-bottom: 10px; padding-bottom: 5px; font-family: 'Mitr', sans-serif; }
+        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 8px 0; }
+        .label-tag { background: linear-gradient(to right, var(--emerald), #43a047); color: white; padding: 3px 10px; border-radius: 15px; font-size: 13px; font-weight: bold; display: inline-block; margin-top: 8px; }
+        .btn { padding: 15px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 18px; width: 100%; margin: 5px 0; font-family: 'Mitr', sans-serif; transition: 0.3s; }
+        .btn-calc { background: linear-gradient(135deg, var(--emerald), #2e7d32); color: var(--gold-light); box-shadow: 0 4px #003300; }
+        .status-report { margin: 10px; padding: 12px; border-radius: 12px; background: #fff; border: 2px solid var(--emerald); display: none; text-align: left; font-size: 14px; }
+        .status-item { color: #1b5e20; font-weight: bold; display: block; margin-bottom: 3px; border-left: 4px solid var(--gold); padding-left: 8px; }
+
+        /* --- ระบบใบพิมพ์แนวทาง: บีบให้อยู่หน้าเดียว + ชื่อแอดมิน --- */
+        @media print {
+            @page { size: portrait; margin: 0.8cm; }
+            body { background: white !important; padding: 0; margin: 0; }
+            .header, .section-input, .checker, .btn, #clock, #copyHelper { display: none !important; }
+            .app-card { border: none !important; box-shadow: none !important; max-width: 100% !important; width: 100% !important; display: block !important; }
+            #reportArea { display: block !important; border: 3px solid var(--emerald) !important; padding: 15px !important; margin: 0 !important; border-radius: 0; page-break-inside: avoid; }
+            
+            .print-header { display: block !important; text-align: right; font-size: 12px; color: #666; margin-bottom: 5px; }
+            .report-title { font-size: 28px !important; color: var(--emerald) !important; margin-bottom: 10px !important; }
+            center b { font-size: 22px !important; display: block; margin-bottom: 10px; color: #000 !important; }
+            .label-tag { display: block !important; background: #f0fdf0 !important; color: var(--emerald) !important; font-size: 18px !important; margin-top: 12px !important; padding: 4px 10px !important; border-left: 6px solid var(--emerald) !important; border-radius: 0; }
+            .grid-item { font-size: 26px !important; font-weight: 900 !important; padding: 8px 5px !important; border: 2px solid var(--emerald) !important; color: #000 !important; animation: none !important; }
+            
+            #reportContent [id^="d_"], #reportContent [id^="j2_"], #reportContent [id^="j3_"] {
+                color: var(--red-lucky) !important; border-color: var(--red-lucky) !important;
+            }
+            .grid-container { gap: 8px !important; margin: 8px 0 !important; }
+            #dayLuckyArea { font-size: 18px !important; font-weight: bold !important; border: 2px dashed var(--emerald) !important; margin-top: 15px !important; padding: 10px !important; }
+            .admin-footer { display: block !important; text-align: right; margin-top: 15px; font-weight: bold; color: var(--emerald); border-top: 1px solid #eee; padding-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="header">
+        <h2>🍀 เจ้าแม่โปรคำนวณ 🍀</h2>
+        <div id="clock" style="font-size: 13px; margin-top:5px; color: #fff;"></div>
+    </div>
+
+    <div class="section-input">
+        <div class="input-grid">
+            <input type="text" id="lotto" placeholder="ชื่อหวย (เช่น ลาว, ไทย)">
+            <input type="text" id="admin" placeholder="ชื่อแอดมิน">
+        </div>
+        <select id="shrine">
+            <option value="">-- เลือกสำนักเหนี่ยวทรัพย์ --</option>
+            <option value="สำนักเจ้าแม่ทองคำ">เจ้าแม่ทองคำ</option>
+            <option value="สำนักเจ้าแม่นาคี">เจ้าแม่นาคี</option>
+            <option value="สำนักเจ้าแม่ตะเคียนทอง">เจ้าแม่ตะเคียนทอง</option>
+            <option value="สำนักเจ้าแม่พันปี">เจ้าแม่พันปี</option>
+            <option value="สำนักเจ้าแม่นพนภา">เจ้าแม่นพนภา</option>
+            <option value="สำนักเจ้าแม่มณีสายมู">เจ้าแม่มณีสายมู</option>
+        </select>
+        <div class="input-grid">
+            <input type="number" id="pTop" placeholder="บนงวดก่อน">
+            <input type="number" id="pBot" placeholder="ล่างงวดก่อน">
+        </div>
+        <button class="btn btn-calc" onclick="calculate()">🔮 คำนวณรับทรัพย์ 🔮</button>
+    </div>
+
+    <div id="reportArea" class="report-box" style="display:none;">
+        <div class="print-header" style="display:none;">โปรแกรม: เจ้าแม่โปรคำนวณ - เขียวเหนี่ยวทรัพย์</div>
+        <div class="report-title" id="shName">🚩 ใบแนวทางรวย 🚩</div>
+        <div id="reportContent"></div>
+        <div id="dayLuckyArea" style="background:#e8f5e9; padding:8px; border-radius:10px; font-size:13px; text-align:center; border:1px solid var(--emerald); margin-top:10px;"></div>
+        <div id="adminFooter" class="admin-footer" style="display:none;"></div>
+    </div>
+
+    <div class="checker" style="background:#f1f8e9; padding:15px; margin:10px; border-radius:20px; border:2px dashed var(--emerald); text-align:center;">
+        <b style="color:var(--emerald);">🎯 ตรวจบารมีเลข</b>
+        <div class="input-grid" style="margin-top:8px;">
+            <input type="text" id="chkTop" placeholder="3 ตัวบน" oninput="verify()">
+            <input type="text" id="chkBot" placeholder="2 ตัวล่าง" oninput="verify()">
+        </div>
+        <div id="statusReport" class="status-report"></div>
+    </div>
+
+    <div style="padding: 10px 20px 20px;">
+        <button class="btn" style="background:var(--emerald); color:white;" onclick="copyAll()">📋 คัดลอกแนวทาง</button>
+        <button class="btn" id="printBtn" style="background:var(--gold); color:black;" onclick="printReport()">🖨️ พิมพ์ใบแนวทางรวย</button>
+        <button class="btn" style="background:#ccc; color:black; font-size:14px;" onclick="location.reload()">🧹 ล้างข้อมูล</button>
+    </div>
+</div>
+
+<textarea id="copyHelper" style="position:fixed; top:-999px; left:-999px;"></textarea>
+
+<script>
+    let nums = { d2:[], pT:[], pB:[], win6:[], j2:[], j3:[] };
+    const luckyDays = ["อาทิตย์: 1-0-9", "จันทร์: 2-4-7", "อังคาร: 3-5-8", "พุธ: 4-2-6", "พฤหัส: 5-1-7", "ศุกร์: 6-3-5", "เสาร์: 7-8-1"];
+
+    setInterval(() => { 
+        document.getElementById('clock').innerText = "ฤกษ์รวย: " + new Date().toLocaleString('th-TH'); 
+    }, 1000);
+
+    function playBeep() {
+        try {
+            let ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = ctx.createOscillator();
+            let g = ctx.createGain();
+            osc.connect(g); g.connect(ctx.destination);
+            osc.frequency.value = 800; g.gain.value = 0.1;
+            osc.start(); osc.stop(ctx.currentTime + 0.2);
+        } catch(e) {}
+    }
+
+    function seededRandom(seed) { let x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+    function getUniqueShuffled(count, seed) {
+        let pool = [0,1,2,3,4,5,6,7,8,9];
+        let result = [];
+        let s = seed;
+        for (let i = 0; i < count; i++) {
+            let r = seededRandom(s++);
+            let index = Math.floor(r * pool.length);
+            result.push(pool.splice(index, 1)[0]);
+        }
+        return result;
+    }
+
+    function calculate() {
+        const shrSelect = document.getElementById('shrine');
+        const adminName = document.getElementById('admin').value || "เจ้าแม่โปรคำนวณ";
+        if(!shrSelect.value) { alert("เลือกสำนักก่อนค่ะ"); return; }
+        playBeep();
+        
+        const tVal = parseInt(document.getElementById('pTop').value) || 0;
+        const bVal = parseInt(document.getElementById('pBot').value) || 0;
+        const baseSeed = tVal + bVal + (shrSelect.selectedIndex * 888);
+
+        document.getElementById('reportArea').style.display = 'block';
+        document.getElementById('shName').innerText = `🚩 ${shrSelect.value} 🚩`;
+        document.getElementById('adminFooter').innerText = `✍️ แอดมิน: ${adminName}`;
+
+        let d1 = (baseSeed * 7) % 10;
+        let d2 = (baseSeed * 19 + 5) % 10;
+        if(d1 === d2) d2 = (d2 + 1) % 10;
+        nums.d2 = [d1, d2];
+        
+        nums.pT = getUniqueShuffled(5, baseSeed + 11);
+        nums.pB = getUniqueShuffled(5, baseSeed + 22);
+        nums.win6 = getUniqueShuffled(6, baseSeed + 33);
+        
+        nums.j2 = []; let curS = baseSeed;
+        for(let i=0; i<300 && nums.j2.length < 10; i++) {
+            let m = nums.d2[Math.floor(seededRandom(curS++) * 2)];
+            let s = Math.floor(seededRandom(curS++) * 10);
+            let pair = m.toString() + s.toString();
+            if(!nums.j2.includes(pair) && m !== s) nums.j2.push(pair);
+        }
+        
+        nums.j3 = []; let combo = new Set();
+        for(let i=0; i<800 && nums.j3.length < 10; i++) {
+            let n1 = (baseSeed + i + 1) % 9 + 1;
+            let n3 = (baseSeed * (i+2)) % 10;
+            let trip = n1.toString() + nums.d2[0].toString() + n3.toString();
+            let sorted = trip.split("").sort().join("");
+            if(!combo.has(sorted) && new Set(trip).size === 3) {
+                nums.j3.push(trip);
+                combo.add(sorted);
+            }
+        }
+        render();
+        window.scrollTo({ top: document.getElementById('reportArea').offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function render() {
+        let lotto = document.getElementById('lotto').value || "หวยมงคล";
+        let h = `
+            <center>
+                <b>🎯 ${lotto}</b>
+                <div style="font-size:14px; color:#333; margin-top:5px;">📅 วันที่ ${new Date().toLocaleDateString('th-TH')}</div>
+            </center>
+            <span class="label-tag">⭐ เลขเด่น (เน้นสีแดง)</span>
+            <div class="grid-container" style="display:flex; justify-content:center; gap:15px;">
+                ${nums.d2.map(n=>`<div class="grid-item" id="d_${n}" style="color:var(--red-lucky); border-color:var(--red-lucky);">${n}</div>`).join("")}
+            </div>
+            <div class="input-grid" style="margin-top:10px;">
+                <div><span class="label-tag">🔝 พิกัดบน5ตัว</span><div class="grid-container" style="grid-template-columns:repeat(3,1fr);">${nums.pT.map(n=>`<div class="grid-item" id="pT_${n}">${n}</div>`).join("")}</div></div>
+                <div><span class="label-tag">🔜 พิกัดล่าง5ตัว</span><div class="grid-container" style="grid-template-columns:repeat(3,1fr);">${nums.pB.map(n=>`<div class="grid-item" id="pB_${n}">${n}</div>`).join("")}</div></div>
+            </div>
+            <span class="label-tag">🔢 วินมหาลาภ 6 ตัว</span>
+            <div class="grid-container" style="grid-template-columns:repeat(6,1fr);">${nums.win6.map(n=>`<div class="grid-item" id="w_${n}">${n}</div>`).join("")}</div>
+            <span class="label-tag">📍 เจาะ 2ตัว ชุดเน้น</span>
+            <div class="grid-container">${nums.j2.map(n=>`<div class="grid-item" style="font-size:16px; color:var(--red-lucky); border-color:var(--red-lucky);" id="j2_${n}">${n}</div>`).join("")}</div>
+            <span class="label-tag">🔱 เจาะ 3 ตัวบน</span>
+            <div class="grid-container">${nums.j3.map(n=>`<div class="grid-item" style="font-size:16px; color:var(--red-lucky); border-color:var(--red-lucky);" id="j3_${n}">${n}</div>`).join("")}</div>
+        `;
+        document.getElementById('reportContent').innerHTML = h;
+        document.getElementById('dayLuckyArea').innerText = `🗓️ เลขกำลังวัน${luckyDays[new Date().getDay()]}`;
+    }
+
+          function verify() {
+        const t = document.getElementById('chkTop').value.trim(); // บน
+        const b = document.getElementById('chkBot').value.trim(); // ล่าง
+        const report = document.getElementById('statusReport');
+        
+        document.querySelectorAll('.grid-item').forEach(el => el.classList.remove('match'));
+        report.innerHTML = ""; report.style.display = "none";
+        
+        let res = [];
+
+        // --- 1. ตรวจสอบฝั่งบน ---
+        if (t && t.length >= 2) {
+            let hitD = [], hitPT = [], hitJ2 = [], hitJ3 = "";
+            let allDigits = t.split("").map(Number);
+            let last2Digits = t.slice(-2).split("").map(Number);
+
+            allDigits.forEach(d => {
+                if(nums.pT.includes(d)) { document.getElementById('pT_'+d)?.classList.add('match'); hitPT.push(d); }
+                if(nums.win6.includes(d)) { document.getElementById('w_'+d)?.classList.add('match'); }
+            });
+
+            // เด่นบน (หลักร้อยไม่นับ)
+            last2Digits.forEach(d => {
+                if(nums.d2.includes(d)) { document.getElementById('d_'+d)?.classList.add('match'); hitD.push(d); }
+            });
+
+            // เจาะ 2 ตัวบน (ตรง-กลับ)
+            let t2 = t.slice(-2);
+            let rev2 = t2.split("").reverse().join("");
+            nums.j2.forEach(n => { if(n === t2 || n === rev2) { document.getElementById('j2_'+n)?.classList.add('match'); hitJ2.push(n); } });
+
+            // --- เพิ่ม: ตรวจเจาะ 3 ตัวบน (เต็ง-โต๊ด) ---
+            if(t.length === 3) {
+                let sortedT = t.split("").sort().join(""); // เรียงเลขที่กรอก (เช่น 321 -> 123)
+                nums.j3.forEach(n => {
+                    let sortedJ = n.split("").sort().join(""); // เรียงเลขชุดเจาะ (เช่น 123 -> 123)
+                    if(sortedT === sortedJ) {
+                        document.getElementById('j3_'+n)?.classList.add('match');
+                        hitJ3 = n;
+                    }
+                });
+            }
+
+            if(hitD.length) res.push(`<span class="status-item">⭐ เด่นบนเข้า: [${[...new Set(hitD)].join(",")}]</span>`);
+            if(hitPT.length) res.push(`<span class="status-item">🔝 พิกัดบนเข้า: [${[...new Set(hitPT)].join(",")}]</span>`);
+            if(hitJ2.length) res.push(`<span class="status-item">📍 เจาะ 2 บนเข้า: [${[...new Set(hitJ2)].join(",")}]</span>`);
+            if(hitJ3) res.push(`<span class="status-item">🔱 เจาะ 3 ตัวแตก!! [${hitJ3}]</span>`);
+        }
+
+        // --- 2. ตรวจสอบฝั่งล่าง ---
+        if (b && b.length >= 2) {
+            let hitD = [], hitPB = [], hitJ2B = [];
+            let bDigits = b.split("").map(Number);
+
+            bDigits.forEach(d => {
+                if(nums.d2.includes(d)) { document.getElementById('d_'+d)?.classList.add('match'); hitD.push(d); }
+                if(nums.pB.includes(d)) { document.getElementById('pB_'+d)?.classList.add('match'); hitPB.push(d); }
+                if(nums.win6.includes(d)) { document.getElementById('w_'+d)?.classList.add('match'); }
+            });
+
+            let revB = b.split("").reverse().join("");
+            nums.j2.forEach(n => { if(n === b || n === revB) { document.getElementById('j2_'+n)?.classList.add('match'); hitJ2B.push(n); } });
+
+            if(hitD.length) res.push(`<span class="status-item">⭐ เด่นล่างเข้า: [${[...new Set(hitD)].join(",")}]</span>`);
+            if(hitPB.length) res.push(`<span class="status-item">🔜 พิกัดล่างเข้า: [${[...new Set(hitPB)].join(",")}]</span>`);
+            if(hitJ2B.length) res.push(`<span class="status-item">📍 เจาะ 2 ล่างเข้า: [${[...new Set(hitJ2B)].join(",")}]</span>`);
+        }
+
+        if (res.length > 0) {
+            report.style.display = "block";
+            report.innerHTML = `<b style="color:var(--emerald); display:block; margin-bottom:5px;">✨ บารมีเลขปรากฏ ✨</b>` + res.join("");
+            playBeep();
+        }
+    }
+
+
+    function copyAll() {
+        const shr = document.getElementById('shrine').value || "สำนักเจ้าแม่";
+        const lotto = document.getElementById('lotto').value || "หวยรวย";
+        const admin = document.getElementById('admin').value || "เจ้าแม่โปรคำนวณ";
+        const now = new Date();
+        let msg = `🍀 เจ้าแม่โปรคำนวณ 🍀\n🚩 ${shr} 🚩\n🎯 ${lotto}\n📅 วันที่ ${now.toLocaleDateString('th-TH')} | 🕒 เวลา ${now.toLocaleTimeString('th-TH')}\n\n`;
+        msg += `⭐ เด่น: ${nums.d2.join("-")}\n🔢 วินบน/ล่าง: ${nums.win6.join("")}\n🔝 พิกัดบน5ตัว: ${nums.pT.join("")}\n🔜 พิกัดล่าง5ตัว: ${nums.pB.join("")}\n📍 เจาะ 2 ตัว: ${nums.j2.join(",")}\n🔱 เจาะ 3 ตัว: ${nums.j3.join(",")}\n\n✍️ แอดมิน: ${admin}`;
+        const helper = document.getElementById('copyHelper');
+        helper.value = msg; helper.select(); helper.setSelectionRange(0, 99999);
+        document.execCommand('copy'); alert("🔮 คัดลอกเรียบร้อยค่ะ ✨");
+    }
+
+    function printReport() {
+        if(document.getElementById('reportArea').style.display === 'none') {
+            alert("กรุณากดปุ่ม 'คำนวณรับทรัพย์' ก่อนพิมพ์นะคะ");
+            return;
+        }
+        window.print();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Master Premium v2026 & SuperWin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --gold: #d4af37; 
+            --navy: #0f172a; 
+            --accent: #f43f5e; 
+            --success: #10b981; 
+            --gold-light: #fde68a; 
+            --primary-glow: #6366f1;
+        }
+        body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); background-attachment: fixed; color: #f8fafc; padding: 10px; margin: 0; min-height: 100vh; }
+        .container { max-width: 1200px; margin: auto; background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(12px); padding: 20px; border-radius: 24px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        .bulk-box { background: rgba(212, 175, 55, 0.05); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--gold); }
+        .bulk-area { width: 100%; height: 90px; background: #0f172a; color: var(--gold-light); border: 1px solid var(--gold); border-radius: 10px; padding: 10px; font-size: 13px; outline: none; margin-bottom: 10px; resize: none; box-sizing: border-box; font-family: 'Prompt', sans-serif; }
+        .btn-bulk { background: linear-gradient(to right, #10b981, #059669); color: white; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-bulk:hover { filter: brightness(1.1); }
+
+        .settings-box { background: rgba(212, 175, 55, 0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--gold); display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .input-config { width: 85px !important; text-align: center; border: 1px solid var(--gold) !important; background: #0f172a; color: var(--gold); border-radius: 5px; font-weight: bold; padding: 5px; font-family: 'Prompt', sans-serif; }
+        
+        select.input-config { width: 110px !important; cursor: pointer; }
+        select.input-config option { background: #0f172a; color: white; }
+
+        .input-box { background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        input[type="text"], input[type="number"] { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: #0f172a; color: white; outline: none; font-family: 'Prompt', sans-serif; min-width: 120px; }
+        
+        button { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-family: 'Prompt', sans-serif; transition: 0.2s; }
+        .btn-calc { background: linear-gradient(to right, #d4af37, #996515); color: #0f172a; flex: 2; }
+        .btn-summary { background: #10b981; color: white; border-radius: 8px; font-size: 11px; padding: 6px 12px; border: none; }
+        .btn-del { background: #450a0a; color: #f87171; padding: 6px 10px; border-radius: 5px; font-size: 11px; border: 1px solid #7f1d1d; }
+        .btn-copy { width: 100%; background: var(--gold); color: #0f172a; border-radius: 5px; font-size: 11px; padding: 5px; margin-top: 5px; font-weight: bold; border: none; }
+
+        .table-container { width: 100%; overflow-x: auto; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+        th { background: rgba(15, 23, 42, 0.9); color: var(--gold); font-size: 12px; padding: 12px 8px; border-bottom: 1px solid var(--gold); }
+        td { padding: 10px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        
+        .num-card { background: rgba(255,255,255,0.08); border-radius: 4px; padding: 2px 5px; font-size: 11px; border: 1px solid transparent; display: inline-block; margin: 1px; transition: 0.2s; }
+        .num-card:hover { background: var(--gold); color: #0f172a; transform: scale(1.1); }
+        .is-win { background: rgba(16, 185, 129, 0.8) !important; border-color: var(--success) !important; color: white !important; font-weight: bold; }
+        
+        .stat-bar { margin-top: 15px; padding: 15px; background: rgba(15, 23, 42, 0.8); border-radius: 15px; display: flex; justify-content: space-around; border: 1px solid var(--gold); margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .stat-val { font-size: 18px; color: var(--success); font-weight: bold; display: block; }
+        .stat-sub { font-size: 10px; color: #94a3b8; display: block; margin-top: 2px; }
+
+        .report-area { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--gold); border-radius: 15px; padding: 15px; }
+        .report-content { font-size: 11px; color: #94a3b8; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; text-align: left; font-family: monospace; }
+
+        .scan-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .scan-box { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--gold); border-radius: 15px; padding: 12px; }
+        .scan-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 180px; overflow-y: auto; margin-top: 8px; padding: 5px; }
+        .scan-item { background: #0f172a; border: 1px solid rgba(212, 175, 55, 0.3); padding: 6px; border-radius: 8px; text-align: center; min-width: 75px; cursor: pointer; transition: 0.2s; flex: 1; }
+        .scan-item:hover { background: var(--gold); transform: scale(1.05); }
+        .scan-item:hover div { color: #000 !important; }
+        .gold-blink { animation: blink-g 1s infinite alternate; color: #fff !important; text-shadow: 0 0 8px var(--gold); }
+        @keyframes blink-g { from { opacity: 1; } to { opacity: 0.5; } }
+
+        .win-extra-section { background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 20px; padding: 20px; margin-top: 25px; }
+        .win-display { display: flex; justify-content: center; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        .win-ball { width: 42px; height: 42px; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4); }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; }
+        .action-btn { padding: 12px; border: none; border-radius: 10px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-no-dub { background: linear-gradient(135deg, #ec4899, #be185d); }
+        .btn-3d { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .btn-2d { background: linear-gradient(135deg, #10b981, #047857); }
+        .btn-with-dub { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    </style>
+</head>
+<body onload="loadData(); updateClock();">
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: var(--gold); margin: 0; font-size: 24px;">💎 MASTER PREMIER v2026 & SUPER WIN</h1>
+        <div id="clock" style="font-size: 12px; color: #94a3b8; margin-top: 5px;"></div>
+    </div>
+
+    <div class="bulk-box">
+        <textarea id="bulkInput" class="bulk-area" placeholder="วางสถิติย้อนหลังที่นี่ (ระบบห่วงโซ่จะดึงผลอัตโนมัติ)..."></textarea>
+        <button class="btn-bulk" onclick="processBulk()">⚡ วิเคราะห์เลข & ดึงผลอัตโนมัติ</button>
+    </div>
+
+    <div class="bulk-box" style="border-color: var(--success); background: rgba(16, 185, 129, 0.05);">
+        <textarea id="resultBulkUpdate" class="bulk-area" style="border-color: var(--success);" placeholder="วางผลรางวัลเพื่ออัปเดต... (เช่น ฮานอย 44527)"></textarea>
+        <button class="btn-bulk" style="background: #10b981;" onclick="execBulkUpdate()">✅ อัปเดตผลรางวัลตามรายชื่อ</button>
+    </div>
+
+    <div class="settings-box">
+        <label>⚙ ปรับสูตร:</label>
+        <input type="number" id="powerInput" class="input-config" value="2" step="0.1" onchange="saveAndReload()">
+        
+        <label style="margin-left: 10px;">🎯 วิน:</label>
+        <select id="winCountSelect" class="input-config" onchange="saveAndReload()">
+            <option value="4">วิน 4 ตัว</option>
+            <option value="5">วิน 5 ตัว</option>
+            <option value="6" selected>วิน 6 ตัว</option>
+            <option value="7">วิน 7 ตัว</option>
+            <option value="8">วิน 8 ตัว</option>
+            <option value="9">วิน 9 ตัว</option>
+        </select>
+
+        <button class="btn-summary" onclick="copyAllSummary()">📋 คัดลอกรวม</button>
+        <button class="btn-summary" onclick="shareAllSummary()" style="background: #2563eb;">📤 แชร์สรุป</button>
+        <button onclick="clearAllData()" style="background: #ef4444; color: white; padding: 6px 12px; font-size: 11px;">🗑 ล้าง</button>
+    </div>
+
+    <h3 style="color: var(--gold); margin: 15px 5px 8px 5px; font-size: 15px;">🔍 เครื่องสแกนสูตรแม่นยำสูง (0.1)</h3>
+    <div class="scan-container">
+        <div class="scan-box">
+            <div style="color:var(--accent); font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px; font-size:13px;">🎯 สายเน้น (50%+)</div>
+            <div id="scan-f-list" class="scan-list"></div>
+        </div>
+        <div class="scan-box">
+            <div style="color:var(--success); font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px; font-size:13px;">🎡 สายรูด (70%+)</div>
+            <div id="scan-r-list" class="scan-list"></div>
+        </div>
+        <div class="scan-box">
+            <div style="color:var(--gold); font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px; font-size:13px;">🔢 สายวินพรีเมียม (70%+)</div>
+            <div id="scan-w-list" class="scan-list"></div>
+        </div>
+    </div>
+
+    <div class="stat-bar">
+        <div style="text-align:center;">ทั้งหมด <span id="statTotal" class="stat-val" style="color:white">0</span></div>
+        <div style="text-align:center;">
+            เน้น <span id="statFocus" class="stat-val">0%</span>
+            <span id="countFocus" class="stat-sub">(เข้า 0 หลุด 0)</span>
+        </div>
+        <div style="text-align:center;">
+            รูด <span id="statRuud" class="stat-val">0%</span>
+            <span id="countRuud" class="stat-sub">(เข้า 0 หลุด 0)</span>
+        </div>
+        <div style="text-align:center;">
+            วิน <span id="statWin6" class="stat-val">0%</span>
+            <span id="countWin" class="stat-sub">(เข้า 0 หลุด 0)</span>
+        </div>
+    </div>
+
+    <div class="input-box">
+        <div class="input-row">
+            <input type="text" id="lotteryName" placeholder="ชื่อหวย/รอบ" style="flex:1;">
+            <input type="number" id="mainInput" placeholder="เลขเดิม 5 หลัก" inputmode="numeric" style="flex:1.5;">
+            <button class="btn-calc" onclick="addNewData()">➕ เพิ่มและคำนวณ</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>รอบ/หวย</th>
+                    <th>เลขเดิม</th>
+                    <th>เน้น</th>
+                    <th>รูด</th>
+                    <th>วินพรีเมียม (คลิกเพื่อเลือก)</th>
+                    <th>เจาะ 2 (8ชุด)</th>
+                    <th>เจาะ 3 (8ชุด)</th>
+                    <th>ผล [บน-ล่าง]</th>
+                    <th>ลบ</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="win-extra-section">
+        <h3 style="color: #818cf8; margin-top: 0; text-align: center;">🔥 แผงสร้างชุดวินพิเศษ (Super Win Generator)</h3>
+        <div style="text-align: center; color: var(--gold-light); font-size: 14px;" id="extraVipTitle">เลขเด่น 2 ตัว: -</div>
+        <div class="win-display" id="extraWinBalls"></div>
+        <div class="btn-grid">
+            <button class="action-btn btn-no-dub" onclick="generateExtraCombos(2, false)">✨ วินเลข 2 ตัว (ไม่รวมเบิ้ล)</button>
+            <button class="action-btn btn-3d" onclick="generateExtraCombos(3, false)">✨ วินเลข 3 ตัว (ไม่รวมเบิ้ล)</button>
+            <button class="action-btn btn-2d" onclick="generateExtraCombos(2, true)">⭐ วินเลข 2 ตัว (รวมเบิ้ล)</button>
+            <button class="action-btn btn-with-dub" onclick="generateExtraCombos(3, true)">⭐ วินเลข 3 ตัว (รวมเบิ้ล)</button>
+        </div>
+        <div id="extraOutputContainer" style="margin-top: 15px;"></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+        <div class="report-area"><h3>🎯 สายเน้น <button class="btn-summary" onclick="copyFormatted('res-focus', '🎯 [ รายงานสายเน้น ]')">คัดลอก</button></h3><div id="res-focus" class="report-content"></div></div>
+        <div class="report-area"><h3>🎡 สายรูด <button class="btn-summary" onclick="copyFormatted('res-ruud', '🎡 [ รายงานสายรูด ]')">คัดลอก</button></h3><div id="res-ruud" class="report-content"></div></div>
+        <div class="report-area"><h3>🔢 สายวิน <button class="btn-summary" onclick="copyFormatted('res-win', '🔢 [ รายงานสายวิน ]')">คัดลอก</button></h3><div id="res-win" class="report-content"></div></div>
+        <div class="report-area"><h3>📢 สายเจาะ <button class="btn-summary" onclick="copyFormatted('res-drill', '📢 [ รายงานสายเจาะ ]')">คัดลอก</button></h3><div id="res-drill" class="report-content"></div></div>
+    </div>
+</div>
+
+<script>
+const KEY = 'master_premium_v2026_superwin_freq';
+let dataList = JSON.parse(localStorage.getItem(KEY)) || [];
+
+function loadData() { 
+    updateClock(); 
+    renderTable(); 
+}
+
+function updateClock() {
+    const now = new Date();
+    const clockEl = document.getElementById('clock');
+    if(clockEl) clockEl.innerText = "📅 " + now.toLocaleDateString('th-TH') + " | 🕒 " + now.toLocaleTimeString('th-TH');
+    setTimeout(updateClock, 1000);
+}
+
+function isHit2D(numStr, res) {
+    if (!res || res.length < 5) return false;
+    const t2 = res.slice(1, 3);
+    const b2 = res.slice(3, 5);
+    return numStr === t2 || numStr === b2;
+}
+
+function isHit3D(numStr, res) {
+    if (!res || res.length < 5) return false;
+    const t3 = res.slice(0, 3);
+    return numStr === t3;
+}
+
+function calculateFormula(inputStr, customP = null) {
+    const pwrInput = document.getElementById('powerInput').value;
+    const pwr = customP || parseFloat(pwrInput) || 2;
+    const winCount = parseInt(document.getElementById('winCountSelect').value) || 6;
+    
+    const numSet = parseInt(inputStr.slice(1, 4)) || 0;
+    let base = Math.pow(numSet, pwr); 
+    if (!isFinite(base)) base = 0;
+    
+    const resArr = [ Math.abs(base - 24), Math.abs(base - 39), Math.abs(base - 49), Math.abs(base - 54) ];
+    const allDigits = (resArr.join('') + inputStr.slice(1, 4)).split('').map(Number).filter(n => !isNaN(n));
+    
+    const freq = {}; 
+    allDigits.forEach(x => freq[x] = (freq[x] || 0) + 1);
+    
+    const sorted = Object.keys(freq).sort((a, b) => freq[b] !== freq[a] ? freq[b] - freq[a] : b - a).map(Number);
+    const winDigits = (sorted.length >= winCount ? sorted.slice(0, winCount) : [...sorted, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].slice(0, winCount));
+    
+    let s2 = [];
+    for (let i = 0; i < winDigits.length - 1 && s2.length < 8; i++) {
+        s2.push(`${winDigits[i]}${winDigits[i+1]}`);
+    }
+    let extraIdx = 0;
+    while(s2.length < 8 && winDigits.length >= 2) {
+        let a = winDigits[extraIdx % winDigits.length];
+        let b = winDigits[(extraIdx + 2) % winDigits.length];
+        s2.push(`${a}${b}`);
+        extraIdx++;
+    }
+
+    let s3 = [];
+    let spareDigits = winDigits.filter(d => !s2[0]?.includes(d));
+    if(spareDigits.length === 0) spareDigits = winDigits;
+
+    for (let i = 0; i < 8; i++) {
+        let pair = s2[i % s2.length];
+        let hundredNum = spareDigits[i % spareDigits.length];
+        s3.push(`${hundredNum}${pair}`);
+    }
+
+    return { 
+        focus: sorted[0] || 0, 
+        ruud: (sorted[0] || 0) + "-" + (sorted[1] || 0), 
+        ruudNums: [sorted[0] || 0, sorted[1] || 0], 
+        win6: winDigits, 
+        s2, 
+        s3 
+    };
+}
+
+function getMasterAccuracy(pwr) {
+    const validData = dataList.filter(d => d.resultStr && d.resultStr.trim().length === 5);
+    const totalValid = validData.length;
+    if (totalValid === 0) return { f: "0.0", r: "0.0", w: "0.0", total: 0 };
+
+    let hits = { f: 0, r: 0, w: 0 };
+    validData.forEach(d => {
+        const f = calculateFormula(d.inputStr, pwr);
+        const res = d.resultStr;
+        const allDigitsResult = res; 
+        const t2 = res.slice(1, 3);
+        const b2 = res.slice(3, 5);
+        const targetRoodSource = t2 + b2; 
+
+        if (allDigitsResult.includes(f.focus.toString())) hits.f++;
+        if (targetRoodSource.includes(f.ruudNums[0].toString()) || targetRoodSource.includes(f.ruudNums[1].toString())) hits.r++;
+        
+        const winSet = new Set(f.win6);
+        const t3 = res.slice(0, 3);
+        const t3FullMatch = winSet.has(Number(t3[0])) && winSet.has(Number(t3[1])) && winSet.has(Number(t3[2]));
+        const t2FullMatch = winSet.has(Number(t2[0])) && winSet.has(Number(t2[1]));
+        const b2FullMatch = winSet.has(Number(b2[0])) && winSet.has(Number(b2[1]));
+        if (t3FullMatch || t2FullMatch || b2FullMatch) hits.w++;
+    });
+
+    return {
+        f: ((hits.f / totalValid) * 100).toFixed(1),
+        r: ((hits.r / totalValid) * 100).toFixed(1),
+        w: ((hits.w / totalValid) * 100).toFixed(1),
+        total: totalValid
+    };
+}
+
+function selectRowForSuperWin(inputStr, name) {
+    const f = calculateFormula(inputStr);
+    document.getElementById('extraVipTitle').innerText = `🔥 เลขเด่น 2 ตัว (${name}): [ ${f.ruud} ]`;
+    let ballsContainer = document.getElementById('extraWinBalls');
+    ballsContainer.innerHTML = '';
+    f.win6.forEach(num => {
+        let ball = document.createElement('div');
+        ball.className = 'win-ball';
+        ball.innerText = num;
+        ballsContainer.appendChild(ball);
+    });
+    window.activeWinDigits = f.win6;
+    window.activeTopTwo = f.ruud;
+    
+    document.querySelector('.win-extra-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderTable() {
+    const activeId = document.activeElement ? document.activeElement.id : null;
+    const tbody = document.getElementById('tableBody'); 
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const currentP = parseFloat(document.getElementById('powerInput').value) || 2;
+
+    dataList.forEach(entry => {
+        const f = calculateFormula(entry.inputStr, currentP);
+        const res = entry.resultStr;
+        let h = { f: false, r: false, w: false, d2: false, d3: false };
+
+        if(res.length === 5) {
+            const allDigitsResult = res; 
+            const t2 = res.slice(1, 3);
+            const b2 = res.slice(3, 5);
+            const targetRoodSource = t2 + b2; 
+            
+            if(allDigitsResult.includes(f.focus.toString())) h.f = true;
+            if(f.ruudNums.some(n => targetRoodSource.includes(n.toString()))) h.r = true;
+            
+            const winSet = new Set(f.win6);
+            const t3 = res.slice(0, 3);
+            const t3FullMatch = winSet.has(Number(t3[0])) && winSet.has(Number(t3[1])) && winSet.has(Number(t3[2]));
+            const t2FullMatch = winSet.has(Number(t2[0])) && winSet.has(Number(t2[1]));
+            const b2FullMatch = winSet.has(Number(b2[0])) && winSet.has(Number(b2[1]));
+            if(t3FullMatch || t2FullMatch || b2FullMatch) h.w = true;
+
+            if(f.s2.some(n => isHit2D(n, res))) h.d2 = true;
+            if(f.s3.some(n => isHit3D(n, res))) h.d3 = true;
+        }
+
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td style="cursor:pointer;" onclick="selectRowForSuperWin('${entry.inputStr}', '${entry.name}')" title="คลิกเพื่อเลือกคำนวณแผง Super Win">
+                <strong>${entry.name}</strong><br><small style="color:#94a3b8;">${entry.time}</small>
+            </td>
+            <td style="font-family:monospace; color:#94a3b8;">${entry.inputStr}</td>
+            <td class="${h.f ? 'is-win' : ''}" style="font-size:16px;">${f.focus}</td>
+            <td class="${h.r ? 'is-win' : ''}">${f.ruud}</td>
+            <td>${f.win6.map(n => {
+                let hitClass = '';
+                if(res.length === 5) {
+                    const t3 = res.slice(0,3);
+                    const t2 = res.slice(1,3); 
+                    const b2 = res.slice(3,5); 
+                    const winSet = new Set(f.win6);
+                    const t3FullMatch = winSet.has(Number(t3[0])) && winSet.has(Number(t3[1])) && winSet.has(Number(t3[2]));
+                    const t2FullMatch = winSet.has(Number(t2[0])) && winSet.has(Number(t2[1]));
+                    const b2FullMatch = winSet.has(Number(b2[0])) && winSet.has(Number(b2[1]));
+                    if ((t3FullMatch && t3.includes(n.toString())) || (t2FullMatch && t2.includes(n.toString())) || (b2FullMatch && b2.includes(n.toString()))) {
+                        hitClass = 'is-win';
+                    }
+                }
+                return `<div class="num-card ${hitClass}" onclick="selectRowForSuperWin('${entry.inputStr}', '${entry.name}')" style="cursor:pointer;" title="คลิกเพื่อเลือกชุดวินนี้">${n}</div>`;
+            }).join('')}</td>
+            <td>${f.s2.map(n => `<div class="num-card ${isHit2D(n, res) ? 'is-win' : ''}">${n}</div>`).join('')}</td>
+            <td>${f.s3.map(n => `<div class="num-card ${isHit3D(n, res) ? 'is-win' : ''}">${n}</div>`).join('')}</td>
+            <td>
+                <input type="number" id="in-${entry.id}" class="input-config" value="${res}" style="width:70px" oninput="updateRes('${entry.id}', this.value)">
+                <button class="btn-copy" style="padding:2px 5px; font-size:10px; width:auto; margin-top:2px;" onclick="copySingle('${entry.id}')">แชร์</button>
+            </td>
+            <td><button onclick="deleteEntry('${entry.id}')" class="btn-del">ลบ</button></td>
+        `;
+    });
+
+    if (activeId) {
+        const el = document.getElementById(activeId);
+        if (el) { el.focus(); el.value = el.value; }
+    }
+    updateStats();
+    renderSummaryBoxes();
+    runDeepScanner();
+    updateExtraPanel();
+}
+
+function runDeepScanner() {
+    const lists = { f: document.getElementById('scan-f-list'), r: document.getElementById('scan-r-list'), w: document.getElementById('scan-w-list') };
+    const validData = dataList.filter(d => d.resultStr && d.resultStr.trim().length === 5);
+    
+    if (!lists.f) return;
+    if (validData.length === 0) {
+        Object.values(lists).forEach(l => l.innerHTML = "<small style='color:#64748b;'>กรุณาใส่ผลในตาราง 1 งวด...</small>");
+        return;
+    }
+
+    Object.values(lists).forEach(l => l.innerHTML = "<small style='color:var(--gold)'>⏳ กำลังวิเคราะห์จุดแม่นยำ...</small>");
+
+    setTimeout(() => {
+        let results = { f: [], r: [], w: [] };
+        for (let p = 1.0; p <= 99.9; p += 0.5) {
+            const acc = getMasterAccuracy(p);
+            if (parseFloat(acc.f) >= 50) results.f.push({ p: p.toFixed(1), rate: acc.f });
+            if (parseFloat(acc.r) >= 70) results.r.push({ p: p.toFixed(1), rate: acc.r });
+            if (parseFloat(acc.w) >= 70) results.w.push({ p: p.toFixed(1), rate: acc.w });
+        }
+
+        Object.keys(lists).forEach(t => {
+            lists[t].innerHTML = "";
+            results[t].sort((a, b) => b.rate - a.rate);
+            if (results[t].length === 0) {
+                lists[t].innerHTML = "<small style='color:#64748b;'>ไม่พบสูตรตรงเกณฑ์</small>";
+            } else {
+                results[t].slice(0, 12).forEach(item => {
+                    const blink = parseFloat(item.rate) >= 85 ? 'gold-blink' : '';
+                    lists[t].innerHTML += `
+                        <div class="scan-item" onclick="applyFormula('${item.p}')">
+                            <div style="font-size:9px; color:var(--gold-light);">สูตร ${item.p}</div>
+                            <div class="${blink}" style="font-size:11px; font-weight:bold; color:var(--success)">${item.rate}%</div>
+                        </div>`;
+                });
+            }
+        });
+    }, 30);
+}
+
+function applyFormula(v) { 
+    document.getElementById('powerInput').value = v; 
+    saveAndReload(); 
+}
+
+function processBulk() {
+    const raw = document.getElementById('bulkInput').value.trim();
+    if (!raw) return alert("กรุณาวางข้อมูล");
+
+    let headerName = "";
+    const lines = raw.split('\n');
+    for (let line of lines) {
+        if (line.includes("สถิติย้อนหลัง") || line.includes("ลา") || line.includes("ฮานอย") || line.includes("นิเคอิ")) {
+            headerName = line.replace(/สถิติย้อนหลัง/g, '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '').trim();
+            break;
+        }
+    }
+
+    const tempData = [];
+    const pattern = /(\d{3})[- ]?(\d{2})/;
+
+    lines.forEach((line) => {
+        const m = line.match(pattern);
+        if (m) {
+            const full5 = m[1] + m[2];
+            let rowName = line.replace(m[0], '')
+                              .replace(/[0-9]{1,2}\s+(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+[0-9]{2}/g, '')
+                              .replace(/[|]/g, '')
+                              .replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '')
+                              .trim();
+
+            tempData.push({ name: rowName || headerName || "ทั่วไป", full: full5 });
+        }
+    });
+
+    if (tempData.length < 1) return alert("ไม่พบรูปแบบเลขผลรางวัล 5 หลัก");
+
+    const isChain = tempData.every(d => d.name === tempData[0].name);
+    const newEntries = [];
+    
+    for (let i = 0; i < tempData.length; i++) {
+        const current = tempData[i];
+        let autoResult = "";
+        if (isChain && tempData[i + 1]) {
+            autoResult = tempData[i + 1].full;
+        }
+        newEntries.push({
+            id: "row_" + Date.now() + "_" + i,
+            name: current.name,
+            inputStr: current.full,
+            resultStr: autoResult,
+            time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+        });
+    }
+
+    dataList = isChain ? [...newEntries, ...dataList] : [...newEntries.reverse(), ...dataList];
+    saveAndReload();
+    document.getElementById('bulkInput').value = '';
+    alert(isChain ? "วิเคราะห์เลขแบบห่วงโซ่อัตโนมัติสำเร็จ ✨" : "นำเข้าข้อมูลสำเร็จ ✨");
+}
+
+function execBulkUpdate() {
+    const raw = document.getElementById('resultBulkUpdate').value.trim();
+    if (!raw) return alert("กรุณาวางข้อมูลผลตรวจ");
+
+    const lines = raw.split('\n');
+    const pattern = /(\d{3})[- ]?(\d{2})/;
+    let matchCount = 0;
+
+    lines.forEach(line => {
+        const m = line.match(pattern);
+        if (m) {
+            const res5Digit = m[1] + m[2];
+            let lotteryName = line.replace(m[0], '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '').trim();
+
+            for (let i = 0; i < dataList.length; i++) {
+                if (lotteryName && dataList[i].name.includes(lotteryName) && dataList[i].resultStr === "") {
+                    dataList[i].resultStr = res5Digit;
+                    matchCount++;
+                    break;
+                }
+            }
+        }
+    });
+
+    if (matchCount > 0) {
+        saveAndReload();
+        document.getElementById('resultBulkUpdate').value = '';
+        alert(`อัปเดตผลสำเร็จ ${matchCount} รายการ ✨`);
+    } else {
+        alert("ไม่พบชื่อหวยที่ตรงกัน หรือหวยนั้นมีผลตรวจแล้ว");
+    }
+}
+
+function updateRes(id, val) {
+    const idx = dataList.findIndex(x => x.id == id);
+    if (idx > -1) {
+        dataList[idx].resultStr = val.slice(0, 5);
+        save();
+        if (val.length === 5 || val.length === 0) {
+            renderTable();
+        }
+    }
+}
+
+function updateExtraPanel() {
+    if (dataList.length === 0) return;
+    if (!window.activeWinDigits) {
+        const latest = dataList[0];
+        const f = calculateFormula(latest.inputStr);
+        document.getElementById('extraVipTitle').innerText = `🔥 เลขเด่น 2 ตัว (${latest.name}): [ ${f.ruud} ]`;
+        let ballsContainer = document.getElementById('extraWinBalls');
+        ballsContainer.innerHTML = '';
+        f.win6.forEach(num => {
+            let ball = document.createElement('div');
+            ball.className = 'win-ball';
+            ball.innerText = num;
+            ballsContainer.appendChild(ball);
+        });
+        window.activeWinDigits = f.win6;
+        window.activeTopTwo = f.ruud;
+    }
+}
+
+function generateExtraCombos(digitCount, includeDub) {
+    let winDigits = window.activeWinDigits;
+    if (!winDigits || winDigits.length === 0) {
+        if(dataList.length > 0) {
+            winDigits = calculateFormula(dataList[0].inputStr).win6;
+        } else {
+            return alert("กรุณาเพิ่มข้อมูลในตารางก่อน");
+        }
+    }
+
+    let uniqueDirect = [];
+    let totalTod = 0;
+
+    if (digitCount === 2) {
+        if (includeDub) {
+            for (let i = 0; i < winDigits.length; i++) {
+                for (let j = 0; j < winDigits.length; j++) {
+                    if (i <= j) uniqueDirect.push(`${winDigits[i]}${winDigits[j]}`);
+                    totalTod += (winDigits[i] === winDigits[j] ? 1 : 2);
+                }
+            }
+        } else {
+            for (let i = 0; i < winDigits.length; i++) {
+                for (let j = i + 1; j < winDigits.length; j++) {
+                    uniqueDirect.push(`${winDigits[i]}${winDigits[j]}`);
+                }
+            }
+            totalTod = uniqueDirect.length * 2;
+        }
+    } else if (digitCount === 3) {
+        if (includeDub) {
+            let seen = new Set();
+            for (let i = 0; i < winDigits.length; i++) {
+                for (let j = 0; j < winDigits.length; j++) {
+                    for (let k = 0; k < winDigits.length; k++) {
+                        let sorted = [winDigits[i], winDigits[j], winDigits[k]].sort((a,b)=>a-b).join('');
+                        if (!seen.has(sorted)) { seen.add(sorted); uniqueDirect.push(sorted); }
+                    }
+                }
+            }
+            seen.forEach(combo => {
+                let a = parseInt(combo[0]), b = parseInt(combo[1]), c = parseInt(combo[2]);
+                if (a === b && b === c) totalTod += 1;
+                else if (a === b || b === c || a === c) totalTod += 3;
+                else totalTod += 6;
+            });
+        } else {
+            for (let i = 0; i < winDigits.length; i++) {
+                for (let j = i + 1; j < winDigits.length; j++) {
+                    for (let k = j + 1; k < winDigits.length; k++) {
+                        uniqueDirect.push(`${winDigits[i]}${winDigits[j]}${winDigits[k]}`);
+                    }
+                }
+            }
+            totalTod = uniqueDirect.length * 6;
+        }
+    }
+
+    let outputHTML = `
+        <div style="background: rgba(15, 23, 42, 0.9); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:#38bdf8;">
+                <span>🎯 วิน ${winDigits.length} ตัว / จับ ${digitCount} ตัว (${includeDub ? 'รวมเบิ้ล' : 'ไม่รวมเบิ้ล'}) | ตรง ${uniqueDirect.length} | โต๊ด ${totalTod}</span>
+                <button class="btn-summary" onclick="smartCopy(this.nextElementSibling.innerText)">คัดลอกชุดวิน</button>
+            </div>
+            <div style="font-size:13px; word-break:break-all; max-height:120px; overflow-y:auto; color:#f1f5f9; font-family:monospace;">${uniqueDirect.join(', ')}</div>
+        </div>
+    `;
+    document.getElementById('extraOutputContainer').innerHTML = outputHTML;
+}
+
+function updateStats() {
+    let fC=0, rC=0, wC=0, v=0;
+    dataList.forEach(e => {
+        if(e.resultStr && e.resultStr.length === 5) {
+            v++;
+            const f = calculateFormula(e.inputStr);
+            const res = e.resultStr;
+            const allDigitsResult = res;
+            const t2 = res.slice(1,3);
+            const b2 = res.slice(3,5);
+            const targetRoodSource = t2 + b2;
+            
+            if(allDigitsResult.includes(f.focus.toString())) fC++;
+            if(f.ruudNums.some(n => targetRoodSource.includes(n.toString()))) rC++;
+            
+            const winSet = new Set(f.win6);
+            const t3 = res.slice(0, 3);
+            const t3FullMatch = winSet.has(Number(t3[0])) && winSet.has(Number(t3[1])) && winSet.has(Number(t3[2]));
+            const t2FullMatch = winSet.has(Number(t2[0])) && winSet.has(Number(t2[1]));
+            const b2FullMatch = winSet.has(Number(b2[0])) && winSet.has(Number(b2[1]));
+            if(t3FullMatch || t2FullMatch || b2FullMatch) wC++;
+        }
+    });
+
+    document.getElementById('statTotal').innerText = dataList.length;
+    document.getElementById('statFocus').innerText = (v ? (fC/v*100).toFixed(1) : 0) + '%';
+    document.getElementById('statRuud').innerText = (v ? (rC/v*100).toFixed(1) : 0) + '%';
+    document.getElementById('statWin6').innerText = (v ? (wC/v*100).toFixed(1) : 0) + '%';
+
+    document.getElementById('countFocus').innerText = `(เข้า ${fC} หลุด ${v - fC})`;
+    document.getElementById('countRuud').innerText = `(เข้า ${rC} หลุด ${v - rC})`;
+    document.getElementById('countWin').innerText = `(เข้า ${wC} หลุด ${v - wC})`;
+}
+
+function renderSummaryBoxes() {
+    const p = document.getElementById('powerInput').value || "2.0";
+    let rep = { f: "", r: "", w: "", d: "" };
+    [...dataList].reverse().forEach(item => {
+        const f = calculateFormula(item.inputStr);
+        const res = item.resultStr;
+        const resDisp = res.length === 5 ? ` ➔ [${res.slice(0,3)}-${res.slice(3,5)}]` : " ➔ ⏳ รอผล";
+        
+        let s = { f:'❌', r:'❌', w:'❌', d:'❌' };
+        if(res.length === 5) {
+            const t3 = res.slice(0,3);
+            const t2 = res.slice(1,3);
+            const b2 = res.slice(3,5);
+            
+            // สายเน้น
+            const focusStr = f.focus.toString();
+            const focusOnTop = t2.includes(focusStr);
+            const focusOnBot = b2.includes(focusStr);
+            if (focusOnTop && focusOnBot) {
+                s.f = '✅✅';
+            } else if (focusOnTop || focusOnBot || res.slice(0,3).includes(focusStr)) {
+                s.f = '✅';
+            }
+
+            // สายรูด
+            const r0 = f.ruudNums[0].toString();
+            const r1 = f.ruudNums[1].toString();
+            const ruudTop = t2.includes(r0) || t2.includes(r1);
+            const ruudBot = b2.includes(r0) || b2.includes(r1);
+            if (ruudTop && ruudBot) {
+                s.r = '✅✅';
+            } else if (ruudTop || ruudBot) {
+                s.r = '✅';
+            }
+
+            // สายวิน (เช็ค แตก 3 ตัวบน = ❤️ / เข้าเด้งบนล่าง = ✅✅ / ทั่วไป = ✅)
+            const winSet = new Set(f.win6);
+            const t3FullMatch = winSet.has(Number(t3[0])) && winSet.has(Number(t3[1])) && winSet.has(Number(t3[2]));
+            const t2FullMatch = winSet.has(Number(t2[0])) && winSet.has(Number(t2[1]));
+            const b2FullMatch = winSet.has(Number(b2[0])) && winSet.has(Number(b2[1]));
+
+            if (t3FullMatch && t2FullMatch && b2FullMatch) {
+                s.w = '❤️✅✅'; // แตก 3 ตัวบนและเข้าเด้งบนล่างพร้อมกัน
+            } else if (t3FullMatch) {
+                s.w = '❤️'; // แตก 3 ตัวบน
+            } else if (t2FullMatch && b2FullMatch) {
+                s.w = '✅✅'; // เข้าเด้งบนล่าง
+            } else if (t2FullMatch || b2FullMatch) {
+                s.w = '✅'; // เข้าฝั่งใดฝั่งหนึ่ง
+            }
+
+            // สายเจาะ
+            if(f.s2.some(n => isHit2D(n, res)) || f.s3.some(n => isHit3D(n, res))) s.d = '✅';
+        } else { 
+            s = { f:'⏳', r:'⏳', w:'⏳', d:'⏳' }; 
+        }
+
+        rep.f += `${s.f} ${item.name} ➔ ${f.focus}${resDisp}\n`;
+        rep.r += `${s.r} ${item.name} ➔ ${f.ruud}${resDisp}\n`;
+        rep.w += `${s.w} ${item.name} ➔ ${f.win6.join('')}${resDisp}\n`;
+        rep.d += `${s.d} ${item.name}\n • เจาะ2: ${f.s2.join(',')}\n • เจาะ3: ${f.s3.join(',')}\n ${resDisp}\n━━━━━━━━━━━━━━\n`;
+    });
+    
+    document.getElementById('res-focus').innerText = rep.f; 
+    document.getElementById('res-ruud').innerText = rep.r;
+    document.getElementById('res-win').innerText = rep.w; 
+    document.getElementById('res-drill').innerText = rep.d;
+    
+    window.currentSummary = `💎 [ สรุปรวม | ⚙️ สูตร: ${p} ]\n🎯 สายเน้น:\n${rep.f}\n🎡 สายรูด:\n${rep.r}\n🔢 สายวิน:\n${rep.w}\n📢 สายเจาะ:\n${rep.d}\nBy LINE ID:momongmo`;
+}
+
+function fallbackCopy(text) {
+    const textArea = document.createElement("textarea"); textArea.value = text;
+    textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
+    document.body.appendChild(textArea); textArea.focus(); textArea.select();
+    try { document.execCommand('copy'); alert("✅ คัดลอกสำเร็จ"); } catch (err) { alert("❌ คัดลอกไม่สำเร็จ"); }
+    document.body.removeChild(textArea);
+}
+
+function smartCopy(text) {
+    if (!text || text.includes("ไม่มีข้อมูล")) return alert("ไม่มีข้อมูลให้คัดลอก");
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => alert("✅ คัดลอกสำเร็จ")).catch(() => fallbackCopy(text));
+    } else { fallbackCopy(text); }
+}
+
+function copyFormatted(id, title) {
+    const p = document.getElementById('powerInput').value;
+    smartCopy(`📊 ${title} | ⚙ สูตร: ${p}\n━━━━━━━━━━━━━━\n${document.getElementById(id).innerText}\n━━━━━━━━━━━━━━\nBy momongmo`);
+}
+
+function copyAllSummary() { renderSummaryBoxes(); smartCopy(window.currentSummary); }
+async function shareAllSummary() { renderSummaryBoxes(); if (navigator.share) { try { await navigator.share({ title: 'สรุปผล', text: window.currentSummary }); } catch (err) {} } else { copyAllSummary(); } }
+
+function copySingle(id) {
+    const e = dataList.find(x => x.id == id); if(!e) return;
+    const f = calculateFormula(e.inputStr); const res = e.resultStr;
+    let resTxt = res.length === 5 ? `[${res.slice(0,3)}-${res.slice(3,5)}]` : "⏳ รอผล";
+    smartCopy(`🎯 ${e.name}\n🕒 ${e.time} | ⚙ สูตร: ${document.getElementById('powerInput').value}\nเน้น: ${f.focus}\nรูด: ${f.ruud}\nวิน: ${f.win6.join('')}\n📢 ผล: ${resTxt}\nBy LINE ID:momongmo`);
+}
+
+function addNewData() {
+    const val = document.getElementById('mainInput').value;
+    if(val.length < 5) return alert("กรอกเลขให้ครบ 5 หลัก");
+    dataList.unshift({ 
+        id: "id_"+Date.now(), 
+        name: document.getElementById('lotteryName').value || "ทั่วไป", 
+        inputStr: val, 
+        resultStr: "", 
+        time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) 
+    });
+    document.getElementById('mainInput').value = ''; 
+    window.activeWinDigits = null; 
+    saveAndReload();
+}
+
+function deleteEntry(id) { if(confirm('ต้องการลบรายการนี้?')) { dataList = dataList.filter(x => x.id != id); window.activeWinDigits = null; saveAndReload(); } }
+function clearAllData() { if(confirm('ต้องการล้างข้อมูลทั้งหมด?')) { dataList = []; window.activeWinDigits = null; saveAndReload(); } }
+function save() { localStorage.setItem(KEY, JSON.stringify(dataList)); }
+function saveAndReload() { save(); renderTable(); }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Master Premium v2026</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --navy: #0f172a; --accent: #f43f5e; --success: #10b981; --gold-light: #fde68a; }
+        body { font-family: 'Chakra Petch', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; padding: 10px; margin: 0; }
+        .container { max-width: 1200px; margin: auto; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 15px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .bulk-box { background: rgba(212, 175, 55, 0.05); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--gold); }
+        .bulk-area { width: 100%; height: 100px; background: #0f172a; color: var(--gold-light); border: 1px solid var(--gold); border-radius: 10px; padding: 10px; font-size: 13px; outline: none; margin-bottom: 10px; resize: none; box-sizing: border-box; }
+        .btn-bulk { background: linear-gradient(to right, #10b981, #059669); color: white; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; }
+        .settings-box { background: rgba(212, 175, 55, 0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--gold); display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .input-config { width: 85px !important; text-align: center; border: 1px solid var(--gold) !important; background: #0f172a; color: var(--gold); border-radius: 5px; font-weight: bold; padding: 5px; }
+        .input-box { background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: #0f172a; color: white; outline: none; }
+        button { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .btn-calc { background: linear-gradient(to right, #d4af37, #996515); color: #0f172a; flex: 2; }
+        .btn-summary { background: #10b981; color: white; border-radius: 8px; font-size: 11px; padding: 4px 10px; border: none; }
+        .btn-del { background: #450a0a; color: #f87171; padding: 4px 8px; border-radius: 5px; font-size: 10px; border: 1px solid #7f1d1d; }
+        .btn-copy { width: 100%; background: var(--gold); color: #0f172a; border-radius: 5px; font-size: 11px; padding: 5px; margin-top: 5px; font-weight: bold; border:none; }
+        .table-container { width: 100%; overflow-x: auto; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+        th { background: rgba(15, 23, 42, 0.9); color: var(--gold); font-size: 12px; padding: 10px; border-bottom: 1px solid var(--gold); }
+        td { padding: 8px 5px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .num-card { background: rgba(255,255,255,0.08); border-radius: 4px; padding: 2px 4px; font-size: 11px; border: 1px solid transparent; display: inline-block; margin: 1px; }
+        .is-win { background: rgba(16, 185, 129, 0.6) !important; border-color: var(--success) !important; color: white !important; font-weight: bold; }
+        .stat-bar { margin-top: 15px; padding: 12px; background: rgba(15, 23, 42, 0.8); border-radius: 15px; display: flex; justify-content: space-around; border: 1px solid var(--gold); margin-bottom: 15px; }
+        .stat-val { font-size: 18px; color: var(--success); font-weight: bold; display: block; }
+        .report-area { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--gold); border-radius: 15px; padding: 15px; }
+        .report-content { font-size: 11px; color: #94a3b8; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; text-align: left; }
+         /* --- เพิ่มเติมสำหรับระบบสแกนสูตรเด็ด --- */
+        .scan-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .scan-box { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--gold); border-radius: 15px; padding: 10px; }
+        .scan-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 180px; overflow-y: auto; margin-top: 5px; padding: 5px; }
+        .scan-item { background: #0f172a; border: 1px solid rgba(212, 175, 55, 0.3); padding: 6px; border-radius: 8px; text-align: center; min-width: 75px; cursor: pointer; transition: 0.2s; flex: 1; }
+        .scan-item:hover { background: var(--gold); transform: scale(1.05); }
+        .scan-item:hover div { color: #000 !important; }
+        .gold-blink { animation: blink-g 1s infinite alternate; color: #fff !important; text-shadow: 0 0 8px var(--gold); }
+        @keyframes blink-g { from { opacity: 1; } to { opacity: 0.5; } }
+        .stat-sub { font-size: 10px; color: #94a3b8; display: block; margin-top: 2px; }
+
+ </style>
+</head>
+<body onload="loadData(); updateClock();">
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h1 style="color: var(--gold); margin: 0;">💎 DOMINO PREMIER ANALYTICS v2026</h1>
+        <div id="clock" style="font-size: 12px; color: #94a3b8; margin-top: 5px;"></div>
+    </div>
+
+    <div class="bulk-box">
+        <textarea id="bulkInput" class="bulk-area" placeholder="วางสถิติย้อนหลังที่นี่..."></textarea>
+        <button class="btn-bulk" onclick="processBulk()">⚡ วิเคราะห์เลข & ดึงผลอัตโนมัติ</button>
+    </div>
+<div class="bulk-box" style="border-color: var(--success); background: rgba(16, 185, 129, 0.05);">
+    <textarea id="resultBulkUpdate" class="bulk-area" style="border-color: var(--success);" placeholder="วางผลรางวัลเพื่ออัปเดต... (เช่น ฮานอย 123-45)"></textarea>
+    <button class="btn-bulk" style="background: #10b981;" onclick="execBulkUpdate()">✅ อัปเดตผลรางวัลตามรายชื่อ</button>
+</div>
+
+<div class="settings-box">
+    <label>⚙️ ปรับสูตร:</label>
+    <input type="number" id="powerInput" class="input-config" value="2" step="0.1" onchange="saveAndReload()">
+    
+    <!-- ปุ่มคัดลอกเดิม -->
+    <button class="btn-summary" onclick="copyAllSummary()">📋 คัดลอกสรุปรวมทั้งหมด</button>
+    
+    <!-- เพิ่มปุ่มแชร์ตรงนี้เพื่อให้ปุ่มแชร์รายหวยทำงาน -->
+    <button class="btn-summary" onclick="shareAllSummary()" style="background: #2563eb;">📤 แชร์สรุปรายหวย</button>
+    
+    <button onclick="clearAllData()" style="background: #ef4444; color: white;">🗑️ ล้างทั้งหมด</button>
+</div>
+<!-- 🔥 ส่วนที่เพิ่ม: กล่องโชว์ผลการสแกนสูตรเด็ด 0.1 🔥 -->
+<h3 style="color: var(--gold); margin: 10px 5px;">🔍 เครื่องสแกนสูตรแม่นยำสูง (0.1)</h3>
+<div class="scan-container">
+    <div class="scan-box">
+        <div style="color:var(--accent); font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px;">🎯 สายเน้น (50%+)</div>
+        <div id="scan-f-list" class="scan-list"></div>
+    </div>
+    <div class="scan-box">
+        <div style="color:var(--success); font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px;">🎡 สายรูด (70%+)</div>
+        <div id="scan-r-list" class="scan-list"></div>
+    </div>
+    <div class="scan-box">
+        <div style="color:var(--gold); font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px;">🔢 สายวิน (70%+)</div>
+        <div id="scan-w-list" class="scan-list"></div>
+    </div>
+</div>
+
+ <!-- แก้ไข Stat Bar ให้เป็นแบบนี้ -->
+<div class="stat-bar">
+    <div style="text-align:center;">ทั้งหมด <span id="statTotal" class="stat-val" style="color:white">0</span></div>
+    <div style="text-align:center;">
+        เน้น <span id="statFocus" class="stat-val">0%</span>
+        <span id="countFocus" class="stat-sub">(เข้า 0 หลุด 0)</span> <!-- เพิ่มบรรทัดนี้ -->
+    </div>
+    <div style="text-align:center;">
+        รูด <span id="statRuud" class="stat-val">0%</span>
+        <span id="countRuud" class="stat-sub">(เข้า 0 หลุด 0)</span> <!-- เพิ่มบรรทัดนี้ -->
+    </div>
+    <div style="text-align:center;">
+        วิน <span id="statWin6" class="stat-val">0%</span>
+        <span id="countWin" class="stat-sub">(เข้า 0 หลุด 0)</span> <!-- เพิ่มบรรทัดนี้ -->
+    </div>
+</div>
+
+    <div class="input-box">
+        <div class="input-row">
+            <input type="text" id="lotteryName" placeholder="ชื่อหวย/รอบ">
+            <input type="number" id="mainInput" placeholder="เลขเดิม 5 หลัก" inputmode="numeric">
+            <button class="btn-calc" onclick="addNewData()">คำนวณ</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>รอบ/หวย</th>
+                    <th>เลขเดิม</th>
+                    <th>เน้น</th>
+                    <th>รูด</th>
+                    <th>วิน 6</th>
+                    <th>เจาะ 2 (8ชุด)</th>
+                    <th>เจาะ 3 (8ชุด)</th>
+                    <th>ผล [บน-ล่าง]</th>
+                    <th>ลบ</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+        <div class="report-area"><h3>🎯 สายเน้น <button class="btn-summary" onclick="copyFormatted('res-focus', '🎯 [ รายงานสายเน้น ]')">คัดลอก</button></h3><div id="res-focus" class="report-content"></div></div>
+        <div class="report-area"><h3>🎡 สายรูด <button class="btn-summary" onclick="copyFormatted('res-ruud', '🎡 [ รายงานสายรูด ]')">คัดลอก</button></h3><div id="res-ruud" class="report-content"></div></div>
+        <div class="report-area"><h3>🔢 สายวิน <button class="btn-summary" onclick="copyFormatted('res-win', '🔢 [ รายงานสายวิน ]')">คัดลอก</button></h3><div id="res-win" class="report-content"></div></div>
+        <div class="report-area"><h3>📢 สายเจาะ <button class="btn-summary" onclick="copyFormatted('res-drill', '📢 [ รายงานสายเจาะ ]')">คัดลอก</button></h3><div id="res-drill" class="report-content"></div></div>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   💎 DOMINO PREMIER ANALYTICS v2026 - FINAL FULL STABLE
+   ============================================================ */
+
+const KEY = 'master_premium_v2026';
+let dataList = JSON.parse(localStorage.getItem(KEY)) || [];
+function getMasterAccuracy(pwr) {
+    const validData = dataList.filter(d => d.resultStr && d.resultStr.trim().length === 5);
+    const totalValid = validData.length;
+    if (totalValid === 0) return { f: "0.0", r: "0.0", w: "0.0", total: 0, hits: {f:0, r:0, w:0} };
+
+    let hits = { f: 0, r: 0, w: 0 };
+    validData.forEach(d => {
+        // ใช้การคำนวณ 5 ส่วนของพี่ดึงเลขออกมา
+        const f = calculateFormula(d.inputStr, pwr);
+        const res = d.resultStr;
+        const resOn = res.slice(1, 3); 
+        const resLan = res.slice(3, 5);
+        const targets = (resOn + resLan).split('');
+
+        // 🎯 สายเน้น: เช็คเลขเด่นอันดับ 1 (ตัวเดียว)
+        if (targets.includes(f.focus.toString())) hits.f++;
+
+        // 🎡 สายรูด: เช็คเลขรูดอันดับ 1 และ 2 (ใช้ ruudNums จาก calculateFormula)
+        if (targets.includes(f.ruudNums[0].toString()) || targets.includes(f.ruudNums[1].toString())) hits.r++;
+
+        // 🔢 สายวิน: เช็คชุดวิน 6 ตัว (เข้าบนหรือเข้าล่าง)
+        const winSet = f.win6.join('');
+        if (resOn.split('').every(x => winSet.includes(x)) || resLan.split('').every(x => winSet.includes(x))) hits.w++;
+    });
+
+    return {
+        f: ((hits.f / totalValid) * 100).toFixed(1),
+        r: ((hits.r / totalValid) * 100).toFixed(1),
+        w: ((hits.w / totalValid) * 100).toFixed(1),
+        total: totalValid,
+        hits: hits
+    };
+}
+
+// --- [ 1. พื้นฐานและนาฬิกา ] ---
+function loadData() { updateClock(); renderTable(); }
+function updateClock() {
+    const now = new Date();
+    const clockEl = document.getElementById('clock');
+    if(clockEl) clockEl.innerText = "📅 " + now.toLocaleDateString('th-TH') + " | 🕒 " + now.toLocaleTimeString('th-TH');
+    setTimeout(updateClock, 1000);
+}
+function sortS(s) { return s ? s.toString().split('').sort().join('') : ""; }
+
+// --- [ 2. สมองตัดสินผลรางวัล (Master Checker) เพื่อให้ % ทุกจุดตรงกัน 100% ] ---
+function isHit(num, res, type) {
+    if (!res || res.length < 5) return false;
+    const t3 = res.slice(0, 3), t2 = res.slice(1, 3), b2 = res.slice(3, 5);
+    if (Array.isArray(num)) {
+        return type === 2 ? num.some(n => sortS(n) === sortS(t2) || sortS(n) === sortS(b2)) : num.some(n => sortS(n) === sortS(t3));
+    }
+    return type === 2 ? (sortS(num) === sortS(t2) || sortS(num) === sortS(b2)) : (sortS(num) === sortS(t3));
+}
+
+function getFinalRates(pwr) {
+    const validData = dataList.filter(d => d.resultStr && d.resultStr.trim().length === 5);
+    if (validData.length === 0) return { f: "0.0", r: "0.0", w: "0.0", total: 0, h: {f:0, r:0, w:0} };
+    let hits = { f: 0, r: 0, w: 0 };
+    validData.forEach(d => {
+        const f = calculateFormula(d.inputStr, pwr);
+        const res = d.resultStr;
+        if (isHit(f.focus, res, 2)) hits.f++;
+        // สายรูดเช็ค 2 ตัว (sorted[0] & sorted[1]) เพื่อให้ % สูงตรงกับเครื่องสแกน
+        if (isHit(f.ruudNums, res, 2)) hits.r++; 
+        // สายวินเช็คตาม Logic ตาราง
+        const t2 = res.slice(1,3), b2 = res.slice(3,5);
+        if (t2.split('').every(x => f.win6.join('').includes(x)) || b2.split('').every(x => f.win6.join('').includes(x))) hits.w++;
+    });
+    const total = validData.length;
+    return { f: ((hits.f/total)*100).toFixed(1), r: ((hits.r/total)*100).toFixed(1), w: ((hits.w/total)*100).toFixed(1), total, h: hits };
+}
+
+// --- [ 3. ฟังก์ชันคำนวณหลัก (ยกมาครบทุกบรรทัด ห้ามตัด) ] ---
+function calculateFormula(inputStr, customP = null) {
+    const pwrInput = document.getElementById('powerInput').value;
+    const pwr = customP || parseFloat(pwrInput) || 2;
+    const numSet = parseInt(inputStr.slice(1, 4)) || 0;
+    let base = Math.pow(numSet, pwr); if (!isFinite(base)) base = 0;
+    const resArr = [ Math.abs(base - 24), Math.abs(base - 39), Math.abs(base - 49), Math.abs(base - 54) ];
+    const allDigits = (resArr.join('') + inputStr.slice(1, 4)).split('').map(Number).filter(n => !isNaN(n));
+    const freq = {}; allDigits.forEach(x => freq[x] = (freq[x] || 0) + 1);
+    const sorted = Object.keys(freq).sort((a, b) => freq[b] !== freq[a] ? freq[b] - freq[a] : b - a).map(Number);
+    const w6 = (sorted.length >= 6 ? sorted.slice(0, 6) : [...sorted, 0, 1, 2, 3, 4, 5].slice(0, 6)).sort((a, b) => a - b);
+    
+    let s2 = []; let u2 = new Set();
+    for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (w6[i] !== w6[j] && s2.length < 8) {
+                let p = [w6[i], w6[j]].sort().join('');
+                if (!u2.has(p)) { u2.add(p); s2.push("" + w6[i] + w6[j]); }
+            }
+        }
+    }
+    let allS3 = [];
+    for (let i = 0; i < 6; i++) {
+        for (let j = i + 1; j < 6; j++) {
+            for (let k = j + 1; k < 6; k++) { allS3.push([w6[i], w6[j], w6[k]].join('')); }
+        }
+    }
+    const s3Idx = [0, 3, 7, 10, 12, 15, 18, 19];
+    const s3 = s3Idx.map(idx => allS3[idx]).filter(v => v);
+
+    return { focus: sorted[0] || 0, ruud: (sorted[0] || 0) + "-" + (sorted[1] || 0), ruudNums: [sorted[0] || 0, sorted[1] || 0], win6: w6, s2, s3 };
+}
+
+// --- [ 4. ระบบจัดการตาราง (เพิ่มระบบ Auto-Scan ท้ายฟังก์ชัน) ] ---
+function renderTable() {
+    const activeId = document.activeElement ? document.activeElement.id : null;
+    const tbody = document.getElementById('tableBody'); if (!tbody) return;
+    tbody.innerHTML = '';
+    const currentP = parseFloat(document.getElementById('powerInput').value) || 2;
+
+    dataList.forEach(entry => {
+        const f = calculateFormula(entry.inputStr, currentP);
+        const res = entry.resultStr;
+        let h = { f:false, r:false, w:false, d2:false, d3:false };
+
+        if(res.length === 5) {
+            const t3 = res.slice(0,3), t2 = res.slice(1,3), b2 = res.slice(3,5);
+            const targets = (t2+b2).split('');
+            if(targets.includes(f.focus.toString())) h.f = true;
+            if(f.ruudNums.some(n => targets.includes(n.toString()))) h.r = true;
+            if(t2.split('').every(x => f.win6.join('').includes(x)) || b2.split('').every(x => f.win6.join('').includes(x))) h.w = true;
+            if(f.s2.some(n => sortS(n) === sortS(t2) || sortS(n) === sortS(b2))) h.d2 = true;
+            if(f.s3.some(n => sortS(n) === sortS(t3))) h.d3 = true;
+        }
+
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td><strong>${entry.name}</strong><br><small>${entry.time}</small></td>
+            <td style="font-family:monospace; color:#94a3b8;">${entry.inputStr}</td>
+            <td class="${h.f ? 'is-win' : ''}" style="font-size:18px;">${f.focus}</td>
+            <td class="${h.r ? 'is-win' : ''}">${f.ruud}</td>
+            <td class="${h.w ? 'is-win' : ''}">${f.win6.map(n => `<div class="num-card">${n}</div>`).join('')}</td>
+            <td>${f.s2.map(n => `<div class="num-card ${isHit(n, res, 2) ? 'is-win' : ''}">${n}</div>`).join('')}</td>
+            <td>${f.s3.map(n => `<div class="num-card ${isHit(n, res, 3) ? 'is-win' : ''}">${n}</div>`).join('')}</td>
+            <td>
+                <input type="number" id="in-${entry.id}" class="input-config" value="${res}" style="width:70px" oninput="updateRes('${entry.id}', this.value)">
+                <button class="btn-copy" style="padding:2px 5px; font-size:10px; width:auto; margin-top:0;" onclick="copySingle('${entry.id}')">แชร์</button>
+            </td>
+            <td><button onclick="deleteEntry('${entry.id}')" class="btn-del">ลบ</button></td>
+        `;
+    });
+
+    if (activeId) {
+        const el = document.getElementById(activeId);
+        if (el) { el.focus(); el.value = el.value; }
+    }
+    updateStats();
+    renderSummaryBoxes();
+    runDeepScanner(); // เรียกเครื่องสแกนอัตโนมัติ 0.1
+}
+
+// --- [ 5. ระบบสแกนเนอร์ 0.1 และ One-Click Apply ] ---
+function runDeepScanner() {
+    const lists = { f: document.getElementById('scan-f-list'), r: document.getElementById('scan-r-list'), w: document.getElementById('scan-w-list') };
+    const validData = dataList.filter(d => d.resultStr && d.resultStr.trim().length === 5);
+    
+    if (!lists.f) return;
+    if (validData.length === 0) {
+        Object.values(lists).forEach(l => l.innerHTML = "<small style='color:#64748b;'>กรุณาใส่ผลในตาราง 1 งวด...</small>");
+        return;
+    }
+
+    Object.values(lists).forEach(l => l.innerHTML = "<small style='color:var(--gold)'>⏳ กำลังวิเคราะห์ 10,000 จุด...</small>");
+
+    setTimeout(() => {
+        let results = { f: [], r: [], w: [] };
+        // วนลูปละเอียด 0.1 ตามใบสั่งงาน
+        for (let p = 1.0; p <= 999.9; p += 0.1) {
+            const acc = getMasterAccuracy(p);
+            
+            // เกณฑ์การคัดกรองโชว์ในกล่องสแกน
+            if (parseFloat(acc.f) >= 50) results.f.push({ p: p.toFixed(1), rate: acc.f });
+            if (parseFloat(acc.r) >= 70) results.r.push({ p: p.toFixed(1), rate: acc.r });
+            if (parseFloat(acc.w) >= 70) results.w.push({ p: p.toFixed(1), rate: acc.w });
+        }
+
+        Object.keys(lists).forEach(t => {
+            lists[t].innerHTML = "";
+            results[t].sort((a, b) => b.rate - a.rate); // เรียงแม่นสุดไว้บน
+            
+            if (results[t].length === 0) {
+                lists[t].innerHTML = "<small style='color:#64748b;'>ไม่พบสูตร</small>";
+            } else {
+                results[t].slice(0, 15).forEach(item => {
+                    const blink = parseFloat(item.rate) >= 90 ? 'gold-blink' : '';
+                    lists[t].innerHTML += `
+                        <div class="scan-item" onclick="applyFormula('${item.p}')" style="cursor:pointer; display:inline-block; background:rgba(255,255,255,0.05); border:1px solid var(--gold); margin:2px; padding:5px; border-radius:8px; text-align:center; min-width:65px;">
+                            <div style="font-size:9px; color:var(--gold-light);">สูตร ${item.p}</div>
+                            <div class="${blink}" style="font-size:12px; font-weight:bold; color:var(--success)">${item.rate}%</div>
+                        </div>`;
+                });
+            }
+        });
+    }, 50);
+}
+
+function applyFormula(v) { document.getElementById('powerInput').value = v; saveAndReload(); window.scrollTo({top:0, behavior:'smooth'}); }
+
+// --- [ 6. ระบบนำเข้า (ห่วงโซ่ Chain และ ดึงชื่อหวยเป๊ะๆ) ] ---
+    function processBulk() {
+    const raw = document.getElementById('bulkInput').value.trim();
+    if (!raw) return alert("กรุณาวางข้อมูล");
+
+    // 1. หาชื่อหัวข้อหลัก (ถ้ามี)
+    let headerName = "";
+    const lines = raw.split('\n');
+    for (let line of lines) {
+        if (line.includes("สถิติย้อนหลัง")) {
+            headerName = line.replace(/สถิติย้อนหลัง/g, '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '').trim();
+            break;
+        }
+    }
+
+    const tempData = [];
+    const pattern = /(\d{3})\s*-\s*(\d{2})/;
+
+    lines.forEach((line) => {
+        const m = line.match(pattern);
+        if (m) {
+            // ดึงชื่อจากในบรรทัดนั้นๆ (ลบตัวเลขและสัญลักษณ์ออก)
+            let rowName = line.replace(m[0], '')
+                              .replace(/[0-9]{1,2}\s+(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+[0-9]{2}/g, '') // ลบวันที่
+                              .replace(/[|]/g, '') // ลบขีด
+                              .replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '') // ลบอิโมจิ
+                              .trim();
+
+            tempData.push({
+                name: rowName || headerName || "ทั่วไป",
+                full: m[1] + m[2]
+            });
+        }
+    });
+
+    if (tempData.length < 1) return alert("ไม่พบรูปแบบ 000-00");
+
+    // 2. ตรวจสอบว่าเป็นหวยประเภทเดียวกันทั้งชุดหรือไม่ (เพื่อเปิดระบบห่วงโซ่)
+    const isChain = tempData.every(d => d.name === tempData[0].name);
+
+    const newEntries = [];
+    for (let i = 0; i < tempData.length; i++) {
+        const current = tempData[i];
+        
+        // Logic ห่วงโซ่: ถ้าชื่อหวยเหมือนกันหมด ให้บรรทัดล่างตรวจบรรทัดบน (หรือ i+1 ตรวจ i)
+        // กรณีสถิติที่คุณให้มา (06 อยู่บน 07 อยู่ล่าง) i+1 จะเป็นผลของ i
+        let autoResult = "";
+        if (isChain && tempData[i + 1]) {
+            autoResult = tempData[i + 1].full;
+        }
+
+        newEntries.push({
+            id: "row_" + Date.now() + "_" + i,
+            name: current.name,
+            inputStr: current.full,
+            resultStr: autoResult,
+            time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+        });
+    }
+
+    // นำเข้าข้อมูล (ถ้าเป็นห่วงโซ่ให้คงลำดับเดิมไว้เพื่อตรวจผลให้ถูกต้อง)
+    dataList = isChain ? [...newEntries, ...dataList] : [...newEntries.reverse(), ...dataList];
+    
+    saveAndReload();
+    document.getElementById('bulkInput').value = '';
+    alert(isChain ? "วิเคราะห์เลขแบบอัตโนมัติสำเร็จ ✨" : "นำเข้าข้อมูลแยกประเภทสำเร็จ ✨");
+}
+function execBulkUpdate() {
+    const raw = document.getElementById('resultBulkUpdate').value.trim();
+    if (!raw) return alert("กรุณาวางข้อมูลผลตรวจ");
+
+    const lines = raw.split('\n');
+    const pattern = /(\d{3})\s*-\s*(\d{2})/; // ดักจับเลข 000-00
+    let matchCount = 0;
+
+    lines.forEach(line => {
+        const m = line.match(pattern);
+        if (m) {
+            const res5Digit = m[1] + m[2]; // รวมเป็น 5 หลัก
+            // ทำความสะอาดชื่อหวยจากบรรทัดนั้น เพื่อเอาไปเทียบในตาราง
+            let lotteryName = line.replace(m[0], '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '').trim();
+
+            // วนลูปหาใน dataList (ตารางเดิมที่มีอยู่)
+            for (let i = 0; i < dataList.length; i++) {
+                // ถ้าชื่อตรงกัน และ ช่องผลตรวจยังว่างอยู่ ให้เติมผลลงไป
+                if (lotteryName && dataList[i].name.includes(lotteryName) && dataList[i].resultStr === "") {
+                    dataList[i].resultStr = res5Digit;
+                    matchCount++;
+                    break; // อัปเดตตัวเดียวแล้วไปบรรทัดถัดไป
+                }
+            }
+        }
+    });
+
+    if (matchCount > 0) {
+        saveAndReload(); // บันทึกและวาดตารางใหม่ครั้งเดียวตอนจบ
+        document.getElementById('resultBulkUpdate').value = '';
+        alert(`อัปเดตผลสำเร็จ ${matchCount} รายการ ✨`);
+    } else {
+        alert("ไม่พบชื่อหวยที่ตรงกัน หรือหวยนั้นมีผลตรวจอยู่แล้ว");
+    }
+}
+
+
+function updateRes(id, val) {
+    const idx = dataList.findIndex(x => x.id == id);
+    if (idx > -1) {
+        dataList[idx].resultStr = val.slice(0, 5);
+        save(); // เซฟข้อมูลลงเครื่องตลอดเวลา
+        
+        // *** จุดตาย: วาดตารางใหม่เฉพาะเมื่อพิมพ์ครบ 5 หลักเท่านั้น ***
+        // ถ้าพิมพ์แค่หลักที่ 1, 2, 3... จะยังไม่วาดใหม่ เมาส์เลยจะไม่หลุด
+        if (val.length === 5 || val.length === 0) {
+            renderTable();
+        }
+    }
+}
+// --- [ 7. ระบบรายงาน และคัดลอก (iPhone/LINE Support) ] ---
+function fallbackCopy(text) {
+    const textArea = document.createElement("textarea"); textArea.value = text;
+    textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
+    document.body.appendChild(textArea); textArea.focus(); textArea.select();
+    textArea.setSelectionRange(0, 99999);
+    try { document.execCommand('copy'); alert("✅ คัดลอกสำเร็จ"); } catch (err) { alert("❌ คัดลอกไม่สำเร็จ"); }
+    document.body.removeChild(textArea);
+}
+function smartCopy(text) {
+    if (!text || text.includes("ไม่มีข้อมูล")) return alert("ไม่มีข้อมูลให้คัดลอก");
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => alert("✅ คัดลอกสำเร็จ")).catch(() => fallbackCopy(text));
+    } else { fallbackCopy(text); }
+}
+
+function renderSummaryBoxes() {
+    const p = document.getElementById('powerInput').value || "2.0";
+    let rep = { f: "", r: "", w: "", d: "" };
+    [...dataList].reverse().forEach(item => {
+        const f = calculateFormula(item.inputStr);
+        const res = item.resultStr;
+        const resDisp = res.length === 5 ? ` ➔ [${res.slice(0,3)}-${res.slice(3,5)}]` : " ➔ ⏳ รอผล";
+        let s = { f:'❌', r:'❌', w:'❌', d:'❌' };
+        if(res.length === 5) {
+            const t3 = res.slice(0,3), t2 = res.slice(1,3), b2 = res.slice(3,5);
+            const targets = (t2+b2).split('');
+            if(targets.includes(f.focus.toString())) s.f = '✅';
+            if(f.ruudNums.some(n => targets.includes(n.toString()))) s.r = '✅';
+            if(t2.split('').every(x => f.win6.join('').includes(x)) || b2.split('').every(x => f.win6.join('').includes(x))) s.w = '✅';
+            if(f.s2.some(n => sortS(n)==sortS(t2) || sortS(n)==sortS(b2)) || f.s3.some(n => sortS(n)==sortS(t3))) s.d = '✅';
+        } else { s = { f:'⏳', r:'⏳', w:'⏳', d:'⏳' }; }
+        rep.f += `${s.f} ${item.name} ➔ ${f.focus}${resDisp}\n`;
+        rep.r += `${s.r} ${item.name} ➔ ${f.ruud}${resDisp}\n`;
+        rep.w += `${s.w} ${item.name} ➔ ${f.win6.join('')}${resDisp}\n`;
+        rep.d += `${s.d} ${item.name}\n • เจาะ2: ${f.s2.join(',')}\n • เจาะ3: ${f.s3.join(',')}\n ${resDisp}\n━━━━━━━━━━━━━━\n`;
+    });
+    document.getElementById('res-focus').innerText = rep.f; document.getElementById('res-ruud').innerText = rep.r;
+    document.getElementById('res-win').innerText = rep.w; document.getElementById('res-drill').innerText = rep.d;
+    window.currentSummary = `💎 [ สรุปรวม | ⚙️ สูตร: ${p} ]\n🎯 สายเน้น:\n${rep.f}\n🎡 สายรูด:\n${rep.r}\n🔢 สายวิน:\n${rep.w}\n📢 สายเจาะ:\n${rep.d}\nBy LINE ID:momongmo`;
+}
+
+function copyFormatted(id, title) {
+    const p = document.getElementById('powerInput').value;
+    smartCopy(`📊 ${title} | ⚙️ สูตร: ${p}\n━━━━━━━━━━━━━━\n${document.getElementById(id).innerText}\n━━━━━━━━━━━━━━\nBy momongmo`);
+}
+function copyAllSummary() { renderSummaryBoxes(); smartCopy(window.currentSummary); }
+async function shareAllSummary() { renderSummaryBoxes(); if (navigator.share) { try { await navigator.share({ title: 'สรุปผล', text: window.currentSummary }); } catch (err) {} } else { copyAllSummary(); } }
+
+function copySingle(id) {
+    const e = dataList.find(x => x.id == id); if(!e) return;
+    const f = calculateFormula(e.inputStr); const res = e.resultStr;
+    let resTxt = res.length === 5 ? `[${res.slice(0,3)}-${res.slice(3,5)}]` : "⏳ รอผล";
+    smartCopy(`🎯 ${e.name}\n🕒 ${e.time} | ⚙️ สูตร: ${document.getElementById('powerInput').value}\nเน้น: ${f.focus}\nรูด: ${f.ruud}\nวิน: ${f.win6.join('')}\n📢 ผล: ${resTxt}\nBy LINE ID:momongmo`);
+}
+
+// --- [ 8. สถิติและจัดการข้อมูล ] ---
+function updateStats() {
+    let fC=0, rC=0, wC=0, v=0;
+    
+    dataList.forEach(e => {
+        if(e.resultStr && e.resultStr.length === 5) {
+            v++; // นับงวดที่มีผลรางวัล
+            const f = calculateFormula(e.inputStr);
+            const res = e.resultStr;
+            const resOn = res.slice(1,3);
+            const resLan = res.slice(3,5);
+            const targets = (resOn + resLan).split('');
+            
+            // เช็คสายเน้น
+            if(targets.includes(f.focus.toString())) fC++;
+            // เช็คสายรูด
+            if(f.ruudNums.some(n => targets.includes(n.toString()))) rC++;
+            // เช็คสายวิน
+            if(resOn.split('').every(x => f.win6.join('').includes(x)) || 
+               resLan.split('').every(x => f.win6.join('').includes(x))) wC++;
+        }
+    });
+
+    // 1. แสดงตัวเลขเปอร์เซ็นต์ (ด้านบน)
+    document.getElementById('statTotal').innerText = dataList.length;
+    document.getElementById('statFocus').innerText = (v ? (fC/v*100).toFixed(1) : 0) + '%';
+    document.getElementById('statRuud').innerText = (v ? (rC/v*100).toFixed(1) : 0) + '%';
+    document.getElementById('statWin6').innerText = (v ? (wC/v*100).toFixed(1) : 0) + '%';
+
+    // 2. แสดงจำนวน เข้า/หลุด (บรรทัดที่คุณเพิ่มใหม่)
+    document.getElementById('countFocus').innerText = `(เข้า ${fC} หลุด ${v - fC})`;
+    document.getElementById('countRuud').innerText = `(เข้า ${rC} หลุด ${v - rC})`;
+    document.getElementById('countWin').innerText = `(เข้า ${wC} หลุด ${v - wC})`;
+
+    // สั่งรันเครื่องสแกนสูตรเด็ดต่อทันที
+    runDeepScanner();
+}
+
+
+function updateRes(id, val) { 
+    const idx = dataList.findIndex(x => x.id == id);
+    if (idx > -1) { 
+        dataList[idx].resultStr = val.slice(0, 5); save(); 
+        if (val.length === 5 || val.length === 0) renderTable(); 
+    } 
+}
+function addNewData() {
+    const val = document.getElementById('mainInput').value;
+    if(val.length < 5) return alert("กรอกเลขให้ครบ 5 หลัก");
+    dataList.unshift({ id: "id_"+Date.now(), name: document.getElementById('lotteryName').value || "ทั่วไป", inputStr: val, resultStr: "", time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) });
+    document.getElementById('mainInput').value = ''; saveAndReload();
+}
+function deleteEntry(id) { if(confirm('ลบ?')) { dataList = dataList.filter(x => x.id != id); saveAndReload(); } }
+function clearAllData() { if(confirm('ล้าง?')) { dataList = []; saveAndReload(); } }
+function save() { localStorage.setItem(KEY, JSON.stringify(dataList)); }
+function saveAndReload() { save(); renderTable(); }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌿 รากเน้น ปลายรวย 🌿</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net"></script>
+    <style>
+        :root { --p-green: #27ae60; --d-red: #c0392b; --s-gold: #f1c40f; --light-green: #ebf9f1; --white: #ffffff; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Kanit', sans-serif; background: #f4f7f6; color: #2c3e50; display: flex; justify-content: center; padding: 15px; margin: 0; min-height: 100vh; }
+        .card { background: var(--white); border-radius: 30px; padding: 25px; width: 100%; max-width: 450px; box-shadow: 0 12px 40px rgba(39, 174, 96, 0.15); text-align: center; border: 2px solid var(--p-green); }
+        h1 { color: var(--d-red); margin: 0 0 5px 0; font-size: 1.6rem; text-shadow: 1px 1px 0px var(--s-gold); font-weight: 800; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid var(--light-green); background: #fff; color: var(--p-green); text-align: center; font-size: 1rem; font-weight: 600; outline: none; }
+        .calc-btn { background: linear-gradient(135deg, var(--p-green), #1e8449); border: none; padding: 16px; width: 100%; border-radius: 18px; font-size: 1.2rem; font-weight: 800; cursor: pointer; color: white; box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3); border-bottom: 4px solid #145a32; }
+        .result-panel { display: none; animation: fadeIn 0.5s ease-out; margin-top: 25px; }
+        .highlight-box { background: var(--light-green); border: 2px solid var(--p-green); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
+        .pair-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 15px; }
+        .pair-item-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
+        .pair-item { width: 100%; background: var(--white); color: var(--d-red); padding: 10px 0; border-radius: 12px; font-weight: 800; font-size: 1.2rem; border: 2px solid var(--p-green); text-align: center; }
+        .king-pair { border: 3.5px solid var(--s-gold) !important; background: #fff9e6 !important; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); transform: scale(1.1); z-index: 5; }
+        .king-label { position: absolute; top: -15px; font-size: 0.7rem; background: var(--s-gold); color: #784212; padding: 2px 8px; border-radius: 10px; font-weight: 900; border: 1px solid #b8860b; white-space: nowrap; }
+        .pair-pct { font-size: 0.7rem; font-weight: 800; color: var(--p-green); }
+        .sub-res-box { background: #fff5f5; border-radius: 15px; padding: 15px; margin: 10px 0; border: 1.5px dashed var(--d-red); text-align: left; }
+        .number-tag { display: inline-block; background: var(--white); color: var(--p-green); padding: 5px 12px; border-radius: 8px; margin: 3px; font-weight: 800; border: 1px solid var(--p-green); }
+        .triple-tag { background: var(--s-gold); color: #784212; border: 1px solid #b8860b; font-size: 0.9rem; }
+        @keyframes lucky-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); background: #fff9e6; box-shadow: 0 0 20px var(--s-gold); } }
+        .is-win { animation: lucky-glow 0.8s infinite; color: var(--d-red) !important; border: 3px solid var(--s-gold) !important; z-index: 10; }
+        .chart-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 15px 0; }
+        .mini-chart { position: relative; width: 55px; height: 75px; display: flex; flex-direction: column; align-items: center; }
+        .circle-num { position: absolute; top: 15px; font-size: 1.1rem; color: var(--d-red); font-weight: bold; }
+        svg { transform: rotate(-90deg); width: 50px; height: 50px; }
+        circle { fill: none; stroke-width: 5; }
+        .bg-circle { stroke: #eee; }
+        .progress-circle { stroke: var(--p-green); stroke-linecap: round; transition: 1s ease-in-out; }
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        .btn-small { flex: 1; padding: 14px; border-radius: 15px; border: none; cursor: pointer; font-weight: 800; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>🌿 รากเน้น ปลายรวย 🌿</h1>
+    <p id="dateShow" style="color:var(--p-green); font-weight: 600; margin: 5px 0; font-size: 0.9rem;"></p>
+    <div class="input-group">
+        <input type="text" id="lottoName" placeholder="📍 ชื่อหวย (เช่น ฮานอย)">
+        <input type="text" id="adminName" placeholder="👤 ชื่อแอดมิน">
+        <input type="number" id="baseNum" placeholder="🔢 เลขงวดล่าสุด (3 ตัวขึ้นไป)" inputmode="numeric">
+        <input type="text" id="lottoResult" placeholder="🏁 ผลรางวัล (เช่น 926-29)">
+    </div>
+    <button class="calc-btn" onclick="runMagic()">✨ คำนวณสูตรเศรษฐี ✨</button>
+    <div id="resultPanel" class="result-panel">
+        <div class="highlight-box">
+            <div id="infoLabel" style="font-weight: 800; color: var(--d-red); font-size: 1rem;"></div>
+            <div style="margin-top:8px; color: #666; font-size: 0.8rem; font-weight: 600;">🎯 5 ชุดหลักพารวย (เน้นตัวแรก)</div>
+            <div class="pair-grid" id="pairGrid"></div>
+        </div>
+        <div id="subResBox"></div>
+        <div class="chart-container" id="chartBox"></div>
+        <div class="btn-group">
+            <button class="btn-small" style="background:var(--d-red); color:white;" onclick="copyResult()">📋 คัดลอกแนวทาง</button>
+            <button class="btn-small" style="background:#ddd; color:#333;" onclick="location.reload()">🔄 รีเซ็ต</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let finalPairs = [], secondaryPairs = [], tripleSets = [], finalTop3 = [], pairPercentages = [];
+    const todayStr = new Date().toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
+    document.getElementById('dateShow').innerText = "📅 " + todayStr;
+
+    function checkWin(num) {
+        const res = document.getElementById('lottoResult').value;
+        if (!res || res === "รอลุ้นผล") return false;
+        const p = res.split('-');
+        const t2 = (p[0] || "").trim().slice(-2), b2 = (p[1] || "").trim();
+        const nStr = num.toString();
+        const rev = nStr.split('').reverse().join('');
+        return (nStr === t2 || rev === t2 || nStr === b2 || rev === b2);
+    }
+
+    function checkWin3(num) {
+        const res = document.getElementById('lottoResult').value;
+        if (!res || res === "รอลุ้นผล") return false;
+        const top3Actual = res.split('-')[0].trim().slice(-3);
+        return num.toString() === top3Actual;
+    }
+
+    function runMagic() {
+        const input = document.getElementById('baseNum').value;
+        if (input.length < 3) { alert("⚠️ กรุณากรอกเลขงวดล่าสุดอย่างน้อย 3 หลัก"); return; }
+        try {
+            let digitCounts = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0}, main = [], results = [];
+            const first3 = parseInt(input.substring(0, 3)), squared = Math.pow(first3, 2);
+            const offsets = [-24, -39, -49, -54, -57];
+
+            offsets.forEach(off => {
+                const resVal = Math.abs(squared + off).toString();
+                results.push(resVal);
+                resVal.split('').forEach(d => { if(digitCounts[d]!==undefined) digitCounts[d]++; });
+                main.push(resVal.slice(-2).padStart(2, '0'));
+            });
+
+            let crossPairs = [];
+            main.forEach((m1, idx) => {
+                main.slice(idx + 1).forEach(m2 => {
+                    m1.split('').forEach(d1 => {
+                        m2.split('').forEach(d2 => {
+                            let p = [d1, d2].sort().join('');
+                            if (d1 !== d2 && !main.includes(p) && !main.includes(p.split('').reverse().join('')) && !crossPairs.includes(p)) {
+                                crossPairs.push(p);
+                            }
+                        });
+                    });
+                });
+            });
+            secondaryPairs = crossPairs.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+            let sortedFreq = Object.entries(digitCounts).sort((a, b) => b[1] - a[1]);
+            finalTop3 = sortedFreq.slice(0, 3).map(x => x[0]); // ดึงเฉพาะตัวเลขมาแสดง (0-9)
+            let topDigitPool = sortedFreq.slice(0, 6).map(x => x[0]);
+
+            let tri = [], comboSet = new Set(), attempts = 0;
+            while (tri.length < 10 && attempts < 1000) {
+                let raw = [...topDigitPool].sort(() => 0.5 - Math.random()).slice(0, 3);
+                let sortedStr = [...raw].sort().join('');
+                if (!comboSet.has(sortedStr) && raw.length === 3) {
+                    comboSet.add(sortedStr);
+                    tri.push(raw.join(''));
+                }
+                attempts++;
+            }
+            tripleSets = tri;
+            finalPairs = main;
+            pairPercentages = main.map((_, i) => i === 0 ? 99 : 88 + Math.floor(Math.random()*11));
+            renderUI(digitCounts);
+            confetti({ particleCount: 150, spread: 70, colors: ['#27ae60', '#c0392b', '#f1c40f'] });
+        } catch (e) { alert("🔮 ขอให้รวยๆ: " + e.message); }
+    }
+
+    function renderUI(digitCounts) {
+        document.getElementById('pairGrid').innerHTML = finalPairs.map((p, i) => `
+            <div class="pair-item-wrapper">
+                ${i === 0 ? '<span class="king-label">👑 เน้นพิเศษ</span>' : ''}
+                <div class="pair-item ${i===0?'king-pair':''} ${checkWin(p)?'is-win':''}">${p}</div>
+                <div class="pair-pct">${pairPercentages[i]}%</div>
+            </div>`).join('');
+
+        document.getElementById('subResBox').innerHTML = `
+            <div class="sub-res-box">
+                <div style="color:var(--p-green); font-weight:800; font-size:0.85rem; margin-bottom:5px;">🥈 ชุดรองไขว้ทรัพย์</div>
+                ${secondaryPairs.map(n => `<span class="number-tag ${checkWin(n)?'is-win':''}">${n}</span>`).join('')}
+                <div style="color:var(--d-red); font-weight:800; font-size:0.85rem; margin-top:12px; margin-bottom:5px;">💎 ชุด 3 ตัวตรง (10 ชุดไม่ซ้ำโต๊ด)</div>
+                ${tripleSets.map(n => `<span class="number-tag triple-tag ${checkWin3(n)?'is-win':''}">${n}</span>`).join('')}
+            </div>`;
+
+        let chartHTML = "";
+        Object.keys(digitCounts).forEach(d => {
+            let total = Object.values(digitCounts).reduce((a,b)=>a+b,0);
+            let p = total > 0 ? Math.round((digitCounts[d]/total)*100) : 0;
+            const isTop3 = finalTop3.includes(d);
+            chartHTML += `
+                <div class="mini-chart">
+                    <span class="circle-num ${isTop3?'is-win':''}" style="${isTop3?'color:var(--d-red)':''}">${d}</span>
+                    <svg><circle class="bg-circle" cx="25" cy="25" r="22"></circle>
+                    <circle class="progress-circle" cx="25" cy="25" r="22" 
+                    style="stroke-dasharray:138; stroke-dashoffset:${138-(138*p/100)}; stroke:${isTop3?'var(--d-red)':'var(--p-green)'};"></circle></svg>
+                    <div style="font-size:0.6rem; font-weight:800; color:var(--p-green);">${p}%</div>
+                </div>`;
+        });
+        document.getElementById('chartBox').innerHTML = chartHTML;
+        document.getElementById('infoLabel').innerText = `🌿 ${document.getElementById('lottoName').value || 'หวยมงคล'} | 👤 ${document.getElementById('adminName').value || 'แอดมิน'}`;
+        document.getElementById('resultPanel').style.display = "block";
+    }
+
+    function copyResult() {
+        const lotto = document.getElementById('lottoName').value || "หวยมงคล", admin = document.getElementById('adminName').value || "แอดมิน", res = document.getElementById('lottoResult').value || "รอลุ้นผล";
+        let mainList = "";
+        finalPairs.forEach((p, i) => mainList += `${i===0?'👑 [เน้น]':'⚡️'} ${p} (${pairPercentages[i]}%)${checkWin(p)?' ✅':''}\n`);
+        const sub = secondaryPairs.map(n => n + (checkWin(n)?'✅':'')).join(' - ');
+        const triRow1 = tripleSets.slice(0, 5).map(n => n + (checkWin3(n)?'✅':'')).join(' , ');
+        const triRow2 = tripleSets.slice(5, 10).map(n => n + (checkWin3(n)?'✅':'')).join(' , ');
+        const text = `🌿 รากเน้น ปลายรวย 🌿\n📍 ${lotto}\n📅 ${todayStr}\n\n💜 วิ่ง/รูดเด่น: [ ${finalTop3.join(' - ')} ]\n\n🎯 5 ชุดหลักพารวย:\n${mainList}\n🥈 ชุดรองไขว้ทรัพย์:\n> ${sub}\n\n💎 ชุด 3 ตัวตรง (10 ชุด):\n> ${triRow1}\n> ${triRow2}\n\n---------------------------\n🏁 ผลรางวัล: ${res}\n---------------------------\n💸 รวยๆ เฮงๆ ครับ!\n👤 โดย: ${admin}`;
+        navigator.clipboard.writeText(text).then(() => alert("📋 คัดลอกแนวทางเรียบร้อย!"));
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🍭 SWEET WIN PRO V14.3 🍬</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --primary: #ff85a1; --bg: #fff5f7; --card: #ffffff; --text: #5d4037; --success: #81c784; --danger: #ff8a80; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); padding: 12px; margin: 0; }
+        .container { max-width: 900px; margin: auto; background: var(--card); padding: 25px; border-radius: 30px; box-shadow: 0 10px 30px rgba(255, 133, 161, 0.15); border: 3px solid #ffdeeb; }
+        h3 { font-family: 'Itim', cursive; text-align: center; color: #ff4d6d; font-size: 28px; margin: 0 0 15px 0; }
+        .dashboard { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+        .dash-item { background: #fff; padding: 10px 5px; border-radius: 20px; border: 2px solid #ffebf0; text-align: center; box-shadow: 0 4px 0 #ffdeeb; }
+        .dash-val { font-size: 16px; font-weight: bold; color: #ff4d6d; }
+        .dash-label { font-size: 9px; color: #b08d8d; font-weight: bold; }
+        .input-card { background: #fff9fa; padding: 20px; border-radius: 25px; border: 2px dashed #ffb7c5; margin-bottom: 20px; }
+        label { color: #ff4d6d; font-weight: bold; font-size: 0.85rem; margin-bottom: 6px; display: block; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #ffdeeb; border-radius: 15px; font-size: 15px; box-sizing: border-box; outline: none; margin-bottom: 12px; }
+        .table-wrap { overflow-x: auto; border-radius: 20px; border: 2px solid #ffebf0; background: #fff; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; table-layout: fixed; }
+        th, td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #fff0f3; }
+        th { background: #fff0f3; color: #ff4d6d; font-size: 12px; }
+        .win-badge { display: block; padding: 4px; border-radius: 8px; font-size: 10px; font-weight: bold; color: #fff; margin-top: 4px; }
+        .badge-win { background: var(--success); } .badge-loss { background: #cfd8dc; }
+        .win-3-row { background-color: #fff9c4 !important; }
+        .report-box { margin-top: 20px; padding: 20px; background: #fff; border-radius: 25px; border: 2px solid #ffdeeb; }
+        .copy-area { background: #fafafa; padding: 15px; border-radius: 15px; font-family: 'Courier New', monospace; font-size: 12px; color: #4e342e; border: 1px solid #eee; line-height: 1.6; white-space: pre-wrap; text-align: left; word-break: break-word; }
+        .btn-main { background: linear-gradient(to bottom, #ff85a1, #ff4d6d); color: #fff; border: none; padding: 16px; border-radius: 20px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0 #c2185b; }
+        .btn-copy { background: #ff85a1; color: #fff; border: none; padding: 10px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .goal-met { background: linear-gradient(135deg, #fffde7, #fff59d) !important; border-color: #fbc02d !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3>🍭 SWEET PAK WIN PRO V14.3 🍬</h3>
+    <div class="dashboard">
+        <div class="dash-item"><div class="dash-label">💰 กำไร</div><div id="currentProfit" class="dash-val">0</div></div>
+        <div class="dash-item"><div class="dash-label">📈 เรท (20งวด)</div><div id="currentWinRate" class="dash-val">0%</div></div>
+        <div class="dash-item"><div class="dash-label">🎯 เป้าหมาย</div><div id="goalProgress" class="dash-val">0%</div></div>
+        <div class="dash-item" id="statusCard"><div class="dash-label">⌛ สถานะ</div><div id="currentStatus" class="dash-val" style="font-size: 10px;">รอข้อมูล</div></div>
+        <div class="dash-item"><div class="dash-label">🔥 ไหล 3 งวด</div><div id="trendNumbers" class="dash-val" style="color:#ff9800; font-size:14px;">- - -</div></div>
+    </div>
+
+    <div class="input-card">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:1;"><label>👤 ชื่อหวย</label><input type="text" id="adminName" placeholder="ชื่อ"></div>
+            <div style="flex:1;"><label>🚩 เป้ากำไร</label><input type="number" id="profitTarget" value="300" onchange="updateUI()"></div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:1;"><label>🎀 ประเภท</label>
+                <select id="winType" onchange="loadFormulasForPos(); processChain();">
+                    <option value="วินบน">วินบน (3/2บน)</option>
+                    <option value="วินล่าง">วินล่าง (2ล่าง)</option>
+                    <option value="ปักสิบบน">ปักสิบบน</option>
+                    <option value="ปักหน่วยบน">ปักหน่วยบน</option>
+                    <option value="ปักสิบล่าง">ปักสิบล่าง</option>
+                    <option value="ปักหน่วยล่าง">ปักหน่วยล่าง</option>
+                    <option value="เสียว1ตัว">เสียว1ตัว</option>
+                    <option value="รูด2ตัว">รูด2ตัว</option>
+                </select>
+            </div>
+            <div style="flex:1;"><label>🌟 สูตรหลัก</label>
+                <select id="viewSize" onchange="updateUI();">
+                    <option value="0">สูตร 5</option><option value="1">สูตร 6</option><option value="2" selected>สูตร 7</option><option value="3">สูตร 8</option><option value="4">สูตร 9</option>
+                </select>
+            </div>
+        </div>
+        <div id="fGrid" style="display:flex; overflow-x:auto; gap:8px; padding-bottom:10px;"></div>
+        <textarea id="bulkInput" rows="2" placeholder="วางสถิติ 5 หลัก"></textarea>
+        <button class="btn-main" onclick="processChain()">💖 วิเคราะห์และเจาะเลข 💖</button>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:70px;" rowspan="2">งวด</th>
+                    <th>สูตร 5</th><th>สูตร 6</th><th>สูตร 7</th><th>สูตร 8</th><th>สูตร 9</th>
+                    <th style="width:100px;" rowspan="2">กรอกผล</th>
+                </tr>
+                <tr class="acc-row">
+                    <td id="acc5">0%</td><td id="acc6">0%</td><td id="acc7">0%</td><td id="acc8">0%</td><td id="acc9">0%</td>
+                </tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+        </table>
+    </div>
+    <div id="statsContainer"></div>
+    <button onclick="clearAll()" style="background:none; border:none; color:#ddd; width:100%; margin-top:20px; font-size:10px; cursor:pointer;">RESET ALL</button>
+</div>
+
+<script>
+    var DEFAULT_MASTER = { "วินบน": [2.0, 2.1, 2.2, 2.3, 2.4], "วินล่าง": [3.0, 3.1, 3.2, 3.3, 3.4], "ปักสิบบน": [2.5, 2.6, 2.7, 2.8, 2.9], "ปักหน่วยบน": [2.5, 2.6, 2.7, 2.8, 2.9], "ปักสิบล่าง": [3.5, 3.6, 3.7, 3.8, 3.9], "ปักหน่วยล่าง": [3.5, 3.6, 3.7, 3.8, 3.9], "เสียว1ตัว": [4.0, 4.1, 4.2, 4.3, 4.4], "รูด2ตัว": [5.0, 5.1, 5.2, 5.3, 5.4] };
+    var PAYOUT = 90; 
+    var historyData = JSON.parse(localStorage.getItem('v14_royal_win_data')) || [];
+
+    function loadFormulasForPos() {
+        var pos = document.getElementById('winType').value;
+        var saved = JSON.parse(localStorage.getItem('v14_win_custom_formulas')) || {};
+        var vals = saved[pos] || DEFAULT_MASTER[pos];
+        var g = document.getElementById('fGrid'); g.innerHTML = "";
+        for(var i=0; i<5; i++) {
+            g.innerHTML += `<div style="background:#fff; padding:8px; border-radius:12px; border:1px solid #ffebf0; min-width:70px;">
+                <div style="font-size:9px; color:#ff85a1;">F${i+5}</div>
+                <input type="number" step="0.01" id="f${i+5}" value="${vals[i]}" onchange="saveCurrentFormulaState()" style="width:100%; border:none; text-align:center; font-weight:bold; color:#ff4d6d; outline:none;">
+            </div>`;
+        }
+    }
+
+    function saveCurrentFormulaState() {
+        var pos = document.getElementById('winType').value;
+        var saved = JSON.parse(localStorage.getItem('v14_win_custom_formulas')) || {};
+        var vals = []; for(var i=5; i<=9; i++) { vals.push(parseFloat(document.getElementById('f'+i).value)||2.0); }
+        saved[pos] = vals; localStorage.setItem('v14_win_custom_formulas', JSON.stringify(saved));
+    }
+
+    function calculateSetsByType(base, type) {
+        var res = []; var sz = [5, 6, 7, 8, 9];
+        var saved = JSON.parse(localStorage.getItem('v14_win_custom_formulas')) || {};
+        var formulaVals = saved[type] || DEFAULT_MASTER[type] || [2.0,2.1,2.2,2.3,2.4];
+        
+        for (var i = 0; i < sz.length; i++) {
+            var n = sz[i]; var r = formulaVals[i];
+            var fv = Math.pow(parseInt(base) || 1, 1/r).toFixed(30); 
+            var freq = {}; var dec = fv.split('.')[1] || "";
+            for(var x=0; x<dec.length; x++){ var d = dec[x]; freq[d] = (freq[d] || 0) + 1; }
+            
+            // เรียงตามความถี่จากมากไปน้อย
+            var srt = Object.keys(freq).sort((a, b) => freq[b] - freq[a] || b - a);
+            var finalN = (type === "เสียว1ตัว") ? 1 : (type === "รูด2ตัว") ? 2 : n;
+            res.push(srt.slice(0, finalN));
+        }
+        return res;
+    }
+
+    function checkWin(set, result, type) {
+        if(!result || result.length < 5) return { ok: false, label: 'รอผล', cost: 0, detail: '', win3: false };
+        var resArr = result.split('');
+        var t3 = resArr.slice(0,3).join(''), t2 = resArr.slice(1,3).join(''), b2 = resArr.slice(3,5).join('');
+        var isMatch = (target) => target.split('').every(d => set.indexOf(d) !== -1);
+        var cost = 0, ok = false, detail = "", win3 = false;
+        
+        if(type.includes("วิน")) {
+            cost = set.length * (set.length - 1);
+            if(type === "วินบน") {
+                if(isMatch(t3)) { ok = true; detail = "3บน"; win3 = true; } 
+                else if(isMatch(t2)) { ok = true; detail = "2บน"; }
+            } else { if(isMatch(b2)) { ok = true; detail = "2ล่าง"; } }
+        } else if(type.includes("ปัก")) {
+            cost = set.length;
+            var digit = (type.includes("สิบบน"))?resArr[1]:(type.includes("หน่วยบน"))?resArr[2]:(type.includes("สิบล่าง"))?resArr[3]:resArr[4];
+            if(set.indexOf(digit) !== -1) { ok = true; detail = "ตรงหลัก"; }
+        } else if(type === "เสียว1ตัว") {
+            cost = 19; if(result.includes(set[0])) { ok = true; detail = "เข้า"; }
+        } else if(type === "รูด2ตัว") {
+            cost = 36; if(set.some(n => result.includes(n))) { ok = true; detail = "เข้า"; }
+        }
+        return { ok: ok, label: ok?'WIN✅':'LOSS❌', cost: cost, detail: detail, win3: win3 };
+    }
+
+    function updateUI() {
+        var body = document.getElementById('logTableBody'); if(!body) return;
+        body.innerHTML = "";
+        var pos = document.getElementById('winType').value;
+        var vSize = parseInt(document.getElementById('viewSize').value);
+        var target = parseFloat(document.getElementById('profitTarget').value) || 0;
+        
+        var playedRows = historyData.filter(h => h.actual);
+        var counts = [0,0,0,0,0], wins = [0,0,0,0,0], profit = 0;
+        var last3Actuals = playedRows.slice(-3).map(h => h.actual).join('');
+
+        for(var i=historyData.length-1; i>=0; i--) {
+            var row = historyData[i]; var tr = document.createElement('tr');
+            var isAnyWin3 = false;
+            var html = `<td>${row.actual ? `<span onclick="deleteRow(${i})" style="color:red; cursor:pointer;">🗑️</span>` : ''}${row.actual?row.id:'NEXT'}</td>`;
+            for(var idx=0; idx<5; idx++){
+                var res = checkWin(row.sets[idx], row.actual, pos);
+                if(row.actual) {
+                    if (playedRows.indexOf(row) >= playedRows.length - 20) { counts[idx]++; if(res.ok) wins[idx]++; }
+                    if(idx === vSize) profit += res.ok ? (PAYOUT - res.cost) : -res.cost;
+                    if(res.win3) isAnyWin3 = true;
+                }
+                html += `<td><b>${row.sets[idx].join('')}</b><span class="win-badge ${res.ok?'badge-win':'badge-loss'}">${res.label}<br>${res.detail}</span></td>`;
+            }
+            tr.className = isAnyWin3 ? "win-3-row" : "";
+            html += `<td><input type="number" class="res-input" value="${row.actual||''}" onchange="updateResult(${i}, this.value)"></td>`;
+            tr.innerHTML = html; body.appendChild(tr);
+        }
+
+        var freq = {}; for(var s=0; s<last3Actuals.length; s++){ var n = last3Actuals[s]; freq[n] = (freq[n]||0)+1; }
+        var trending = Object.keys(freq).sort((a,b) => freq[b]-freq[a]).slice(0,4);
+        document.getElementById('trendNumbers').innerText = trending.length ? trending.join(' ') : "- - -";
+        document.getElementById('currentProfit').innerText = profit.toLocaleString();
+        document.getElementById('currentWinRate').innerText = (counts[vSize]?((wins[vSize]/counts[vSize])*100).toFixed(1) : 0) + "%";
+        document.getElementById('goalProgress').innerText = (target>0?Math.min((profit/target)*100, 100).toFixed(0):0) + "%";
+        
+        var sc = document.getElementById('statusCard');
+        var statusText = document.getElementById('currentStatus');
+        if (target > 0 && profit >= target) {
+            sc.classList.add('goal-met');
+            statusText.innerText = "🎯 ถึงเป้าหมาย";
+        } else {
+            sc.classList.remove('goal-met');
+            statusText.innerText = profit > 0 ? "💰 กำลังบวก" : (profit < 0 ? "📉 รอถอนทุน" : "⌛ รอข้อมูล");
+        }
+
+        for(var k=0; k<5; k++) { var r = counts[k]?Math.round((wins[k]/counts[k])*100):0; var acc = document.getElementById('acc'+(k+5)); if(acc) acc.innerText = r+"%"; }
+        localStorage.setItem('v14_royal_win_data', JSON.stringify(historyData));
+        renderStats(trending);
+    }
+
+    function renderStats(trending) {
+        var container = document.getElementById('statsContainer'); if(!container) return;
+        container.innerHTML = "";
+        var admin = document.getElementById('adminName').value || 'ADMIN';
+        var pos = document.getElementById('winType').value;
+        var sz = [5, 6, 7, 8, 9];
+        
+        sz.forEach((n, i) => {
+            var next = historyData.find(h => !h.actual);
+            var txt = `🏆 ${pos} [สูตร ${n}] 🏆\nชื่อหวย: ${admin}\n----------------------------\n`;
+            if(next) {
+                var ws = next.sets[i];
+                txt += `🔮 เลขเด่น: ${pos.includes("วิน") ? ws.join('') : ws.join(' , ')}\n`;
+                var p2 = [], p3 = [];
+                if(pos.includes("วิน")) {
+                    for(var a=0; a<ws.length; a++) for(var b=a+1; b<ws.length; b++) p2.push([ws[a],ws[b]].sort().join(''));
+                    for(var a=0; a<ws.length; a++) for(var b=a+1; b<ws.length; b++) for(var c=b+1; c<ws.length; c++) p3.push([ws[a],ws[b],ws[c]].sort().join(''));
+                } else if(pos.includes("ปัก")) {
+                    var opposite = pos.includes("สิบ") ? pos.replace("สิบ","หน่วย") : pos.replace("หน่วย","สิบ");
+                    var played = historyData.filter(h => h.actual);
+                    var lastAct = played.length > 0 ? played[played.length-1].actual : "12345";
+                    var ops = calculateSetsByType(lastAct, opposite);
+                    var ows = ops[i];
+                    for(var a=0; a<ws.length; a++) for(var b=0; b<ows.length; b++) p2.push(pos.includes("สิบ") ? ws[a]+ows[b] : ows[b]+ws[a]);
+                } else {
+                    var pb = Array.from(new Set([...ws, ...trending])).sort();
+                    for(var a=0; a<ws.length; a++) for(var b=0; b<pb.length; b++) if(ws[a] !== pb[b]) p2.push([ws[a], pb[b]].sort().join(''));
+                }
+                txt += `🔹 ชุดเจาะ 2 ตัว (${p2.length} ชุด):\n${p2.join(', ')}\n`;
+                if(p3.length > 0) txt += `🔹 ชุดเจาะ 3 ตัว (${p3.length} ชุด):\n${p3.slice(0,12).join(', ')}${p3.length>12?'...':''}\n`;
+            }
+            txt += `\n📈 สถิติย้อนหลัง 20 งวดล่าสุด:\n`;
+            var rows = historyData.filter(h => h.actual).slice(-20).reverse();
+            rows.forEach((h, idx) => {
+                var res = checkWin(h.sets[i], h.actual, pos);
+                txt += `${(idx+1).toString().padStart(2,'0')}. ${h.sets[i].join('')} [${h.actual}] ${res.ok?'✅':'❌'} ${res.detail}\n`;
+            });
+            var winCount = rows.filter(h => checkWin(h.sets[i], h.actual, pos).ok).length;
+            var rate = rows.length > 0 ? Math.round((winCount / rows.length) * 100) : 0;
+            txt += `----------------------------\nสรุป: เข้า ${winCount} / หลุด ${rows.length-winCount} (${rate}%)\n💕 รวยๆ เฮงๆ นะคะ 💕`;
+            var box = document.createElement('div'); box.className = 'report-box';
+            box.innerHTML = `<h5>📋 รายงานสูตร ${n}</h5><div id='c${n}' class='copy-area'>${txt}</div><button class='btn-copy' onclick='copyText("c${n}")'>คัดลอกรายงาน 💎</button>`;
+            container.appendChild(box);
+        });
+    }
+
+    function processChain() {
+        saveCurrentFormulaState();
+        var t = document.getElementById('bulkInput').value.trim();
+        var lines = t ? t.split(/\s+/).filter(l => l.length >= 5) : [];
+        if(lines.length > 0) {
+            historyData = [];
+            for(var i=0; i<lines.length-1; i++) historyData.push({ id: i+1, sets: calculateSetsByType(lines[i], document.getElementById('winType').value), actual: lines[i+1] });
+            historyData.push({ id: historyData.length+1, sets: calculateSetsByType(lines[lines.length-1], document.getElementById('winType').value), actual: null });
+        }
+        updateUI();
+    }
+
+    function updateResult(idx, val) { if(val.length >= 5) { historyData[idx].actual = val; if(idx === historyData.length - 1) historyData.push({ id: historyData.length+1, sets: calculateSetsByType(val, document.getElementById('winType').value), actual: null }); updateUI(); } }
+    function deleteRow(idx) { if(confirm('ลบ?')) { historyData.splice(idx,1); updateUI(); } }
+    function copyText(id) { var t = document.getElementById(id).innerText; navigator.clipboard.writeText(t).then(() => alert("คัดลอกแล้ว! 🍭")); }
+    function clearAll() { if(confirm('ลบทั้งหมด?')) { localStorage.clear(); location.reload(); } }
+    window.onload = function() { loadFormulasForPos(); updateUI(); };
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI LOTTO MASTER V.18</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com');
+        body { font-family: 'Kanit', sans-serif; background: #f8fafc; color: #1e293b; }
+        .ilike-header { background: #ffcc00; color: #000; border-bottom: 4px solid #000; }
+        .card-pro { background: #fff; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+        .btn-black { background: #000; color: #ffcc00; font-weight: 700; }
+        .win-box { background: #fffbeb; border: 2px solid #fbce1e; color: #000; font-weight: bold; }
+        .num-font { font-family: 'JetBrains Mono', monospace; }
+        input { border: 1px solid #cbd5e1 !important; border-radius: 12px !important; padding: 12px !important; outline: none; }
+        input:focus { border-color: #ffcc00 !important; box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2); }
+        .market-btn { background: #f1f5f9; color: #64748b; font-size: 10px; padding: 6px 12px; border-radius: 99px; }
+        .market-btn:active { background: #ffcc00; color: #000; }
+    </style>
+</head>
+<body class="pb-32">
+
+<nav class="ilike-header p-4 text-center sticky top-0 z-50">
+    <h1 class="text-2xl font-black italic">I-LIKE <span class="bg-black text-yellow-400 px-2 rounded">PRO V.18</span></h1>
+    <p class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Precision Matrix Extraction</p>
+</nav>
+
+<div class="max-w-md mx-auto p-4 space-y-5">
+    <!-- Input Section -->
+    <div class="card-pro p-6 space-y-4 shadow-sm">
+        <div class="space-y-2">
+            <label class="text-[11px] font-bold text-slate-500 uppercase ml-1">ระบุชื่อหวย / ตลาด</label>
+            <input type="text" id="marketName" placeholder="เช่น ฮานอยปกติ" class="w-full text-lg font-semibold">
+            <div class="flex gap-2 overflow-x-auto pb-2">
+                <button onclick="setM('ฮานอยปกติ')" class="market-btn whitespace-nowrap">ฮานอย</button>
+                <button onclick="setM('ลาวพัฒนา')" class="market-btn whitespace-nowrap">หวยลาว</button>
+                <button onclick="setM('รัฐบาลไทย')" class="market-btn whitespace-nowrap">รัฐบาล</button>
+                <button onclick="setM('ยี่กี รอบที่ ')" class="market-btn whitespace-nowrap">ยี่กี</button>
+                <button onclick="setM('นิเคอิ/ดาวโจนส์')" class="market-btn whitespace-nowrap">หุ้นนอก</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 border-t pt-4 border-dashed border-slate-200">
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ผลรางวัลบน</label>
+                <input type="number" id="top" placeholder="880" class="w-full text-center text-2xl font-bold">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ผลรางวัลล่าง</label>
+                <input type="number" id="bot" placeholder="23" class="w-full text-center text-2xl font-bold">
+            </div>
+        </div>
+
+        <button onclick="extractAlgorithm()" class="w-full btn-black py-4 rounded-2xl text-xl shadow-lg active:scale-95 transition-all">
+            <i class="fas fa-microchip mr-2 text-sm"></i> วิเคราะห์สูตรทศนิยม
+        </button>
+    </div>
+
+    <!-- Results -->
+    <div id="resDisplay" class="hidden space-y-5 animate-in fade-in duration-500">
+        <!-- Win 6 -->
+        <div class="card-pro p-5 border-t-4 border-yellow-400">
+            <h3 class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Core Win 6 (Matrix Extraction)</h3>
+            <div id="win6" class="flex justify-between gap-1"></div>
+        </div>
+
+        <!-- เด่น/รอง -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="card-pro p-5 text-center border-b-4 border-yellow-500">
+                <p class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-tighter">เด่นหลัก</p>
+                <p id="key1" class="text-5xl font-bold text-yellow-600">-</p>
+            </div>
+            <div class="card-pro p-5 text-center border-b-4 border-slate-200">
+                <p class="text-xs font-bold text-slate-400 mb-1 uppercase tracking-tighter">เลขรอง</p>
+                <p id="key2" class="text-5xl font-bold text-slate-300">-</p>
+            </div>
+        </div>
+
+        <!-- ชุดเลขเด่น -->
+        <div class="card-pro p-5 border-l-4 border-yellow-500">
+            <h4 class="text-sm font-bold text-yellow-700 mb-4 uppercase"><i class="fas fa-star mr-2"></i>ชุดเน้น (2 ตัว 3 / 3 ตัว 3)</h4>
+            <div id="set2D" class="grid grid-cols-3 gap-2 mb-3 font-bold"></div>
+            <div id="set3D" class="grid grid-cols-3 gap-2 font-bold text-xs"></div>
+        </div>
+
+        <!-- ชุดเลขรอง -->
+        <div class="card-pro p-5 bg-slate-50 border-l-4 border-slate-300">
+            <h4 class="text-sm font-bold text-slate-500 mb-4 uppercase italic">ชุดรอง / ตัวกัน (2 ตัว 5 / 3 ตัว 5)</h4>
+            <div id="set2R" class="grid grid-cols-5 gap-2 mb-3"></div>
+            <div id="set3R" class="grid grid-cols-3 gap-2"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Bar -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex justify-center z-50">
+    <button onclick="copyToLine()" class="w-full max-w-md bg-green-500 hover:bg-green-600 text-white py-4 rounded-full font-bold shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+        <i class="fab fa-line text-2xl"></i> ส่งสรุปเข้ากลุ่มไลน์
+    </button>
+</div>
+
+<script>
+    function setM(name) { document.getElementById('marketName').value = name; }
+
+    function extractAlgorithm() {
+        const lotto = document.getElementById('marketName').value;
+        const t = document.getElementById('top').value;
+        const b = document.getElementById('bot').value;
+
+        if(!lotto || !t || !b) return alert('กรุณาใส่ข้อมูลให้ครบถ้วน');
+
+        // อัลกอริทึมทศนิยม 15 ตำแหน่ง
+        const K = 1.32353951;
+        const res = (parseFloat(t) / parseFloat(b)) * K;
+        const s = res.toFixed(18).replace('.','').split('');
+
+        // ปรับการดึงตำแหน่งทศนิยม: ข้าม 2 ตำแหน่งแรก และดึงแบบก้าวกระโดด [3, 5, 8, 10, 13, 15]
+        const positions = [3, 5, 8, 10, 13, 15];
+        let pool = [];
+        positions.forEach(p => { if(s[p]) pool.push(s[p]); });
+
+        // คลีนซ้ำและเติมเลขให้ครบ 6
+        pool = [...new Set(pool)];
+        let i = 0;
+        while(pool.length < 6) { if(!pool.includes(s[i])) pool.push(s[i]); i++; }
+        
+        // ย้ายเลข 0 ไปไว้ท้ายสุดเสมอ
+        pool.sort((a, b) => (a === '0') ? 1 : (b === '0') ? -1 : a - b);
+
+        document.getElementById('resDisplay').classList.remove('hidden');
+        document.getElementById('win6').innerHTML = pool.slice(0,6).map(n => `<div class="flex-1 py-3 win-box rounded-xl text-center text-2xl">${n}</div>`).join('');
+        
+        // เด่น 1 รอง 1
+        document.getElementById('key1').innerText = pool[0];
+        document.getElementById('key2').innerText = pool[1];
+
+        // วินเลข 2 ตัว
+        let p2 = [];
+        for(let x=0; x<pool.length; x++) for(let y=x+1; y<pool.length; y++) p2.push(pool[x]+pool[y]);
+        document.getElementById('set2D').innerHTML = p2.slice(0,3).map(n => `<div class="bg-yellow-400 p-2 rounded-lg text-center shadow-sm text-black">${n}</div>`).join('');
+        document.getElementById('set2R').innerHTML = p2.slice(3,8).map(n => `<div class="bg-white border border-slate-200 p-1 rounded-lg text-center text-xs text-slate-500">${n}</div>`).join('');
+
+        // วินเลข 3 ตัว
+        let p3 = [];
+        for(let x=0; x<pool.length-2; x++) p3.push(pool[x]+pool[x+1]+pool[x+2]);
+        document.getElementById('set3D').innerHTML = p3.slice(0,3).map(n => `<div class="bg-slate-800 text-yellow-400 p-2 rounded-lg text-center font-bold">${n}</div>`).join('');
+        document.getElementById('set3R').innerHTML = p3.slice(3,8).map(n => `<div class="bg-white border border-slate-200 p-1 rounded-lg text-center text-[10px] text-slate-400">${n}</div>`).join('');
+
+        window.scrollTo({ top: 400, behavior: 'smooth' });
+    }
+
+    function copyToLine() {
+        const m = document.getElementById('marketName').value;
+        const now = new Date();
+        const date = now.toLocaleDateString('th-TH');
+        const time = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+        const w = Array.from(document.getElementById('win6').children).map(e => e.innerText).join('-');
+        const k1 = document.getElementById('key1').innerText;
+        const k2 = document.getElementById('key2').innerText;
+        const s2d = document.getElementById('set2D').innerText.replace(/\n/g,' ');
+        const s2r = document.getElementById('set2R').innerText.replace(/\n/g,' ');
+        const s3d = document.getElementById('set3D').innerText.replace(/\n/g,' ');
+        const s3r = document.getElementById('set3R').innerText.replace(/\n/g,' ');
+
+        const text = `🟡 I-LIKE ANALYZER V.18 🟡\n🏆 หวย: ${m}\n📅 วันที่: ${date} [${time}]\n━━━━━━━━━━━━━━\n🌟 เลขวิน 6 ตัว: [ ${w} ]\n\n📌 เด่น: ${k1} | รอง: ${k2}\n\n🔥 2 ตัวเด่น: ${s2d}\n✨ 2 ตัวรอง: ${s2r}\n\n🏆 3 ตัวเด่น: ${s3d}\n💠 3 ตัวรอง: ${s3r}\n━━━━━━━━━━━━━━\n✅ วิเคราะห์แม่นยำด้วยระบบ AI PRO`;
+
+        navigator.clipboard.writeText(text);
+        alert('คัดลอกลง LINE แล้ว!');
+    }
+</script>
+</body>
+</html>

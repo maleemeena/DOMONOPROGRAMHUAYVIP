@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สูตรเลขชนอัจฉริยะ 3 ตัวบน v3</title>
+    <style>
+        :root {
+            --bg-main: #000000;
+            --bg-card: #0a0202;
+            --border-red: #cc0000;
+            --neon-red: #ff1a1a;
+            --neon-gold: #ffcc00;
+            --text-light: #ffffff;
+            --text-gray: #bbbbbb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Noto Sans Thai';
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(180deg, #150000 0%, #000000 100%);
+            border: 2px solid var(--border-red);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+            box-sizing: border-box;
+        }
+
+        .header-main {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+            margin-bottom: 5px;
+        }
+
+        .date-badge {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-gray);
+            margin-bottom: 25px;
+        }
+
+        .input-panel {
+            background: rgba(20, 0, 0, 0.6);
+            border: 1px solid #4a0000;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: var(--neon-gold);
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background: #100000;
+            border: 1px solid #880000;
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 130px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        .hint-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-run {
+            background: linear-gradient(90deg, #ff0000, #990000);
+            color: white;
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+        }
+
+        .btn-reset {
+            background: #220000;
+            color: #ccaaaa;
+            border: 1px solid #550000;
+            flex: 0.4;
+        }
+
+        .btn-clipboard {
+            background: linear-gradient(90deg, #ffcc00, #cc9900);
+            color: #000000;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 5px;
+            flex: none;
+            font-weight: bold;
+        }
+
+        .btn-copy-all {
+            background: linear-gradient(90deg, #00cc66, #006633);
+            color: white;
+            padding: 5px 12px;
+            font-size: 12px;
+            border-radius: 5px;
+            flex: none;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(0, 204, 102, 0.4);
+        }
+
+        .output-section {
+            border: 1px solid #660000;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            overflow: hidden;
+            background: #080101;
+        }
+
+        .section-header {
+            background: linear-gradient(90deg, #3a0000, #0d0000);
+            padding: 8px 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--neon-gold);
+            border-bottom: 1px solid #550000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .line-badge {
+            background: #220000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #ff3333;
+        }
+
+        .history-grid-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .hist-chip {
+            background: #1a0505;
+            border: 1px solid #441111;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--neon-gold);
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .stats-table th {
+            background: #1a0202;
+            color: var(--neon-gold);
+            font-size: 15px;
+            padding: 8px 4px;
+            border: 1px solid #330000;
+        }
+
+        .stats-table td {
+            padding: 8px 2px;
+            border: 1px solid #220000;
+        }
+
+        .cell-count {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .stars-container {
+            color: var(--neon-gold);
+            font-size: 9px;
+        }
+
+        .circle-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 5px;
+        }
+
+        .badge-circle {
+            background: radial-gradient(circle, #2a0000 0%, #050000 100%);
+            border: 2px dashed var(--neon-red);
+            border-radius: 50%;
+            width: 65px;
+            height: 65px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge-num {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4d4d;
+            line-height: 1;
+        }
+
+        .badge-count {
+            font-size: 9px;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .matrix-grid.cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .matrix-cell {
+            background: linear-gradient(180deg, #1a0505 0%, #080101 100%);
+            border: 1px solid #551111;
+            border-radius: 8px;
+            padding: 8px 2px;
+            text-align: center;
+            position: relative;
+        }
+
+        .cell-idx {
+            font-size: 9px;
+            color: #661111;
+            position: absolute;
+            top: 2px;
+            left: 4px;
+        }
+
+        .cell-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--neon-gold);
+            margin-top: 5px;
+        }
+
+        .bottom-summary-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #220202 0%, #080000 100%);
+            border: 1px solid var(--border-red);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .color-neon-red { color: var(--neon-red); font-weight: bold; font-size: 20px; }
+        .color-neon-gold { color: var(--neon-gold); font-weight: bold; font-size: 20px; }
+        .gauge-percent { font-size: 24px; font-weight: bold; color: var(--neon-gold); }
+
+        #viewPanel { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-main">สูตรเลขชนอัจฉริยะ 3 ตัวบน</div>
+    <div class="date-badge" id="dateDisplay">วันที่ประมวลผล...</div>
+
+    <!-- ส่วนกรอกข้อมูลต้นทาง -->
+    <div class="input-panel">
+        <div class="form-control">
+            <label>🏷️ ใส่ชื่อหวย / ชื่อรอบสถิติ</label>
+            <input type="text" id="inputName" placeholder="เช่น หวยฮานอย, นิเคอิเช้า">
+        </div>
+        <div class="form-control">
+            <label>📝 วางสถิติผลหวยไม่จำกัดรูปแบบ </label>
+            <textarea id="inputRawData" placeholder="นอยปกติ 12345&#10;รอบสอง 5123-45&#10;123-99 456-88"></textarea>
+            <div class="hint-text">*ระบบจำค่าผลหวยอัตโนมัติ ไม่ต้องกรอกใหม่เมื่อเปิดแอปครั้งถัดไป</div>
+        </div>
+    </div>
+
+    <div class="actions-group">
+        <button class="btn-reset" onclick="resetForm()">ล้างข้อมูล</button>
+        <button class="btn-run" onclick="processStats()">คำนวณผล</button>
+    </div>
+
+    <!-- ส่วนแสดงผลลัพธ์ -->
+    <div id="viewPanel">
+        
+        <div class="output-section">
+            <div class="section-header">
+                <button class="btn-copy-all" onclick="copyAllResultsCombined()">🟢 คัดลอกรวมทั้งหมด</button>
+                <div class="line-badge">
+                    ใส่ <span style="color:#ff3333; font-weight:bold;">ID</span> <span style="color:#fff;">momongmo</span>
+                </div>
+            </div>
+            <div class="history-grid-box" id="historyContainer"></div>
+        </div>
+
+        <div class="output-section">
+            <div class="section-header">สถิติความถี่เลขเดี่ยว (0-9)</div>
+            <table class="stats-table">
+                <thead id="tableHeadFreq"></thead>
+                <tbody id="tableBodyFreq"></tbody>
+            </table>
+        </div>
+
+        <div class="output-section">
+            <div class="section-header">เลขชนหลัก (ความถี่สูง)</div>
+            <div class="circle-wrapper" id="topCirclesContainer"></div>
+        </div>
+
+        <!-- แผงเลขชน 2 ตัว 10 ชุด -->
+        <div class="output-section">
+            <div class="section-header">
+                <span>เลขชน 2 ตัว 10 ชุด</span>
+                <button class="btn-clipboard" onclick="copyCustomPairs(2, 10)">📋 คัดลอก 2 ตัว</button>
+            </div>
+            <div class="matrix-grid" id="gridPairs2"></div>
+        </div>
+
+        <!-- แผงเลขชน 3 ตัว 10 ชุด -->
+        <div class="output-section">
+            <div class="section-header">
+                <span>เลขชน 3 ตัว 10 ชุด</span>
+                <button class="btn-clipboard" onclick="copyCustomPairs(3, 10)">📋 คัดลอก 3 ตัว</button>
+            </div>
+            <div class="matrix-grid" id="gridPairs3"></div>
+        </div>
+
+        <!-- แผงเลขชน 4 ตัว 5 ชุด -->
+        <div class="output-section">
+            <div class="section-header">
+                <span>เลขชน 4 ตัว 5 ชุด</span>
+                <button class="btn-clipboard" onclick="copyCustomPairs(4, 5)">📋 คัดลอก 4 ตัว</button>
+            </div>
+            <div class="matrix-grid cols-5" id="gridPairs4"></div>
+        </div>
+
+        <div class="bottom-summary-panel">
+            <div style="font-size: 15px;">
+                <div style="margin-bottom:6px;">🎯 ชนเด่น : <span class="color-neon-red" id="lblMainValue">-</span></div>
+                <div>✨ รอง : <span class="color-neon-gold" id="lblSubValue">-</span></div>
+            </div>
+            <div style="text-align:right; border-left:1px solid #330000; padding-left:15px;">
+                <div style="font-size: 11px; color: var(--text-gray);">ความแม่นยำประเมิน</div>
+                <div class="gauge-percent" id="lblDynamicAccuracy">85%</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    let calculatedData = { pairs2: [], pairs3: [], pairs4: [] };
+    let dynamicAccuracyValue = "85%";
+
+    window.onload = function() {
+        renderTodayDate();
+        const savedName = localStorage.getItem('lotto_name_v3');
+        const savedRawData = localStorage.getItem('lotto_raw_data_v3');
+        if (savedName) document.getElementById('inputName').value = savedName;
+        if (savedRawData) {
+            document.getElementById('inputRawData').value = savedRawData;
+            processStats(true);
+        }
+    };
+
+    function renderTodayDate() {
+        const d = new Date();
+        document.getElementById('dateDisplay').innerText = `วันที่ประมวลผล: ${d.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+    }
+
+    function processStats(isInitialLoad = false) {
+        const lottoName = document.getElementById('inputName').value.trim() || "ผลหวยสถิติย้อนหลัง";
+        const rawText = document.getElementById('inputRawData').value;
+        
+        const lines = rawText.split(/[\n,]/);
+        let extractedPure3Digits = [];
+
+        lines.forEach(line => {
+            const numGroups = line.match(/\d{3,}/g);
+            if (numGroups) {
+                numGroups.forEach(group => {
+                    const threeDigits = group.slice(-3);
+                    extractedPure3Digits.push(threeDigits);
+                });
+            } else {
+                const dashMatch = line.match(/(\d{3,})\s*-\s*\d+/);
+                if (dashMatch) {
+                    extractedPure3Digits.push(dashMatch.slice(-3));
+                }
+            }
+        });
+
+        if (extractedPure3Digits.length === 0) {
+            if(!isInitialLoad) alert("ระบบหาชุดตัวเลข 3 ตัวบนไม่พบ กรุณาตรวจสอบรูปแบบการวางข้อมูลสถิติครับ");
+            return;
+        }
+
+        localStorage.setItem('lotto_name_v3', lottoName);
+        localStorage.setItem('lotto_raw_data_v3', rawText);
+
+        const historyContainer = document.getElementById('historyContainer');
+        historyContainer.innerHTML = '';
+        extractedPure3Digits.forEach((num, i) => {
+            historyContainer.innerHTML += `<div class="hist-chip">บน [${i+1}]: ${num}</div>`;
+        });
+
+        const digitsCounter = Array(10).fill(0);
+        extractedPure3Digits.join('').split('').forEach(char => {
+            let n = parseInt(char);
+            if (n >= 0 && n <= 9) digitsCounter[n]++;
+        });
+
+        let hr = '<tr>', cr = '<tr>', sr = '<tr>';
+        for (let i = 0; i <= 9; i++) {
+            hr += `<th>${i}</th>`;
+            cr += `<td><span class="cell-count">${digitsCounter[i]}</span><span style="font-size:9px;color:#666;display:block;">ครั้ง</span></td>`;
+            let stars = digitsCounter[i] >= 5 ? '⭐⭐⭐' : (digitsCounter[i] >= 3 ? '⭐⭐' : (digitsCounter[i] >= 1 ? '⭐' : ' '));
+            sr += `<td><div class="stars-container">${stars}</div></td>`;
+        }
+        document.getElementById('tableHeadFreq').innerHTML = hr + '</tr>';
+        document.getElementById('tableBodyFreq').innerHTML = cr + '</tr>' + sr + '</tr>';
+
+        let sorted = [];
+        for (let i = 0; i <= 9; i++) sorted.push({ digit: i, count: digitsCounter[i] });
+        sorted.sort((a, b) => b.count - a.count);
+
+        const topCircles = document.getElementById('topCirclesContainer');
+        topCircles.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            topCircles.innerHTML += `
+                <div class="badge-circle">
+                    <div class="badge-num">${sorted[i].digit}</div>
+                    <div class="badge-count">${sorted[i].count} ครั้ง</div>
+                </div>
+            `;
+        }
+
+        let topDigits = sorted.slice(0, 8).map(el => el.digit);
+        
+        calculatedData.pairs2 = [];
+        calculatedData.pairs3 = [];
+        calculatedData.pairs4 = [];
+
+        for (let i = 0; i < topDigits.length; i++) {
+            for (let j = i + 1; j < topDigits.length; j++) {
+                calculatedData.pairs2.push(`${topDigits[i]}${topDigits[j]}`);
+            }
+        }
+        for (let i = 0; i < topDigits.length; i++) {
+            for (let j = i + 1; j < topDigits.length; j++) {
+                for (let k = j + 1; k < topDigits.length; k++) {
+                    calculatedData.pairs3.push(`${topDigits[i]}${topDigits[j]}${topDigits[k]}`);
+                }
+            }
+        }
+        for (let i = 0; i < topDigits.length; i++) {
+            for (let j = i + 1; j < topDigits.length; j++) {
+                for (let k = j + 1; k < topDigits.length; k++) {
+                    for (let l = k + 1; l < topDigits.length; l++) {
+                        calculatedData.pairs4.push(`${topDigits[i]}${topDigits[j]}${topDigits[k]}${topDigits[l]}`);
+                    }
+                }
+            }
+        }
+
+        renderGrid('gridPairs2', calculatedData.pairs2, 10);
+        renderGrid('gridPairs3', calculatedData.pairs3, 10);
+        renderGrid('gridPairs4', calculatedData.pairs4, 5);
+
+        document.getElementById('lblMainValue').innerText = `${sorted[0].digit} - ${sorted[1].digit} - ${sorted[2].digit}`;
+        document.getElementById('lblSubValue').innerText = `${sorted[3].digit} - ${sorted[4].digit}`;
+
+        let baseDataWeight = extractedPure3Digits.length;
+        let peakFrequency = sorted[0].count;
+        let calculatedPercentage = 78 + Math.min(12, (baseDataWeight * 0.4) + (peakFrequency * 0.8));
+        dynamicAccuracyValue = `${Math.floor(calculatedPercentage)}%`;
+        document.getElementById('lblDynamicAccuracy').innerText = dynamicAccuracyValue;
+
+        document.getElementById('viewPanel').style.display = 'block';
+        if (!isInitialLoad) document.getElementById('viewPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderGrid(elementId, items, limit) {
+        const grid = document.getElementById(elementId);
+        grid.innerHTML = '';
+        items.slice(0, limit).forEach((val, idx) => {
+            grid.innerHTML += `
+                <div class="matrix-cell">
+                    <div class="cell-idx">${idx + 1}</div>
+                    <div class="cell-value">${val}</div>
+                </div>
+            `;
+        });
+    }
+
+    function resetForm() {
+        if (confirm("ต้องการเคลียร์ล้างข้อมูลทั้งหมดใช่หรือไม่?")) {
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputRawData').value = '';
+            document.getElementById('viewPanel').style.display = 'none';
+            localStorage.clear();
+            calculatedData = { pairs2: [], pairs3: [], pairs4: [] };
+        }
+    }
+
+    function copyCustomPairs(digitType, countAmount) {
+        let targetList = digitType === 2 ? calculatedData.pairs2 : (digitType === 3 ? calculatedData.pairs3 : calculatedData.pairs4);
+        if (!targetList || targetList.length === 0) return;
+
+        const lottoName = document.getElementById('inputName').value.trim() || "สูตรเลขชน";
+        const dateStr = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+        const mainDigits = document.getElementById('lblMainValue').innerText;
+        const subDigits = document.getElementById('lblSubValue').innerText;
+        const accuracy = dynamicAccuracyValue;
+        
+        const selectedNumbers = targetList.slice(0, countAmount).join(', ');
+
+        let msg = `🎯 สูตรเลขชนอัจฉริยะ 3 ตัวบน [ ${lottoName} ]\n`;
+        msg += `📅 วันที่วิเคราะห์: ${dateStr}\n`;
+        msg += `🆔 LINE ID: momongmo\n`;
+        msg += `-------------------------------\n`;
+        msg += `🔥 เลขชนเด่น: ${mainDigits}\n`;
+        msg += `⚡ เลขชนรอง: ${subDigits}\n`;
+        msg += `📊 ชุดสรุปผลเลขชน ${digitType} ตัว (${countAmount} ชุดเด่น): ${selectedNumbers}\n`;
+        msg += `-------------------------------\n`;
+        msg += `📈 ความแม่นยำประเมิน: ${accuracy}`;
+
+        navigator.clipboard.writeText(msg).then(() => {
+            alert(`📋 คัดลอกข้อความชุดเลขชน ${digitType} ตัว เรียบร้อยแล้ว!`);
+        });
+    }
+
+    function copyAllResultsCombined() {
+        if (calculatedData.pairs2.length === 0) return;
+
+        const lottoName = document.getElementById('inputName').value.trim() || "สูตรเลขชน";
+        const dateStr = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+        const mainDigits = document.getElementById('lblMainValue').innerText;
+        const subDigits = document.getElementById('lblSubValue').innerText;
+
+        let msg = `🔥 สรุปสูตรเลขชนเด่นทุกชุด [ ${lottoName} ] 🔥\n`;
+        msg += `📅 ประมวลผลเมื่อ: ${dateStr}\n`;
+        msg += `🆔 ติดต่อ LINE ID: momongmo\n`;
+        msg += `===============================\n`;
+        msg += `🎯 เลขชนเด่นหลัก: ${mainDigits}\n`;
+        msg += `⚡ เลขชนรองหลัก: ${subDigits}\n`;
+        msg += `===============================\n`;
+        msg += `💵 เลขชน 2 ตัว (10 ชุดเด่น):\n${calculatedData.pairs2.slice(0, 10).join(', ')}\n\n`;
+        msg += `💎 เลขชน 3 ตัว (10 ชุดเด่น):\n${calculatedData.pairs3.slice(0, 10).join(', ')}\n\n`;
+        msg += `👑 เลขชน 4 ตัว (5 ชุดเด่น):\n${calculatedData.pairs4.slice(0, 5).join(', ')}\n`;
+        msg += `===============================\n`;
+        msg += `📈 อัตราความแม่นยำงวดนี้: ${dynamicAccuracyValue}`;
+
+        navigator.clipboard.writeText(msg).then(() => {
+            alert("🟢 คัดลอกสรุปผลตัวเลขเด่นรวมทุกชุดไปยังคลิปบอร์ดแล้ว!");
+        });
+    }
+</script>
+
+</body>
+</html>

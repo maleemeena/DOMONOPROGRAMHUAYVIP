@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>โปรแกรมสูตรสถิติหวยอัจฉริยะ V5 (ฉบับแก้ไขสมบูรณ์)</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f4; margin: 0; padding: 10px; color: #333; font-size: 14px; }
+        .header { background: #2e7d32; color: #fff; text-align: center; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .input-container { position: relative; width: 100%; margin-top: 8px; }
+        textarea { width: 100%; height: 110px; padding: 10px; padding-bottom: 35px; box-sizing: border-box; font-family: monospace; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; }
+        .btn-clear { position: absolute; bottom: 8px; right: 8px; background: #ff5252; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .btn-clear:active { background: #d32f2f; }
+        .filter-bar { background: #e8f5e9; padding: 10px; border-radius: 8px; margin: 8px 0; display: flex; flex-direction: column; gap: 8px; }
+        .f-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+        .f-lbl { font-weight: bold; color: #1b5e20; min-width: 75px; font-size: 13px; }
+        select { padding: 8px; border-radius: 6px; border: 1px solid #a5d6a7; font-size: 14px; width: 100%; max-width: 100%; font-weight: bold; color: #2e7d32; background: #fff; }
+        .btn { background: #fff; border: 1px solid #a5d6a7; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; -webkit-tap-highlight-color: transparent; }
+        .btn.active { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+        .card { background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,.08); border-top: 4px solid #2e7d32; display: flex; flex-direction: column; overflow: hidden; }
+        .c-head { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 6px; font-size: 13px; }
+        .box { position: relative; margin-top: 8px; }
+        .list { font-family: monospace; height: 180px; overflow-y: auto; background: #fafafa; padding: 8px; border: 1px solid #ddd; border-radius: 6px; white-space: pre-wrap; font-size: 13px; line-height: 1.5; }
+        .btn-copy { position: absolute; top: 5px; right: 5px; font-size: 11px; padding: 4px 8px; cursor: pointer; background: #e0e0e0; border: none; border-radius: 4px; font-weight: bold; color: #333; }
+        .btn-copy:active { background: #bdbdbd; }
+        .ok { color: green; font-weight: bold; } .no { color: red; }
+        .next { margin-top: 8px; text-align: center; color: #e65100; font-weight: bold; font-size: 14px; background: #fff3e0; padding: 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="header" id="h">โปรแกรมคำนวณสถิติหวยอัจฉริยะ</div>
+<div class="user-info-box" style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;">
+    <label style="margin-right: 10px;">
+        📌 ชื่อหวย: 
+        <input type="text" id="lotteryName" placeholder="เช่น หวยยี่กี, หวยลาว" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+    </label>
+    <label>
+        💬 ไอดีไลน์: 
+        <input type="text" id="lineId" placeholder="ระบุไอดีไลน์หรือเบอร์โทร" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+    </label>
+</div>
+
+<div class="input-container">
+    <textarea id="inp" oninput="saveAndCalc()" placeholder="วางผลสถิติหวยลาว ยี่กี ฯลฯ ได้ทุกรูปแบบ..."></textarea>
+    <button class="btn-clear" onclick="clearData()">ล้างข้อมูล 🧹</button> 
+</div>
+
+<div class="filter-bar">
+    <div class="f-row">
+        <span class="f-lbl">เลือกสูตร:</span>
+        <select id="sel" onchange="saveAndCalc()"></select> 
+    </div>
+    <div class="f-row">
+        <span class="f-lbl">จำนวนรอบ:</span>
+        <button class="btn active r-btn" onclick="setL(0,this)">ผลทั้งหมด</button>
+        <button class="btn r-btn" onclick="setL(3,this)">ผล 3 รอบ</button>
+        <button class="btn r-btn" onclick="setL(4,this)">ผล 4 รอบ</button>
+        <button class="btn r-btn" onclick="setL(5,this)">ผล 5 รอบ</button>
+    </div>
+</div>
+
+<div class="grid" id="out"></div>
+
+<script>
+let lim = 0;
+
+// ฟังก์ชันสร้างเมนูแบบล็อกระบบแมปปิ้งให้ถูกต้อง 100% ป้องกันข้อความสลับจุดเพี้ยน
+function initMenu() {
+    const s = document.getElementById('sel');
+    const makeGroup = (lbl, arr) => {
+        let g = document.createElement('optgroup'); g.label = lbl;
+        arr.forEach(i => {
+            let o = document.createElement('option');
+            // รูปแบบการเก็บข้อมูลลง Value: ชื่อสูตร | โหมดคำนวณ | จำนวนตัวแปรเลข | ประเภทสูตร
+            o.value = `${i[0]}|${i[1]}|${i[2]}|${i[3] || 'ปกติ'}`; 
+            o.textContent = i[0];
+            g.appendChild(o);
+        });
+        s.appendChild(g);
+    };
+
+    makeGroup("—— เลขไหล / เลขวิ่ง / เลขรูด VIP ——", [
+        ["ไหล 1 ตัว","both_2d",1], ["ไหล 2 ตัว","both_2d",2], ["ไหลบน 3 ตัว","top_2d",3], ["ไหลบน 4 ตัว","top_2d",4],
+        ["ไหลล่าง 3 ตัว","bot_2d",3], ["ไหลล่าง 4 ตัว","bot_2d",4], ["ไหลวินบน-ล่าง","both_2d",7],
+        ["วิ่งบนล่าง 1 ตัว","both_2d",1], ["วิ่งบนล่าง 2 ตัว","both_all",2], ["วิ่งบน 1 ตัว","top_2d",1], ["วิ่งล่าง 1 ตัว","bot_2d",1],
+        ["รูดตัวเดียว (บนล่าง)","both_2d",1], ["รูด 2 ตัว (บนล่าง)","both_all",2], ["รูดบน 2 ตัว","top_2d",2], ["รูดล่าง 2 ตัว","bot_2d",2]
+    ]);
+
+    makeGroup("—— เลขวิน VIP (คู่คี่ / สูงต่ำ) ——", [
+        ["3 ตัวบน 6 ตัว","top_3d",6], ["3 ตัวบน 7 ตัว","top_3d",7], ["3 ตัวบน 8 ตัว","top_3d",8],
+        ["วินบน 5 ตัว","win_top_2d",5], ["วินบน 6 ตัว","win_top_2d",6], ["วินบน 7 ตัว","win_top_2d",7], ["วินบน 8 ตัว","win_top_2d",8], ["วินบน 9 ตัว","win_top_2d",9],
+        ["วินล่าง 5 ตัว","win_bot_2d",5], ["วินล่าง 6 ตัว","win_bot_2d",6], ["วินล่าง 7 ตัว","win_bot_2d",7], ["วินล่าง 8 ตัว","win_bot_2d",8], ["วินล่าง 9 ตัว","win_bot_2d",9],
+        ["คู่/คี่ สองตัวบน","top_2d",1,"คู่คี่"], ["คู่/คี่ สองตัวล่าง","bot_2d",1,"คู่คี่"], ["สูง/ต่ำ สองตัวบน","top_2d",1,"สูงต่ำ"], ["สูง/ต่ำ สองตัวล่าง","bot_2d",1,"สูงต่ำ"]
+    ]);
+
+    let p = [];
+    for(let n=5; n<=9; n++) p.push([`ปักสิบบน ${n} ตัว`,"p_sib_top",n]);
+    for(let n=5; n<=9; n++) p.push([`ปักหน่วยบน ${n} ตัว`,"p_noi_top",n]);
+    for(let n=5; n<=9; n++) p.push([`ปักสิบล่าง ${n} ตัว`,"p_sib_bot",n]); 
+    for(let n=5; n<=9; n++) p.push([`ปักหน่วยล่าง ${n} ตัว`,"p_noi_bot",n]); 
+    for(let n=5; n<=9; n++) p.push([`ปักหลักร้อย ${n} ตัว`,"p_roi",n]);
+    makeGroup("—— เลขปักหลัก VIP ——", p);
+
+    let fV = [], fx = [["คงที่วิ่งบนล่าง 2 ตัว","both_2d",2],["คงที่วิ่งบน 2 ตัว","top_2d",2],["คงที่วิ่งล่าง 2 ตัว","bot_2d",2],["คงที่ 2 ตัว","both_2d",2],["คงที่บน 2 ตัว","top_2d",2],["คงที่บน 3 ตัว","top_2d",3],["คงที่บน 4 ตัว","top_2d",4],["คงที่ล่าง 2 ตัว","bot_2d",2],["คงที่ล่าง 3 ตัว","bot_2d",3],["คงที่ล่าง 4 ตัว","bot_2d",4]];
+    const ks = [["สิบบน","p_sib_top"],["หน่วยบน","p_noi_top"],["สิบล่าง","p_sib_bot"],["หน่วยล่าง","p_noi_bot"]];
+    ks.forEach(k => {
+        for(let n=5; n<=8; n++) { fV.push([`ไหล${k[0]} ${n} ตัว`,k[1],n]); fx.push([`คงที่${k[0]} ${n} ตัว`,k[1],n]); }
+    });
+    for(let n=5; n<=9; n++) { fx.push([`คงที่วินบน ${n} ตัว`,"win_top_2d",n]); fx.push([`คงที่วินล่าง ${n} ตัว`,"win_bot_2d",n]); }
+    
+    makeGroup("—— เลขไหลเจาะหลัก VIP ——", fV);
+    makeGroup("—— เลขคงที่ VIP ——", fx);
+    makeGroup("—— สูตรจับทางเลข VIP ——",[["จับหลักร้อย (หาเลขเดินดี)","p_roi",1,"จับทาง"],["จับหลักสิบบน (หาเลขเดินดี)","p_sib_top",1,"จับทาง"],["จับหลักหน่วยบน (หาเลขเดินดี)","p_noi_top",1,"จับทาง"]]);
+}
+
+function setL(l, b) { lim = l; document.querySelectorAll('.r-btn').forEach(i => i.classList.remove('active')); b.classList.add('active'); saveAndCalc(); }
+
+function getFormulas(type, len) {
+    if (type === "คู่คี่") return [{ id: 1, name: "สูตรเลขคู่", d: ["0","2","4","6","8"], l: "คู่" }, { id: 2, name: "สูตรเลขคี่", d: ["1","3","5","7","9"], l: "คี่" }];
+    if (type === "สูงต่ำ") return [{ id: 1, name: "สูตรเลขต่ำ (0-4)", d: ["0","1","2","3","4"], l: "ต่ำ" }, { id: 2, name: "สูตรเลขสูง (5-9)", d: ["5","6","7","8","9"], l: "สูง" }];
+    if (type === "จับทาง") {
+        let r = []; for (let i = 0; i < 10; i++) r.push({ id: i + 1, name: `จับทางเลข [${i}]`, d: [String(i)], l: String(i) }); return r;
+    }
+    let r = [];
+    for (let i = 0; i < 10; i++) {
+        let a = []; for (let j = 0; j < len; j++) a.push(String((i + j) % 10));
+        r.push({ id: i + 1, name: `ชุดที่ ${i + 1}`, d: a, l: a.join('') });
+    }
+    return r;
+}
+
+function saveAndCalc() {
+    localStorage.setItem('saved_lottery_data', document.getElementById('inp').value);
+    localStorage.setItem('saved_lottery_formula', document.getElementById('sel').value);
+    calc();
+}
+
+function clearData() {
+    if(confirm("คุณต้องการล้างข้อมูลสถิติที่พิมพ์ไว้ทั้งหมดใช่หรือไม่?")) {
+        document.getElementById('inp').value = "";
+        localStorage.removeItem('saved_lottery_data');
+        calc();
+    }
+}
+
+function calc() {
+    let txt = document.getElementById('inp').value.trim(); if (!txt) { document.getElementById('out').innerHTML = ''; return; }
+    let [tName, mode, lenStr, type] = document.getElementById('sel').value.split('|'), length = parseInt(lenStr);
+    document.getElementById('h').textContent = `${tName} - เรียงตามความแม่นยำ %`;
+    
+    // ดึงค่าจากช่อง input ชื่อหวย และ ไอดีไลน์ ที่ผู้ใช้กรอกเพิ่ม
+    let userLottery = document.getElementById('lotteryName') ? document.getElementById('lotteryName').value.trim() : '';
+    let userLine = document.getElementById('lineId') ? document.getElementById('lineId').value.trim() : '';
+
+    // สร้างส่วนหัวสำหรับข้อความคัดลอก
+    let customHeader = "";
+    if (userLottery) customHeader += `📌 หวย: ${userLottery}\n`;
+    if (userLine) customHeader += `💬 ติดต่อ LINE: ${userLine}\n`;
+    if (customHeader) customHeader += `-------------------\n`;
+
+    let lines = txt.split('\n'), parsed = [], rCount = 1, title = "สถิติหวย";
+    for (let i = 0; i < Math.min(3, lines.length); i++) {
+        if (lines[i].trim() && !lines[i].includes('-') && !lines[i].includes('➡️')) { title = lines[i].trim(); break; }
+    }
+    
+    lines.forEach(l => {
+        let c = l.replace(/[^\d\s\-|➡️]/g, '').trim(), m = c.match(/(\d{3})\s*[\-|➡️]\s*(\d{2})/);
+        if (m) {
+            let lbl = "งวด " + rCount++;
+            let dateMatch = l.match(/(\d{1,2}\s+[ก-์a-zA-Z.]+\s+\d{2,4})/);
+            let roundMatch = l.match(/^[^0-9]*(\d+)[:.\s]/);
+            
+            if (dateMatch) lbl = dateMatch[1];
+            else if (roundMatch) lbl = "รอบ " + roundMatch[1];
+            
+            parsed.push({ r: lbl, top: m[1], bot: m[2] });
+        }
+    });
+
+    let dLines = lim > 0 ? parsed.slice(-lim) : parsed, 
+        computed = [], 
+        fms = getFormulas(type, length);
+
+    fms.forEach(fm => {
+        let win = 0, html = '', raw = '', last = '';
+        dLines.forEach(item => {
+            last = item.r; 
+            let tg = '', isWin = false, matchInWin = 0, bonus3d = false;
+
+            if (mode === "top_2d" || mode === "win_top_2d") tg = item.top.slice(-2);
+            else if (mode === "bot_2d" || mode === "win_bot_2d") tg = item.bot;
+            else if (mode === "both_2d") tg = item.top.slice(-2) + item.bot;
+            else if (mode === "top_3d") tg = item.top;
+            else if (mode === "p_roi") tg = item.top.charAt(0);
+            else if (mode === "p_sib_top") tg = item.top.slice(-2).charAt(0);
+            else if (mode === "p_noi_top") tg = item.top.slice(-1);
+            else if (mode === "p_sib_bot") tg = item.bot.charAt(0);
+            else if (mode === "p_noi_bot") tg = item.bot.slice(-1);
+
+            if (mode === "top_3d") {
+                let c1 = fm.d.includes(tg.charAt(0)), c2 = fm.d.includes(tg.charAt(1)), c3 = fm.d.includes(tg.charAt(2));
+                if (c1 && c2 && c3) { isWin = true; matchInWin = 3; }
+            } else if (mode === "win_top_2d" || mode === "win_bot_2d") {
+                let c1 = fm.d.includes(tg.charAt(0)), c2 = fm.d.includes(tg.charAt(1));
+                if (c1 && c2) {
+                    isWin = true; matchInWin = 2;
+                    if (mode === "win_top_2d" && fm.d.includes(item.top.charAt(0))) bonus3d = true;
+                }
+            } else {
+                if (type === "คู่คี่" || type === "สูงต่ำ") {
+                    for (let ch of tg) { if (fm.d.includes(ch)) matchInWin++; }
+                } else {
+                    fm.d.forEach(d => { if (tg.includes(d)) matchInWin += (tg.split(d).length - 1); });
+                }
+                if (matchInWin > 0) isWin = true;
+            }
+
+            let sign = isWin ? `✓${matchInWin > 1 ? '(' + matchInWin + ')' : ''}` : '×';
+            if (bonus3d) sign = `✓(3)❤️`; 
+            if (isWin) win++;
+
+            html += `${item.r} = ${item.top} - ${item.bot} [${fm.l}] = ${sign}\n`;
+            raw += `${item.r} = ${item.top} - ${item.bot} = ${sign}\n`;
+        });
+
+        let rate = dLines.length > 0 ? parseFloat(((win / dLines.length) * 100).toFixed(1)) : 0;
+        let next = last !== '' ? `รอบถัดไปเด่น = ${fm.l}` : '';
+
+        computed.push({
+            id: fm.id, n: fm.name, l: fm.l, w: win, t: dLines.length, rate: rate, html: html,
+            // นำ customHeader มารวมไว้ด้านบนสุดของข้อความ raw
+            raw: `${customHeader}${title}\nสูตร: ${tName}\n${fm.name} [${fm.l}]\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${raw}\n${next}`, 
+            next: next
+        });
+    });
+
+    computed.sort((a, b) => b.rate - a.rate || a.id - b.id);
+
+    let g = document.getElementById('out'); 
+    g.innerHTML = '';
+    computed.forEach(i => {
+        let d = document.createElement('div'); 
+        d.className = 'card';
+        d.innerHTML = `<div class="c-head"><div>${i.n} [${i.l}]</div><div>ถูก/ผิด=${i.w}/${i.t-i.w}=${i.rate}%</div></div><div class="box"><button class="btn-copy" onclick="cp('${i.id}')">คัดลอก</button><div class="list">${i.html}</div><textarea id="raw-${i.id}" style="display:none">${i.raw}</textarea></div><div class="next">${i.next}</div>`;
+        g.appendChild(d);
+    });
+}
+
+function cp(id) {
+    let ta = document.getElementById(`raw-${id}`);
+    ta.style.display = "block"; 
+    ta.select(); 
+    ta.setSelectionRange(0, 99999);
+    try { 
+        document.execCommand('copy'); 
+        alert("คัดลอกสถิติสำเร็จ!"); 
+    } catch (err) { 
+        navigator.clipboard.writeText(ta.value).then(() => alert("คัดลอกสำเร็จ!")); 
+    }
+    ta.style.display = "none";
+}
+
+window.onload = function() {
+    initMenu();
+    const savedData = localStorage.getItem('saved_lottery_data');
+    const savedFormula = localStorage.getItem('saved_lottery_formula');
+    
+    if (savedData) document.getElementById('inp').value = savedData;
+    if (savedFormula) document.getElementById('sel').value = savedFormula;
+    else document.getElementById('sel').value = "ไหลบน 4 ตัว|top_2d|4|ปกติ"; 
+    
+    calc();
+};
+
+</script>
+</body>
+</html>

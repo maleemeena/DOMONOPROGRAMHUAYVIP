@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคำนวณหวยยี่กี DNAfour264</title>
+    <style>
+        :root {
+            --primary: #ff69b4;
+            --primary-hover: #ff1493;
+            --dark: #2d3748;
+            --light: #f7fafc;
+            --card-bg: #ffffff;
+            --accent: #ffb6c1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #ffe4e1 0%, #fff0f5 100%); color: var(--dark); padding: 20px; min-height: 100vh; }
+        .container { max-width: 650px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 25px; background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(255,105,180,0.15); border-top: 5px solid var(--primary); }
+        .header h1 { color: var(--primary); font-size: 24px; margin-bottom: 5px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #4a5568; }
+        input { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 10px; font-size: 16px; outline: none; transition: 0.3s; text-align: center; font-weight: bold; letter-spacing: 2px; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,105,180,0.2); }
+        .btn { width: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-hover)); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(255,20,147,0.3); }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(255,20,147,0.4); }
+        .result-title { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
+        .grid-results { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .res-box { background: var(--light); padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
+        .res-box h3 { font-size: 14px; color: #718096; margin-bottom: 8px; }
+        .num-display { font-size: 20px; font-weight: bold; color: #2b6cb0; letter-spacing: 1px; }
+        .highlight { color: #e53e3e; }
+        
+        .table-container { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #edf2f7; }
+        th { background-color: #fff0f5; color: var(--primary); font-weight: bold; }
+        tr:hover { background-color: #f7fafc; }
+        .empty-row { color: #a0aec0; padding: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🩷 ยี่กี DNAfour264 🩷</h1>
+        <p style="color: #718096; font-size: 13px;">กรอกผลรอบล่าสุดเพื่อคำนวณแนวทางรอบถัดไป</p>
+    </div>
+
+    <div class="card">
+        <div class="form-group">
+            <label for="topNum">ผล 4 ตัวบน (เช่น 0592)</label>
+            <input type="text" id="topNum" placeholder="กรอกเลข 4 ตัวบน" maxlength="4">
+        </div>
+        <div class="form-group">
+            <label for="bottomNum">ผล 2 ตัวล่าง (เช่น 17)</label>
+            <input type="text" id="bottomNum" placeholder="กรอกเลข 2 ตัวล่าง" maxlength="2">
+        </div>
+        <button class="btn" onclick="calculateYeekee()">🔮 คำนวณแนวทางและบันทึกสถิติ</button>
+    </div>
+
+    <div class="card" id="resultCard" style="display: none;">
+        <div class="result-title">🎯 ผลวิเคราะห์และชุดเลขแนะนำ</div>
+        <div class="grid-results">
+            <div class="res-box">
+                <h3>สูตรที่ 1: วิ่ง/รูด 2 ตัวบน</h3>
+                <div class="num-display highlight" id="res2top">-</div>
+            </div>
+            <div class="res-box">
+                <h3>สูตรที่ 2: ชุดเจาะ 3 ตัวบน (แนะนำ)</h3>
+                <div class="num-display" id="res3top">-</div>
+            </div>
+            <div class="res-box">
+                <h3>สูตรที่ 3: ชุดเจาะ 4 ตัวบน (แนะนำ)</h3>
+                <div class="num-display" id="res4top">-</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="result-title">📊 ตารางบันทึกประวัติและเปรียบเทียบสถิติ</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>รอบที่</th>
+                        <th>ผลบน</th>
+                        <th>ผลล่าง</th>
+                        <th>เด่น 2 ตัว</th>
+                        <th>ชุดเจาะ 3 ตัว</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr id="emptyRow">
+                        <td colspan="5" class="empty-row">ยังไม่มีข้อมูลการบันทึก กรอกผลด้านบนเพื่อเริ่มบันทึก</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+let roundCount = 1;
+
+function calculateYeekee() {
+    const topStr = document.getElementById('topNum').value.trim();
+    const bottomStr = document.getElementById('bottomNum').value.trim();
+
+    if (topStr.length !== 4 || bottomStr.length !== 2 || isNaN(topStr) || isNaN(bottomStr)) {
+        alert('กรุณากรอกข้อมูลให้ครบถ้วน (บน 4 หลัก และ ล่าง 2 หลัก) เป็นตัวเลขเท่านั้นครับ');
+        return;
+    }
+
+    const p3 = parseInt(topStr.charAt(2)); 
+
+    // 1. เด่น 2 ตัวบน
+    const run1 = (p3 + 1) % 10;
+    const run2 = (p3 + 2) % 10;
+    const res2topText = run1 + " , " + run2;
+    document.getElementById('res2top').innerText = res2topText;
+
+    // 2. ชุดเจาะ 3 ตัวบน (ล็อกกลุ่มเลขสลับฟันปลา 3, 4, 7 ผ่านอาร์เรย์สตริงเพื่อความชัวร์)
+    const base3Digits = ["3", "4", "7"];
+    let set3Top = [];
+    base3Digits.forEach(function(b) {
+        set3Top.push(b + "" + run1 + "" + run2);
+    });
+    const res3topText = set3Top.join(' | ');
+    document.getElementById('res3top').innerText = res3topText;
+
+    // 3. ชุดเจาะ 4 ตัวบน
+    const b1 = parseInt(bottomStr.charAt(0));
+    const b2 = parseInt(bottomStr.charAt(1));
+    const sumBottom = (b1 + b2) % 10;
+    const altSum = (sumBottom + 5) % 10; 
+
+    let set4Top = [];
+    set3Top.forEach(function(s3) {
+        set4Top.push(sumBottom + "" + s3);
+        set4Top.push(altSum + "" + s3);
+    });
+    document.getElementById('res4top').innerText = set4Top.join(' | ');
+
+    document.getElementById('resultCard').style.display = 'block';
+
+    addTableRow(topStr, bottomStr, res2topText, res3topText);
+}
+
+function addTableRow(top, bottom, run, set3) {
+    const tbody = document.getElementById('historyBody');
+    const emptyRow = document.getElementById('emptyRow');
+    
+    if (emptyRow) {
+        emptyRow.remove();
+    }
+
+    const row = document.createElement('tr');
+    row.innerHTML = "<td><strong>#" + roundCount + "</strong></td>" +
+                    "<td><span style='color:#2d3748; font-weight:bold;'>" + top + "</span></td>" +
+                    "<td><span style='color:#718096; font-weight:bold;'>" + bottom + "</span></td>" +
+                    "<td><span class='highlight' style='font-weight:bold;'>" + run + "</span></td>" +
+                    "<td style='font-size:12px; color:#2b6cb0;'>" + set3 + "</td>";
+    
+    tbody.insertBefore(row, tbody.firstChild);
+    roundCount++;
+}
+</script>
+
+</body>
+</html>

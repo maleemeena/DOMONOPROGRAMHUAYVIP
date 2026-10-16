@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคำนวณพิกัด 4 ตัว LINE ID:momongmo</title>
+    <style>
+        :root {
+            --bg-light: #f4f6f9;
+            --card-bg: #ffffff;
+            --accent-gold: #d4a017;
+            --accent-rose: #d32f2f;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #dcdcdc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            text-align: center;
+            color: #b71c1c;
+            margin-bottom: 15px;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .selector-box select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: #333;
+            font-weight: bold;
+        }
+        .line-badge {
+            background: #e53935;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .import-section {
+            background: #f1f8e9;
+            border: 2px dashed #81c784;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .import-section h3 {
+            margin-top: 0;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        .import-section textarea {
+            width: 100%;
+            height: 75px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #ffffff;
+            color: #333;
+            font-family: monospace;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        .import-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        button:hover { filter: brightness(0.9); transform: translateY(-1px); }
+        .btn-parse { background-color: #2e7d32; color: white; }
+        .btn-clear { background-color: #c62828; color: white; }
+        .btn-copy { background-color: #1976d2; color: white; }
+        .btn-copy-formula { background-color: #fbc02d; color: #333; font-size: 11px; padding: 6px 10px; margin-top: 10px; width: 100%; border-radius: 6px; border: 1px solid #f9a825; }
+
+        .config-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .config-box {
+            background: #fafafa;
+            padding: 12px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .config-box h4 { width: 100%; margin: 0 0 5px 0; color: #b8860b; font-size: 13px; }
+        .config-box input {
+            width: 45px;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: #b8860b;
+            border-radius: 4px;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+        th {
+            background-color: #e9ecef;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        input.result-input {
+            width: 120px;
+            padding: 5px;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: #333;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        input.result-input::placeholder {
+            color: #999;
+            font-weight: normal;
+        }
+        
+        .excel-pass { background-color: #2e7d32 !important; color: white !important; font-weight: bold; }
+        .excel-fail { background-color: #c62828 !important; color: white !important; font-weight: bold; }
+        .status-waiting { color: #d97706; font-weight: bold; background-color: #fef3c7; }
+
+        .stats-section-title {
+            margin-top: 20px;
+            font-size: 15px;
+            color: #b8860b;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .stat-card {
+            background: #fafafa;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: left;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .stat-card strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #b8860b;
+            font-size: 14px;
+        }
+        .history-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            color: #333;
+        }
+        #toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: fixed;
+            z-index: 20;
+            left: 50%;
+            bottom: 25px;
+            transform: translateX(-50%);
+            font-size: 13px;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.3s, fadeout 0.3s 2s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 25px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 25px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🎯 ระบบคำนวณพิกัด 4 ตัว By DOMONOPROGRAMHUAY🎯</h2>
+    
+    <div class="header-bar">
+        <div class="selector-box">
+            <select id="lottoSelect">                 vag               
+                <option>🇱🇦 สาละวัน VISA</option>
+                <option>🇱🇦 ลาวประตูชัย</option>
+                <option>🇱🇦 หลวงพระบาง VISA</option>
+                <option>🇱🇦 ลาวสันติภาพ</option>
+                <option>🇱🇦 เวียงจันทน์ VISA</option>
+                <option>🇱🇦 ประชาชนลาว</option>
+                <option>🇱🇦 ลาว VISA</option>
+                <option>🇱🇦 ลาวเช้า</option>
+                <option>🇻🇳 ฮานอยเช้า</option>
+                <option>🇱🇦 ลาว Extra</option>
+                <option>🇱🇦 ลาวตอนเช้า</option>
+                <option>🇱🇦 ลาวพัฒนาเช้า</option>
+                <option>🇯🇵 นิคเคอิ VIP เช้า</option>
+                <option>🇯🇵 นิเคอิ VISA เช้า</option>
+                <option>🇻🇳 ฮานอยอาเซียน</option>
+                <option>🇯🇵 นิคเคอิเช้า</option>
+                <option>🇨🇳 จีน VIP เช้า</option>
+                <option>🇨🇳 จีน VISA เช้า</option>
+                <option>🇭🇰 ฮั่งเส็ง VISA เช้า</option>
+                <option>🇨🇳 จีนเช้า</option>
+                <option>🇱🇦 ลาวทีวี</option>
+                <option>🇭🇰 ฮั่งเส็ง VIP เช้า</option>
+                <option>🇭🇰 ฮั่งเส็งเช้า</option>
+                <option>🇻🇳 ฮานอย HD</option>
+                <option>🇱🇦 ลาวมั่งคั่ง</option>
+                <option>🇹🇼 ไต้หวัน VIP</option>
+                <option>🇱🇦 ลาวพัฒนาเช้า VIP</option>
+                <option>🇱🇦 ลาวพิเศษรอบเที่ยง</option>
+                <option>🇱🇦 ลาวพิเศษ</option>
+                <option>🇭🇰 ฮ่องกง VISA</option>
+                <option>🇻🇳 ฮานอยสตาร์</option>
+                <option>🇱🇦 ลาวพัฒนาเที่ยง</option>
+                <option>🇱🇦 ลาวสบายดี</option>
+                <option>🇹🇼 ไต้หวัน</option>
+                <option>🇰🇷 เกาหลี VIP</option>
+                <option>🇯🇵 นิคเคอิบ่าย</option>
+                <option>🇯🇵 นิเคอิ VISA บ่าย</option>
+                <option>🇯🇵 นิคเคอิ VIP บ่าย</option>
+                <option>🇱🇦 ลาวก้าวหน้า</option>
+                <option>🇰🇷 เกาหลี</option>
+                <option>🇱🇦 ลาว HD</option>
+                <option>🇨🇳 จีนบ่าย</option>
+                <option>🇨🇳 จีน VISA บ่าย</option>
+                <option>🇭🇰 ฮั่งเส็ง VISA บ่าย</option>
+                <option>🇨🇳 จีน VIP บ่าย</option>
+                <option>🇻🇳 ฮานอยทีวี</option>
+                <option>🇱🇦 ลาวเจริญ</option>
+                <option>🇭🇰 ฮั่งเส็งบ่าย</option>
+                <option>🇭🇰 ฮั่งเส็ง VIP บ่าย</option>
+                <option>🇱🇦 ลาวนครหลวง</option>
+                <option>🇱🇦 ลาวมั่นคง</option>
+                <option>🇱🇦 ลาวสตาร์</option>
+                <option>🇻🇳 ฮานอย VISA</option>
+                <option>🇻🇳 ฮานอยกาชาด</option>
+                <option>🇻🇳 ฮานอยดานัง</option>
+                <option>🇱🇦 ลาวร่ำรวย</option>
+                <option>🇱🇦 ลาวนิยม</option>
+                <option>🇻🇳 ฮานอยเฉพาะกิจ</option>
+                <option>🇸🇬 สิงคโปร์</option>
+                <option>🇹🇭 ไทยเย็น</option>
+                <option>🇸🇬 สิงคโปร์ VIP</option>
+                <option>🇻🇳 ฮานอยพิเศษ</option>
+                <option>🇻🇳 ฮานอยสามัคคี</option>
+                <option>🇮🇳 อินเดีย</option>
+                <option>🇻🇳 ฮานอยปกติ</option>
+                <option>🇻🇳 เวียดนามปกติ ออนไลน์</option>
+                <option>🇱🇦 ลาวมงคล</option>
+                <option>🇱🇦 ลาวซูเปอร์</option>
+                <option>🇻🇳 ฮานอย VIP</option>
+                <option>🇻🇳 เวียดนาม VIP ออนไลน์</option>
+                <option>🇻🇳 ฮานอยพัฒนา</option>
+                <option>🇪🇬 อียิปต์</option>
+                <option>🇱🇦 ลาวสามัคคี</option>
+                <option>🇱🇦 ลาวพัฒนา</option>
+                <option>🇱🇦 ลาวอาเซียน</option>
+                <option>🇻🇳 ฮานอย 4D</option>
+                <option>🇬🇧 อังกฤษ VISA</option>
+                <option>🇱🇦 ลาวสามัคคี VIP</option>
+                <option>🇱🇦 ลาว VIP</option>
+                <option>🇱🇦 ลาวรุ่งเรือง</option>
+                <option>🇬🇧 อังกฤษ VIP</option>
+                <option>🇱🇦 ลาวสตาร์ VIP</option>
+                <option>🇩🇪 เยอรมัน VISA</option>
+                <option>🇻🇳 ฮานอย Extra</option>
+                <option>🇻🇳 ฮานอยดึก</option>
+                <option>🇩🇪 เยอรมัน VIP</option>
+                <option>🇷🇺 รัสเซีย</option>
+                <option>🇩🇪 เยอรมัน</option>
+                <option>🇬🇧  อังกฤษ</option>
+                <option>ดาวโจนส์ พิเศษ</option>
+                <option>ดาวโจนส์VIP พิเศษ</option>
+                <option>ลาวกาชาด</option>
+                <option>ยูโร</option>
+                <option>รัสเซีย VIP</option>
+                <option>ดาวโจนส์ VIP</option>
+                <option>ดาวโจนส์สตาร์</option>
+                <option>ดาวโจนส์</option>
+                <option>DNA5นาที</option>
+                <option>DNAVIP5นาที</option>
+                <option>DNA15นาที</option>
+                <option>DNAVIP15นาที</option>
+                <option>DNA4ตัว5นาที</option>
+                <option>DNA4ตัว15นาที</option>
+                <option>ชัดเจน5นาที</option>
+                <option>ชัดเจนVIP5นาที</option>
+                <option>L5นาที</option>
+                <option>LVIP5นาที</option>
+                <option>หวย5นาที</option>
+                <option>DANGlotto5นาที</option>
+                <option>yeslotto</option>
+                <option>world5นาที</option>
+                <option>world15นาที</option>
+                <option>Movewinbet</option>
+                <option>MovewinbetVIP</option>
+                <option>THAILOTTO</option>
+                <option>รัฐบาล</option>
+                <option>นิเคอิ พิเศษ เช้า</option>
+                <option>จีน พิเศษ เช้า</option>
+                <option>ฮั่งเสง พิเศษ เช้า</option>
+                <option>เวียดนาม พิเศษ เช้า</option>
+                <option>ไต้หวัน พิเศษ</option>
+                <option>เกาหลี พิเศษ</option>
+                <option>นิเคอิ พิเศษ บ่าย</option>
+                <option>จีน พิเศษ บ่าย</option>
+                <option>ฮั่งเสง พิเศษ บ่าย</option>
+                <option>เวียดนาม พิเศษ บ่าย</option>
+                <option>สิงคโปร์ พิเศษ</option>
+                <option>เวียดนาม พิเศษ</option>
+                <option>รัสเซีย พิเศษ</option>
+                <option>อังกฤษ พิเศษ</option>
+                <option>เยอรมัน พิเศษ</option>
+                <option>ดาวโจนส์ พิเศษ</option>
+                <option>ดาวโจนส์ VIP พิเศษ</option>
+            </select>
+        </div>
+        <div class="btn-group">
+            <button class="btn-copy" onclick="copyAllResults()">📋 คัดลอกผลทั้งหมด</button>
+            <button class="btn-clear" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
+        </div>
+        <div class="line-badge">Line: momongmo</div>
+    </div>
+
+    <!-- ช่องวางผลรางวัล -->
+    <div class="import-section">
+        <h3>📥 ช่องวางผลรางวัล </h3>
+        <textarea id="rawInputText" placeholder=""></textarea>
+        <div class="import-actions">
+            <button class="btn-parse" onclick="parseAndImportData()">⚡ แยกตัวเลขและอัปเดตผล</button>
+            <button class="btn-clear" onclick="document.getElementById('rawInputText').value=''">เคลียร์ช่อง</button>
+        </div>
+    </div>
+
+    <!-- ตั้งค่าสูตร บน 3 / ล่าง 3 -->
+    <div class="config-container">
+        <div class="config-box">
+            <h4>⚙️ ปรับสูตรบน (3 สูตร)</h4>
+            <div>สูตร (1): <input type="number" id="tb1" value="5" onchange="calculateAll()"></div>
+            <div>สูตร (2): <input type="number" id="tb2" value="5" onchange="calculateAll()"></div>
+            <div>สูตร (3): <input type="number" id="tb3" value="5" onchange="calculateAll()"></div>
+        </div>
+        <div class="config-box">
+            <h4>⚙️ ปรับสูตรล่าง (3 สูตร)</h4>
+            <div>สูตร (1): <input type="number" id="tl1" value="2" onchange="calculateAll()"></div>
+            <div>สูตร (2): <input type="number" id="tl2" value="1" onchange="calculateAll()"></div>
+            <div>สูตร (3): <input type="number" id="tl3" value="9" onchange="calculateAll()"></div>
+        </div>
+    </div>
+
+    <!-- ตารางคำนวณ -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr id="headerSummaryRow"></tr>
+                <tr>
+                    <th>รอบ / ลำดับ</th>
+                    <th>ผลรางวัล (บน-ล่าง)</th>
+                    <th>สูตร 1 พิกัด</th><th>สถานะบน 1</th>
+                    <th>สูตร 2 พิกัด</th><th>สถานะบน 2</th>
+                    <th>สูตร 3 พิกัด</th><th>สถานะบน 3</th>
+                    <th>สูตร 1 พิกัด</th><th>สถานะล่าง 1</th>
+                    <th>สูตร 2 พิกัด</th><th>สถานะล่าง 2</th>
+                    <th>สูตร 3 พิกัด</th><th>สถานะล่าง 3</th>
+                </tr>
+            </thead>
+            <tbody id="lotteryTable"></tbody>
+        </table>
+    </div>
+
+    <div class="stats-section-title">📊 สรุปสถิติยาวรายสูตร </div>
+    <div class="stats-container" id="statsContainer"></div>
+</div>
+
+<div id="toast">สำเร็จ</div>
+
+<script>
+    let rowsData = [
+        { top: "338", bot: "20" },
+        { top: "947", bot: "67" },
+        { top: "287", bot: "78" },
+        { top: "454", bot: "04" }
+    ];
+
+    let globalStats = [];
+
+    function parseLotteryInput(line) {
+        if (!line || line.includes("รอ") || line.toLowerCase().includes("waiting")) return { top: "รอผล", bot: "รอผล" };
+        
+        // กรณีมีเครื่องหมายแยก เช่น บน-ล่าง หรือ / หรือ |
+        let parts = line.split(/[-–—|/]/);
+        if (parts.length >= 2) {
+            let rawTop = parts[parts.length - 2].replace(/[^\d]/g, "");
+            let rawBot = parts[parts.length - 1].replace(/[^\d]/g, "");
+            let topPart = rawTop.slice(-3);
+            let botPart = rawBot.slice(-2);
+            if (topPart.length > 0) {
+                return { top: topPart, bot: botPart };
+            }
+        }
+
+        let allDigits = line.replace(/[^\d]/g, "");
+        if (allDigits.length >= 5) {
+            let topPart = allDigits.slice(0, allDigits.length - 2).slice(-3);
+            let botPart = allDigits.slice(-2);
+            return { top: topPart, bot: botPart };
+        } else if (allDigits.length === 4) {
+            return {
+                top: allDigits.slice(0, 2),
+                bot: allDigits.slice(-2)
+            };
+        } else if (allDigits.length === 3) {
+            return {
+                top: allDigits,
+                bot: ""
+            };
+        }
+
+        return { top: line, bot: "" };
+    }
+
+    function parseAndImportData() {
+        let rawText = document.getElementById('rawInputText').value.trim();
+        if(!rawText) { showToast("กรุณากรอกข้อมูลผลรางวัล!"); return; }
+
+        let lines = rawText.split('\n');
+        rowsData = [];
+        lines.forEach(line => {
+            let cleanLine = line.trim();
+            if(cleanLine) {
+                rowsData.push(parseLotteryInput(cleanLine));
+            }
+        });
+
+        calculateAll();
+        showToast("แยกตัวเลขและอัปเดตผลสำเร็จ!");
+    }
+
+    function calculateAll() {
+        let topFormulas = [
+            parseInt(document.getElementById('tb1').value) || 0,
+            parseInt(document.getElementById('tb2').value) || 0,
+            parseInt(document.getElementById('tb3').value) || 0
+        ];
+        let botFormulas = [
+            parseInt(document.getElementById('tl1').value) || 0,
+            parseInt(document.getElementById('tl2').value) || 0,
+            parseInt(document.getElementById('tl3').value) || 0
+        ];
+
+        globalStats = [
+            ...topFormulas.map((f, i) => ({ id: `top-${i+1}`, name: `พิกัดบนสูตรที่${i+1}`, type: 'บน', pass: 0, fail: 0, history: [] })),
+            ...botFormulas.map((f, i) => ({ id: `bot-${i+1}`, name: `พิกัดล่างสูตรที่${i+1}`, type: 'ล่าง', pass: 0, fail: 0, history: [] }))
+        ];
+
+        let workingRows = [...rowsData];
+        let lastRow = workingRows[workingRows.length - 1];
+        if (!lastRow || lastRow.top !== "รอผล") {
+            workingRows.push({ top: "รอผล", bot: "รอผล" });
+        }
+
+        let processedRows = [];
+
+        for (let index = 0; index < workingRows.length; index++) {
+            let row = workingRows[index];
+            let roundNum = index + 1;
+            let rowDataObj = { round: roundNum, rowObj: row, topCoords: [], topResults: [], botCoords: [], botResults: [] };
+
+            if (index === 0) {
+                processedRows.push(rowDataObj);
+                continue;
+            }
+
+            let prevRow = workingRows[index - 1];
+            let cleanPrevTop = prevRow.top.replace(/[^\d]/g, "");
+            let baseNum = cleanPrevTop.length > 0 ? parseInt(cleanPrevTop.charAt(cleanPrevTop.length - 1)) : 0;
+
+            let isReady = row.top !== "รอผล" && row.top !== "";
+
+            topFormulas.forEach((fVal, fIdx) => {
+                let d1 = (fVal + baseNum) % 10;
+                let d2 = (fVal + 1 + baseNum) % 10;
+                let d3 = (fVal + 2 + baseNum) % 10;
+                let d4 = (fVal + 3 + baseNum) % 10;
+                let coordStr = `${d1}${d2}${d3}${d4}`;
+                rowDataObj.topCoords.push(coordStr);
+
+                let hitStatus = null;
+                if(isReady) {
+                    let cleanTop = row.top.replace(/[^\d]/g, "");
+                    let checkTop = cleanTop.length >= 2 ? cleanTop.slice(-2) : cleanTop;
+                    
+                    hitStatus = false;
+                    for(let digit of checkTop) {
+                        if(coordStr.includes(digit)) { hitStatus = true; break; }
+                    }
+                    if(hitStatus) globalStats[fIdx].pass++; else globalStats[fIdx].fail++;
+                }
+                rowDataObj.topResults.push(hitStatus);
+
+                if(isReady && hitStatus !== null) {
+                    globalStats[fIdx].history.push({
+                        round: roundNum,
+                        coord: coordStr,
+                        rowObj: row,
+                        isReady: isReady,
+                        hit: hitStatus
+                    });
+                }
+            });
+
+            botFormulas.forEach((fVal, fIdx) => {
+                let d1 = (fVal + baseNum) % 10;
+                let d2 = (fVal + 1 + baseNum) % 10;
+                let d3 = (fVal + 2 + baseNum) % 10;
+                let d4 = (fVal + 3 + baseNum) % 10;
+                let coordStr = `${d1}${d2}${d3}${d4}`;
+                rowDataObj.botCoords.push(coordStr);
+
+                let hitStatus = null;
+                if(isReady) {
+                    let cleanBot = row.bot.replace(/[^\d]/g, "");
+                    let checkBot = cleanBot.length >= 2 ? cleanBot.slice(-2) : cleanBot;
+                    
+                    hitStatus = false;
+                    if(checkBot && checkBot !== "รอ") {
+                        for(let digit of checkBot) {
+                            if(coordStr.includes(digit)) { hitStatus = true; break; }
+                        }
+                    }
+                    if(hitStatus) globalStats[3 + fIdx].pass++; else globalStats[3 + fIdx].fail++;
+                }
+                rowDataObj.botResults.push(hitStatus);
+
+                if(isReady && hitStatus !== null) {
+                    globalStats[3 + fIdx].history.push({
+                        round: roundNum,
+                        coord: coordStr,
+                        rowObj: row,
+                        isReady: isReady,
+                        hit: hitStatus
+                    });
+                }
+            });
+
+            processedRows.push(rowDataObj);
+        }
+
+        let summaryRowHTML = `<th colspan="2" style="background:#e9ecef; color:#333; font-weight:bold;">สรุปผลรวม</th>`;
+        globalStats.forEach((st) => {
+            summaryRowHTML += `<th colspan="2" style="background:#f8f9fa; font-size:11px;">
+                <span style="color:#2e7d32;">ถูก: ${st.pass}</span> | <span style="color:#c62828;">ผิด: ${st.fail}</span>
+            </th>`;
+        });
+        document.getElementById('headerSummaryRow').innerHTML = summaryRowHTML;
+
+        let tbody = document.getElementById('lotteryTable');
+        tbody.innerHTML = '';
+
+        processedRows.forEach((rObj, index) => {
+            let tr = document.createElement('tr');
+            tr.setAttribute('data-index', index);
+            let isWaitingRow = (rObj.rowObj.top === "รอผล");
+            let displayVal = isWaitingRow ? "" : (rObj.rowObj.top + (rObj.rowObj.bot ? "-" + rObj.rowObj.bot : ""));
+            
+            let rowHTML = `<td>รอบที่ ${rObj.round}</td>`;
+            rowHTML += `<td><input type="text" class="result-input" value="${displayVal}" placeholder="เช่น 12345 หรือ 3338-20" onchange="updateRowVal(${index}, this.value)"></td>`;
+
+            if (index === 0) {
+                for(let i = 0; i < 6; i++) {
+                    rowHTML += `<td style="color:#999;">-</td><td style="color:#999;">-</td>`;
+                }
+            } else {
+                for(let i = 0; i < 3; i++) {
+                    let coord = rObj.topCoords[i];
+                    let res = rObj.topResults[i];
+                    let cellClass = "";
+                    let cellText = "";
+                    if(res === null) {
+                        cellClass = "status-waiting";
+                        cellText = `🎯 ${coord} (รอผล)`;
+                    } else if(res === true) {
+                        cellClass = "excel-pass";
+                        cellText = "✔ ถูก";
+                    } else {
+                        cellClass = "excel-fail";
+                        cellText = "✘ ผิด";
+                    }
+                    rowHTML += `<td>${coord}</td><td class="${cellClass}">${cellText}</td>`;
+                }
+                for(let i = 0; i < 3; i++) {
+                    let coord = rObj.botCoords[i];
+                    let res = rObj.botResults[i];
+                    let cellClass = "";
+                    let cellText = "";
+                    if(res === null) {
+                        cellClass = "status-waiting";
+                        cellText = `🎯 ${coord} (รอผล)`;
+                    } else if(res === true) {
+                        cellClass = "excel-pass";
+                        cellText = "✔ ถูก";
+                    } else {
+                        cellClass = "excel-fail";
+                        cellText = "✘ ผิด";
+                    }
+                    rowHTML += `<td>${coord}</td><td class="${cellClass}">${cellText}</td>`;
+                }
+            }
+
+            tr.innerHTML = rowHTML;
+            tbody.appendChild(tr);
+        });
+
+        let statsHTML = '';
+        globalStats.forEach((st, idx) => {
+            let total = st.pass + st.fail;
+            let rate = total > 0 ? ((st.pass / total) * 100).toFixed(1) : "0.0";
+            let lottoName = document.getElementById('lottoSelect').value;
+            
+            let nextCoord = "----";
+            let activeRealRows = rowsData.filter(r => r.top !== "รอผล" && r.top !== "");
+            let lastRealRow = activeRealRows[activeRealRows.length - 1];
+            
+            if(lastRealRow) {
+                let cleanLastTop = lastRealRow.top.replace(/[^\d]/g, "");
+                let baseLast = cleanLastTop.length > 0 ? parseInt(cleanLastTop.charAt(cleanLastTop.length - 1)) : 0;
+                let fVal = (idx < 3) ? topFormulas[idx] : botFormulas[idx - 3];
+                let d1 = (fVal + baseLast) % 10;
+                let d2 = (fVal + 1 + baseLast) % 10;
+                let d3 = (fVal + 2 + baseLast) % 10;
+                let d4 = (fVal + 3 + baseLast) % 10;
+                nextCoord = `${d1}${d2}${d3}${d4}`;
+            }
+
+            let historyTextHTML = "";
+            st.history.forEach(item => {
+                let mark = item.hit ? "✓" : "×";
+                let top3 = item.rowObj.top.length >= 3 ? item.rowObj.top.slice(-3) : item.rowObj.top;
+                let bot2 = item.rowObj.bot.length >= 2 ? item.rowObj.bot.slice(-2) : item.rowObj.bot;
+                historyTextHTML += `รอบ ${item.round}=${item.coord} = ${top3} - ${bot2} = ${mark}<br>`;
+            });
+            if(!historyTextHTML) historyTextHTML = "<i>ยังไม่มีประวัติการตรวจผล</i>";
+
+            statsHTML += `
+                <div class="stat-card">
+                    <strong>📊 ${st.name}</strong>
+                    <div style="font-size: 11px; color: var(--text-muted);">หวย: ${lottoName}</div>
+                    <span style="color: #2e7d32;">ถูก: ${st.pass}</span> | <span style="color: #c62828;">ผิด: ${st.fail}</span>
+                    <div style="font-size: 11px; margin-top: 2px;">ความแม่นยำ: <b>(${rate}%)</b></div>
+                    <div class="history-box">${historyTextHTML}</div>
+                    <div style="font-size: 11px; color: #b8860b; margin-top: 6px;">🎯 รอบถัดไปเด่น = <b>${nextCoord}</b></div>
+                    <button class="btn-copy-formula" onclick="copyFormulaStats(${idx}, '${nextCoord}')">📋 คัดลอกสูตรส่งกลุ่ม</button>
+                </div>
+            `;
+        });
+        document.getElementById('statsContainer').innerHTML = statsHTML;
+    }
+
+    function updateRowVal(index, val) {
+        if (!val.trim()) {
+            rowsData[index] = { top: "รอผล", bot: "รอผล" };
+        } else {
+            rowsData[index] = parseLotteryInput(val);
+        }
+
+        let lastIndex = rowsData.length - 1;
+        if (index === lastIndex && val.trim() !== "" && rowsData[lastIndex].top !== "รอผล") {
+            rowsData.push({ top: "รอผล", bot: "รอผล" });
+        }
+
+        calculateAll();
+    }
+
+    function clearAllData() {
+        rowsData = [{ top: "รอผล", bot: "รอผล" }];
+        calculateAll();
+        showToast("ล้างข้อมูลแล้ว");
+    }
+
+    function copyFormulaStats(formulaIndex, nextCoord) {
+        let st = globalStats[formulaIndex];
+        let total = st.pass + st.fail;
+        let rate = total > 0 ? ((st.pass / total) * 100).toFixed(1) : "0.0";
+        let lottoName = document.getElementById('lottoSelect').value;
+        
+        let now = new Date();
+        let thaiDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear() + 543}`;
+
+        let text = `💚 ยี่กี ${lottoName} 💚\n`;
+        text += `${thaiDate}\n`;
+        text += `สูตร: ${st.name}\n`;
+        text += `ถูก/ผิด : ${st.pass}/${total} \n`;
+        text += `ความแม่นยำ : (${rate}%)\n\n`;
+
+        st.history.forEach(item => {
+            let mark = item.hit ? "✓" : "×";
+            let top3 = item.rowObj.top.length >= 3 ? item.rowObj.top.slice(-3) : item.rowObj.top;
+            let bot2 = item.rowObj.bot.length >= 2 ? item.rowObj.bot.slice(-2) : item.rowObj.bot;
+            text += `รอบ ${item.round}=${item.coord} = ${top3} - ${bot2} = ${mark}\n`;
+        });
+
+        text += `\nรอบถัดไปเด่น = ${nextCoord}`;
+
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(`คัดลอก ${st.name} ส่งกลุ่มสำเร็จ!`);
+        });
+    }
+
+    function copyAllResults() {
+        let lottoName = document.getElementById('lottoSelect').value;
+        let text = `📊 สรุปผลหวย ${lottoName}\n`;
+        rowsData.forEach((row, i) => {
+            if(row.top !== "รอผล") {
+                text += `รอบที่ ${i+1} | ผล: ${row.top}-${row.bot}\n`;
+            }
+        });
+        navigator.clipboard.writeText(text).then(() => {
+            showToast("คัดลอกผลทั้งหมดสำเร็จ!");
+        });
+    }
+
+    function showToast(msg) {
+        let toast = document.getElementById("toast");
+        toast.innerText = msg;
+        toast.className = "show";
+        setTimeout(() => { toast.className = ""; }, 2000);
+    }
+
+    calculateAll();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบคำนวณสูตรหวยอัจฉริยะ</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #ffffff;
+            --text-muted: #94a3b8;
+            --accent-yellow: #fbbf24;
+            --accent-blue: #38bdf8;
+            --accent-red: #f87171;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-orange: #fb923c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: linear-gradient(145deg, #0f172a, #152033);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-yellow);
+            margin-bottom: 5px;
+            font-size: 24px;
+            text-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--accent-blue);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.02);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #0f172a;
+            border: 2px solid #475569;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        .flex-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-calc {
+            background: linear-gradient(135deg, var(--accent-yellow), #d97706);
+            color: #0f172a;
+        }
+
+        .btn-clear {
+            background: #475569;
+            color: white;
+        }
+
+        .result-section {
+            margin-top: 25px;
+            display: none;
+        }
+
+        .result-header-label {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--accent-yellow);
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            line-height: 1.5;
+        }
+
+        .result-row {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border-left: 5px solid var(--accent-blue);
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .result-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 60px;
+        }
+
+        .btn-copy-small {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            padding: 4px 8px;
+            background: #334155;
+            color: #e2e8f0;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        .step-1 { border-left-color: var(--accent-yellow); }
+        .step-2 { border-left-color: var(--accent-red); }
+        .step-3 { border-left-color: var(--accent-blue); }
+        .step-4 { border-left-color: var(--accent-green); }
+        .step-5 { border-left-color: var(--accent-purple); }
+        .step-6 { border-left-color: var(--accent-orange); }
+
+        .title-1 { color: var(--accent-yellow); }
+        .title-2 { color: var(--accent-red); }
+        .title-3 { color: var(--accent-blue); }
+        .title-4 { color: var(--accent-green); }
+        .title-5 { color: var(--accent-purple); }
+        .title-6 { color: var(--accent-orange); }
+
+        .badge-container {
+            display: flex;
+            gap: 5px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 3px;
+            align-items: center;
+        }
+
+        .badge-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .big-number-badge {
+            background: #0f172a;
+            border: 1px solid #475569;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+        }
+
+        .highlight-badge-red {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            border: none;
+            color: white;
+        }
+
+        .highlight-badge-orange {
+            background: linear-gradient(135deg, #f97316, #9a3412);
+            border: none;
+            color: white;
+        }
+
+        .step-1 .big-number-badge { font-size: 15px; }
+        .step-2 .big-number-badge { font-size: 16px; }
+        .step-3 .big-number-badge { font-size: 16px; }
+        .step-4 .big-number-badge { font-size: 14px; }
+        .step-5 .big-number-badge { font-size: 12px; }
+        .step-6 .big-number-badge { font-size: 15px; }
+
+        .label-badge {
+            background: #475569;
+            flex: 1.5;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-copy-all {
+            width: 100%;
+            margin-top: 15px;
+            background: linear-gradient(135deg, var(--accent-green), #16a34a);
+            color: #0f172a;
+            font-size: 16px;
+        }
+
+        @media (min-width: 480px) {
+            h1 { font-size: 30px; }
+            .subtitle { font-size: 16px; }
+            .big-number-badge { font-size: 20px; padding: 10px 16px; }
+            .step-1 .big-number-badge { font-size: 22px; }
+            .step-4 .big-number-badge { font-size: 18px; }
+            .step-5 .big-number-badge { font-size: 16px; }
+            .result-title { font-size: 16px; }
+            .result-header-label { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DOMINOระบบคำนวณสูตรอัจฉริยะ</h1>
+    <p class="subtitle">ระบบวิเคราะห์แผงตัวเลขเด่นเต็มรูปแบบ</p>
+
+    <!-- ข้อมูลเบื้องต้น แอดมิน & ชื่อหวย -->
+    <div class="flex-inputs">
+        <div class="form-group">
+            <label for="adminName">ชื่อแอดมิน:</label>
+            <input type="text" id="adminName" placeholder="เช่น แอดมินมั่งคั่ง" value="แอดมินดวงดี">
+        </div>
+        <div class="form-group">
+            <label for="lottoType">เลือกประเภทหวยรางวัล:</label>
+            <select id="lottoType">
+                <option value="" disabled selected>เลือกชื่อหวย</option>
+                <option value="🇲🇦 สาละวัน VISA">🇲🇦 สาละวัน VISA</option>
+                <option value="🇲🇦 ลาวประตูชัย">🇲🇦 ลาวประตูชัย</option>
+                <option value="🇲🇦 หลวงพระบาง VISA">🇲🇦 หลวงพระบาง VISA</option>
+                <option value="🇲🇦 ลาวสันติภาพ">🇲🇦 ลาวสันติภาพ</option>
+                <option value="🇲🇦 เวียงจันทน์ VISA">🇲🇦 เวียงจันทน์ VISA</option>
+                <option value="🇲🇦 ประชาชนลาว">🇲🇦 ประชาชนลาว</option>
+                <option value="🇲🇦 ลาว VISA">🇲🇦 ลาว VISA</option>
+                <option value="🇲🇦 ลาวเช้า">🇲🇦 ลาวเช้า</option>
+                <option value="🇻🇳 ฮานอยเช้า">🇻🇳 ฮานอยเช้า</option>
+                <option value="🇲🇦 ลาว Extra">🇲🇦 ลาว Extra</option>
+                <option value="🇲🇦 ลาวตอนเช้า">🇲🇦 ลาวตอนเช้า</option>
+                <option value="🇲🇦 ลาวพัฒนาเช้า">🇲🇦 ลาวพัฒนาเช้า</option>
+                <option value="🇯🇵 นิคเคอิ VIP เช้า">🇯🇵 นิคเคอิ VIP เช้า</option>
+                <option value="🇯🇵 นิเคอิ VISA เช้า">🇯🇵 นิเคอิ VISA เช้า</option>
+                <option value="🇻🇳 ฮานอยอาเซียน">🇻🇳 ฮานอยอาเซียน</option>
+                <option value="🇯🇵 นิคเคอิเช้า">🇯🇵 นิคเคอิเช้า</option>
+                <option value="🇨🇳 จีน VIP เช้า">🇨🇳 จีน VIP เช้า</option>
+                <option value="🇨🇳 จีน VISA เช้า">🇨🇳 จีน VISA เช้า</option>
+                <option value="🇭🇰 ฮั่งเส็ง VISA เช้า">🇭🇰 ฮั่งเส็ง VISA เช้า</option>
+                <option value="🇨🇳 จีนเช้า">🇨🇳 จีนเช้า</option>
+                <option value="🇲🇦 ลาวทีวี">🇲🇦 ลาวทีวี</option>
+                <option value="🇭🇰 ฮั่งเส็ง VIP เช้า">🇭🇰 ฮั่งเส็ง VIP เช้า</option>
+                <option value="🇭🇰 ฮั่งเส็งเช้า">🇭🇰 ฮั่งเส็งเช้า</option>
+                <option value="🇻🇳 ฮานอย HD">🇻🇳 ฮานอย HD</option>
+                <option value="🇱🇦 ลาวมั่งคั่ง">🇱🇦 ลาวมั่งคั่ง</option>
+                <option value="🇹🇼 ไต้หวัน VIP">🇹🇼 ไต้หวัน VIP</option>
+                <option value="🇱🇦 ลาวพัฒนาเช้า VIP">🇱🇦 ลาวพัฒนาเช้า VIP</option>
+                <option value="🇱🇦 ลาวพิเศษรอบเที่ยง">🇱🇦 ลาวพิเศษรอบเที่ยง</option>
+                <option value="🇱🇦 ลาวพิเศษ">🇱🇦 ลาวพิเศษ</option>
+                <option value="🇭🇰 ฮ่องกง VISA">🇭🇰 ฮ่องกง VISA</option>
+                <option value="🇻🇳 ฮานอยสตาร์">🇻🇳 ฮานอยสตาร์</option>
+                <option value="🇱🇦 ลาวพัฒนาเที่ยง">🇱🇦 ลาวพัฒนาเที่ยง</option>
+                <option value="🇱🇦 ลาวสบายดี">🇱🇦 ลาวสบายดี</option>
+                <option value="🇹🇼 ไต้หวัน">🇹🇼 ไต้หวัน</option>
+                <option value="🇰🇷 เกาหลี VIP">🇰🇷 เกาหลี VIP</option>
+                <option value="🇯🇵 นิคเคอิบ่าย">🇯🇵 นิคเคอิบ่าย</option>
+                <option value="🇯🇵 นิเคอิ VISA บ่าย">🇯🇵 นิเคอิ VISA บ่าย</option>
+                <option value="🇯🇵 นิคเคอิ VIP บ่าย">🇯🇵 นิคเคอิ VIP บ่าย</option>
+                <option value="🇱🇦 ลาวก้าวหน้า">🇱🇦 ลาวก้าวหน้า</option>
+                <option value="🇰🇷 เกาหลี">🇰🇷 เกาหลี</option>
+                <option value="🇱🇦 ลาว HD">🇱🇦 ลาว HD</option>
+                <option value="🇨🇳 จีนบ่าย">🇨🇳 จีนบ่าย</option>
+                <option value="🇨🇳 จีน VISA บ่าย">🇨🇳 จีน VISA บ่าย</option>
+                <option value="🇭🇰 ฮั่งเส็ง VISA บ่าย">🇭🇰 ฮั่งเส็ง VISA บ่าย</option>
+                <option value="🇨🇳 จีน VIP บ่าย">🇨🇳 จีน VIP บ่าย</option>
+                <option value="🇻🇳 ฮานอยทีวี">🇻🇳 ฮานอยทีวี</option>
+                <option value="🇱🇦 ลาวเจริญ">🇱🇦 ลาวเจริญ</option>
+                <option value="🇭🇰 ฮั่งเส็งบ่าย">🇭🇰 ฮั่งเส็งบ่าย</option>
+                <option value="🇭🇰 ฮั่งเส็ง VIP บ่าย">🇭🇰 ฮั่งเส็ง VIP บ่าย</option>
+                <option value="🇱🇦 ลาวนครหลวง">🇱🇦 ลาวนครหลวง</option>
+                <option value="🇱🇦 ลาวมั่นคง">🇱🇦 ลาวมั่นคง</option>
+                <option value="🇱🇦 ลาวสตาร์">🇱🇦 ลาวสตาร์</option>
+                <option value="🇻🇳 ฮานอย VISA">🇻🇳 ฮานอย VISA</option>
+                <option value="🇻🇳 ฮานอยกาชาด">🇻🇳 ฮานอยกาชาด</option>
+                <option value="🇻🇳 ฮานอยดานัง">🇻🇳 ฮานอยดานัง</option>
+                <option value="🇱🇦 ลาวร่ำรวย">🇱🇦 ลาวร่ำรวย</option>
+                <option value="🇱🇦 ลาวนิยม">🇱🇦 ลาวนิยม</option>
+                <option value="🇻🇳 ฮานอยเฉพาะกิจ">🇻🇳 ฮานอยเฉพาะกิจ</option>
+                <option value="🇸🇬 สิงคโปร์">🇸🇬 สิงคโปร์</option>
+                <option value="🇹🇭 ไทยเย็น">🇹🇭 ไทยเย็น</option>
+                <option value="🇸🇬 สิงคโปร์ VIP">🇸🇬 สิงคโปร์ VIP</option>
+                <option value="🇻🇳 ฮานอยพิเศษ">🇻🇳 ฮานอยพิเศษ</option>
+                <option value="🇻🇳 ฮานอยสามัคคี">🇻🇳 ฮานอยสามัคคี</option>
+                <option value="🇮🇳 อินเดีย">🇮🇳 อินเดีย</option>
+                <option value="🇻🇳 ฮานอยปกติ">🇻🇳 ฮานอยปกติ</option>
+                <option value="🇻🇳 เวียดนามปกติ ออนไลน์">🇻🇳 เวียดนามปกติ ออนไลน์</option>
+                <option value="🇱🇦 ลาวมงคล">🇱🇦 ลาวมงคล</option>
+                <option value="🇱🇦 ลาวซูเปอร์">🇱🇦 ลาวซูเปอร์</option>
+                <option value="🇻🇳 ฮานอย VIP">🇻🇳 ฮานอย VIP</option>
+                <option value="🇻🇳 เวียดนาม VIP ออนไลน์">🇻🇳 เวียดนาม VIP ออนไลน์</option>
+                <option value="🇻🇳 ฮานอยพัฒนา">🇻🇳 ฮานอยพัฒนา</option>
+                <option value="🇪🇬 อียิปต์">🇪🇬 อียิปต์</option>
+                <option value="🇱🇦 ลาวสามัคคี">🇱🇦 ลาวสามัคคี</option>
+                <option value="🇱🇦 ลาวพัฒนา">🇱🇦 ลาวพัฒนา</option>
+                <option value="🇱🇦 ลาวอาเซียน">🇱🇦 ลาวอาเซียน</option>
+                <option value="🇻🇳 ฮานอย 4D">🇻🇳 ฮานอย 4D</option>
+                <option value="🇬🇧 อังกฤษ VISA">🇬🇧 อังกฤษ VISA</option>
+                <option value="🇱🇦 ลาวสามัคคี VIP">🇱🇦 ลาวสามัคคี VIP</option>
+                <option value="🇱🇦 ลาว VIP">🇱🇦 ลาว VIP</option>
+                <option value="🇱🇦 ลาวรุ่งเรือง">🇱🇦 ลาวรุ่งเรือง</option>
+                <option value="🇬🇧 อังกฤษ VIP">🇬🇧 อังกฤษ VIP</option>
+                <option value="🇱🇦 ลาวสตาร์ VIP">🇱🇦 ลาวสตาร์ VIP</option>
+                <option value="🇩🇪 เยอรมัน VISA">🇩🇪 เยอรมัน VISA</option>
+                <option value="🇻🇳 ฮานอย Extra">🇻🇳 ฮานอย Extra</option>
+                <option value="🇻🇳 ฮานอยดึก">🇻🇳 ฮานอยดึก</option>
+                <option value="🇩🇪 เยอรมัน VIP">🇩🇪 เยอรมัน VIP</option>
+                <option value="🇷🇺 รัสเซีย">🇷🇺 รัสเซีย</option>
+                <option value="🇩🇪 เยอรมัน">🇩🇪 เยอรมัน</option>
+                <option value="🇬🇧 อังกฤษ">🇬🇧 อังกฤษ</option>
+                <option value="ดาวโจนส์ พิเศษ">ดาวโจนส์ พิเศษ</option>
+                <option value="ดาวโจนส์VIP พิเศษ">ดาวโจนส์VIP พิเศษ</option>
+                <option value="ลาวกาชาด">ลาวกาชาด</option>
+                <option value="ยูโร">ยูโร</option>
+                <option value="รัสเซีย VIP">รัสเซีย VIP</option>
+                <option value="ดาวโจนส์ VIP">ดาวโจนส์ VIP</option>
+                <option value="ดาวโจนส์สตาร์">ดาวโจนส์สตาร์</option>
+                <option value="ดาวโจนส์">ดาวโจนส์</option>
+                <option value="DNA5นาที">DNA5นาที</option>
+                <option value="DNAVIP5นาที">DNAVIP5นาที</option>
+                <option value="DNA15นาที">DNA15นาที</option>
+                <option value="DNAVIP15นาที">DNAVIP15นาที</option>
+                <option value="DNA4ตัว5นาที">DNA4ตัว5นาที</option>
+                <option value="DNA4ตัว15นาที">DNA4ตัว15นาที</option>
+                <option value="ชัดเจน5นาที">ชัดเจน5นาที</option>
+                <option value="ชัดเจนVIP5นาที">ชัดเจนVIP5นาที</option>
+                <option value="L5นาที">L5นาที</option>
+                <option value="LVIP5นาที">LVIP5นาที</option>
+                <option value="หวย5นาที">หวย5นาที</option>
+                <option value="DANGlotto5นาที">DANGlotto5นาที</option>
+                <option value="yeslotto">yeslotto</option>
+                <option value="world5นาที">world5นาที</option>
+                <option value="world15นาที">world15นาที</option>
+                <option value="Movewinbet">Movewinbet</option>
+                <option value="MovewinbetVIP">MovewinbetVIP</option>
+                <option value="THAILOTTO">THAILOTTO</option>
+                <option value="รัฐบาล">รัฐบาล</option>
+                <option value="นิเคอิ พิเศษ เช้า">นิเคอิ พิเศษ เช้า</option>
+                <option value="จีน พิเศษ เช้า">จีน พิเศษ เช้า</option>
+                <option value="ฮั่งเสง พิเศษ เช้า">ฮั่งเสง พิเศษ เช้า</option>
+                <option value="เวียดนาม พิเศษ เช้า">เวียดนาม พิเศษ เช้า</option>
+                <option value="ไต้หวัน พิเศษ">ไต้หวัน พิเศษ</option>
+                <option value="เกาหลี พิเศษ">เกาหลี พิเศษ</option>
+                <option value="นิเคอิ พิเศษ บ่าย">นิเคอิ พิเศษ บ่าย</option>
+                <option value="จีน พิเศษ บ่าย">จีน พิเศษ บ่าย</option>
+                <option value="ฮั่งเสง พิเศษ บ่าย">ฮั่งเสง พิเศษ บ่าย</option>
+                <option value="เวียดนาม พิเศษ บ่าย">เวียดนาม พิเศษ บ่าย</option>
+                <option value="สิงคโปร์ พิเศษ">สิงคโปร์ พิเศษ</option>
+                <option value="เวียดนาม พิเศษ">เวียดนาม พิเศษ</option>
+                <option value="รัสเซีย พิเศษ">รัสเซีย พิเศษ</option>
+                <option value="อังกฤษ พิเศษ">อังกฤษ พิเศษ</option>
+                <option value="เยอรมัน พิเศษ">เยอรมัน พิเศษ</option>
+                <option value="ดาวโจนส์ พิเศษ">ดาวโจนส์ พิเศษ</option>
+                <option value="ดาวโจนส์ VIP พิเศษ">ดาวโจนส์ VIP พิเศษ</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ช่องสำหรับกรอกสถิติวางข้อมูลดิบ -->
+    <div class="form-group">
+        <label for="rawTextData">วางข้อความสถิติผลรางวัล :</label>
+        <textarea id="rawTextData" placeholder="วางข้อมูลสถิติที่นี่ "></textarea>
+    </div>
+
+    <!-- ปุ่มสั่งการระบบ -->
+    <div class="btn-container">
+        <button class="btn-calc" onclick="calculateLaoSystem()">⚡ คำนวณสูตรแผงหวย</button>
+        <button class="btn-clear" onclick="clearAllData()">🧹 ล้างข้อมูล</button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+        <div class="result-header-label" id="resMainHeader"></div>
+
+        <div class="result-row step-1">
+            <button class="btn-copy-small" onclick="copySingleRow(1)">คัดลอก</button>
+            <div class="result-title title-1">1. เลขเด่นตามความถี่ </div>
+            <div class="badge-container" id="resStep1" style="flex-direction: column; gap: 8px; align-items: stretch;"></div>
+        </div>
+
+        <div class="result-row step-2">
+            <button class="btn-copy-small" onclick="copySingleRow(2)">คัดลอก</button>
+            <div class="result-title title-2">2. เด่น 2 ตัว (แยกคนละกริด)</div>
+            <div class="badge-container" id="resStep2"></div>
+        </div>
+
+        <div class="result-row step-3">
+            <button class="btn-copy-small" onclick="copySingleRow(3)">คัดลอก</button>
+            <div class="result-title title-3">3. เจาะ 2 ตัว (4 ชุดเน้น)</div>
+            <div class="badge-container" id="resStep3"></div>
+        </div>
+
+        <div class="result-row step-4">
+            <button class="btn-copy-small" onclick="copySingleRow(4)">คัดลอก</button>
+            <div class="result-title title-4">4. เจาะ 3 ตัว (4 ชุดตรงตามผังสูตร)</div>
+            <div class="badge-container" id="resStep4"></div>
+        </div>
+
+        <div class="result-row step-5">
+            <button class="btn-copy-small" onclick="copySingleRow(5)">คัดลอก</button>
+            <div class="result-title title-5">5. เจาะ 4 ตัว </div>
+            <div class="badge-container" id="resStep5"></div>
+        </div>
+
+        <div class="result-row step-6">
+            <button class="btn-copy-small" onclick="copySingleRow(6)">คัดลอก</button>
+            <div class="result-title title-6">6. วิน 5 ตัว </div>
+            <div class="badge-container" id="resStep6"></div>
+        </div>
+
+        <button class="btn-copy-all" onclick="copyAllToClipboard()">📋 คัดลอกข้อความสรุปทั้งหมดในคลิกเดียว</button>
+    </div>
+</div>
+
+<script {nonce}>
+let compiledTexts = {};
+
+function calculateLaoSystem() {
+    const text = document.getElementById('rawTextData').value;
+    const admin = document.getElementById('adminName').value || "แอดมิน";
+    const lotto = document.getElementById('lottoType').value;
+
+    if (!lotto) {
+        alert('กรุณาเลือกประเภทหรือชื่อหวยก่อนกดคำนวณครับ!');
+        return;
+    }
+
+    if (!text.trim()) {
+        alert('กรุณากรอกข้อมูลสถิติหวยก่อนครับ');
+        return;
+    }
+
+    const lines = text.split('\n');
+    let validRowsCount = 0;
+    let allDigitsCombined = "";
+
+    lines.forEach(line => {
+        if (!line.trim()) return;
+
+        let resultPart = "";
+        if (line.includes('➡️')) {
+            resultPart = line.split('➡️')[1] || "";
+        } else if (line.includes('|')) {
+            resultPart = line.split('|')[1] || "";
+        } else {
+            resultPart = line;
+        }
+
+        let cleanNumbers = resultPart.replace(/[^0-9]/g, '');
+        if (cleanNumbers.length >= 4) {
+            allDigitsCombined += cleanNumbers;
+            validRowsCount++;
+        }
+    });
+
+    if (validRowsCount === 0 && allDigitsCombined.length === 0) {
+        allDigitsCombined = text.replace(/[^0-9]/g, '');
+        if (allDigitsCombined.length >= 5) validRowsCount = 1;
+    }
+
+    if (allDigitsCombined.length < 5) {
+        alert('ระบบไม่พบตัวเลขผลรางวัลที่ถูกต้องในข้อความ กรุณาตรวจสอบรูปแบบข้อความสถิติครับ');
+        return;
+    }
+
+    const optionsDate = { day: 'numeric', month: 'short', year: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit' };
+    const currentDateTh = new Date().toLocaleDateString('th-TH', optionsDate);
+    const currentTimeTh = new Date().toLocaleTimeString('th-TH', optionsTime);
+    const dateTimeString = `${currentDateTh} (เวลา ${currentTimeTh} น.)`;
+
+    let frequency = {};
+    for (let i = 0; i <= 9; i++) frequency[i] = 0;
+    for (let char of allDigitsCombined) {
+        if (frequency[char] !== undefined) frequency[char]++;
+    }
+
+    let sortedDigits = Object.keys(frequency).sort((a, b) => frequency[b] - frequency[a]);
+    
+    for (let i = 0; i <= 9; i++) {
+        if (!sortedDigits.includes(i.toString())) sortedDigits.push(i.toString());
+    }
+
+    // ==================================================
+    // 💥 แยกหลักตัวเลขรายตัวเด็ดขาดเพื่อใช้จัดทำชุดเจาะที่สมบูรณ์
+    // ==================================================
+    const a1 = sortedDigits[0], a2 = sortedDigits[1], a3 = sortedDigits[2], 
+          a4 = sortedDigits[3], a5 = sortedDigits[4], a6 = sortedDigits[5], 
+          a7 = sortedDigits[6], a8 = sortedDigits[7];
+
+    // --- 1. สูตรชุดความถี่เด่น 5 ตัว (ใช้ตัวที่ 1 ถึง 5) ---
+    const pairs5 = [`${a1}${a2}`, `${a2}${a3}`, `${a3}${a4}`, `${a4}${a5}`];
+    const trios5 = [`${a1}${a2}${a3}`, `${a2}${a3}${a4}`, `${a3}${a4}${a5}`, `${a1}${a2}${a4}`];
+    const quads5 = [`${a1}${a2}${a3}${a4}`, `${a2}${a3}${a4}${a5}`, `${a1}${a2}${a4}${a5}`, `${a1}${a3}${a4}${a5}`];
+    const win5   = `${a1}-${a2}-${a3}-${a4}-${a5}`;
+
+    // --- 2. สูตรชุดความถี่เด่น 6 ตัว (ใช้ตัวที่ 1 ถึง 6) ---
+    const pairs6 = [`${a1}${a2}`, `${a2}${a3}`, `${a3}${a4}`, `${a4}${a5}`, `${a5}${a6}`];
+    const trios6 = [`${a1}${a2}${a3}`, `${a2}${a3}${a4}`, `${a3}${a4}${a5}`, `${a4}${a5}${a6}`];
+    const quads6 = [`${a1}${a2}${a3}${a4}`, `${a2}${a3}${a4}${a5}`, `${a3}${a4}${a5}${a6}`, `${a1}${a2}${a5}${a6}`];
+    const win6   = `${a1}-${a2}-${a3}-${a4}-${a5}-${a6}`;
+
+    // --- 3. สูตรชุดความถี่เด่น 7 ตัว (ใช้ตัวที่ 1 ถึง 7) ---
+    const pairs7 = [`${a1}${a2}`, `${a2}${a3}`, `${a3}${a4}`, `${a4}${a5}`, `${a5}${a6}`, `${a6}${a7}`];
+    const trios7 = [`${a1}${a2}${a3}`, `${a2}${a3}${a4}`, `${a4}${a5}${a6}`, `${a5}${a6}${a7}`];
+    const quads7 = [`${a1}${a2}${a3}${a4}`, `${a3}${a4}${a5}${a6}`, `${a4}${a5}${a6}${a7}`, `${a1}${a2}${a6}${a7}`];
+    const win7   = `${a1}-${a2}-${a3}-${a4}-${a5}-${a6}-${a7}`;
+
+    // --- 4. สูตรชุดความถี่เด่น 8 ตัว (ใช้ตัวที่ 1 ถึง 8) ---
+    const pairs8 = [`${a1}${a2}`, `${a2}${a3}`, `${a3}${a4}`, `${a4}${a5}`, `${a5}${a6}`, `${a6}${a7}`, `${a7}${a8}`];
+    const trios8 = [`${a1}${a2}${a3}`, `${a3}${a4}${a5}`, `${a5}${a6}${a7}`, `${a6}${a7}${a8}`];
+    const quads8 = [`${a1}${a2}${a3}${a4}`, `${a3}${a4}${a5}${a6}`, `${a5}${a6}${a7}${a8}`, `${a1}${a2}${a7}${a8}`];
+    const win8   = `${a1}-${a2}-${a3}-${a4}-${a5}-${a6}-${a7}-${a8}`;
+
+    // --------------------------------------------------
+    // บันทึกสรุปข้อความดิบสำหรับส่งไลน์ (กระจายครบถ้วนทุกความถี่แยกชุดชัดเจน)
+    // --------------------------------------------------
+    compiledTexts.header = `🎯 สรุปสูตรวิเคราะห์ ${lotto}\n✍️ คำนวณโดย: ${admin}\n📅 วันที่คำนวณ: ${dateTimeString}\n📊 คำนวณจากสถิติย้อนหลัง: ${validRowsCount} รอบ`;
+    compiledTexts.row1 = `1. เลขเด่นตามความถี่:\n   • เด่น 5 ตัว: ${sortedDigits.slice(0,5).join(', ')}\n   • เด่น 6 ตัว: ${sortedDigits.slice(0,6).join(', ')}\n   • เด่น 7 ตัว: ${sortedDigits.slice(0,7).join(', ')}\n   • เด่น 8 ตัว: ${sortedDigits.slice(0,8).join(', ')}`;
+    compiledTexts.row2 = `2. เด่น 2 ตัว (เน้นอันดับหลัก):\n   • ชุด 5 ตัว: ${a2}${a3}\n   • ชุด 6 ตัว: ${a2}${a3}\n   • ชุด 7 ตัว: ${a2}${a3}\n   • ชุด 8 ตัว: ${a2}${a3}`;
+    compiledTexts.row3 = `3. เจาะ 2 ตัว:\n   • ชุด 5 ตัว: ${pairs5.join(' / ')}\n   • ชุด 6 ตัว: ${pairs6.join(' / ')}\n   • ชุด 7 ตัว: ${pairs7.join(' / ')}\n   • ชุด 8 ตัว: ${pairs8.join(' / ')}`;
+    compiledTexts.row4 = `4. เจาะ 3 ตัว:\n   • ชุด 5 ตัว: ${trios5.join(' / ')}\n   • ชุด 6 ตัว: ${trios6.join(' / ')}\n   • ชุด 7 ตัว: ${trios7.join(' / ')}\n   • ชุด 8 ตัว: ${trios8.join(' / ')}`;
+    compiledTexts.row5 = `5. เจาะ 4 ตัว:\n   • ชุด 5 ตัว: ${quads5.join(' / ')}\n   • ชุด 6 ตัว: ${quads6.join(' / ')}\n   • ชุด 7 ตัว: ${quads7.join(' / ')}\n   • ชุด 8 ตัว: ${quads8.join(' / ')}`;
+    compiledTexts.row6 = `6. วินรวมตามชุดความถี่:\n   • วิน 5 ตัว: ${win5}\n   • วิน 6 ตัว: ${win6}\n   • วิน 7 ตัว: ${win7}\n   • วิน 8 ตัว: ${win8}`;
+
+    document.getElementById('resMainHeader').innerText = compiledTexts.header;
+
+    // ข้อ 1: เรนเดอร์ความถี่ 4 แถวในหน้าเว็บ
+    document.getElementById('resStep1').innerHTML = `
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:nowrap; margin-bottom:5px;">
+            <span class="big-number-badge label-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1.5;">เด่น 5 ตัว</span>
+            ${sortedDigits.slice(0,5).map(num => `<span class="big-number-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;">${num}</span>`).join('')}
+        </div>
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:nowrap; margin-bottom:5px;">
+            <span class="big-number-badge label-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1.5;">เด่น 6 ตัว</span>
+            ${sortedDigits.slice(0,6).map(num => `<span class="big-number-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;">${num}</span>`).join('')}
+        </div>
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:nowrap; margin-bottom:5px;">
+            <span class="big-number-badge label-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1.5;">เด่น 5 ตัว</span>
+            ${sortedDigits.slice(0,5).map(num => `<span class="big-number-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;">${num}</span>`).join('')}
+        </div>
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:nowrap; margin-bottom:5px;">
+            <span class="big-number-badge label-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1.5;">เด่น 6 ตัว</span>
+            ${sortedDigits.slice(0,6).map(num => `<span class="big-number-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;">${num}</span>`).join('')}
+        </div>
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:nowrap; margin-bottom:5px;">
+            <span class="big-number-badge label-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1.5;">เด่น 7 ตัว</span>
+            ${sortedDigits.slice(0,7).map(num => `<span class="big-number-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;">${num}</span>`).join('')}
+        </div>
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:nowrap;">
+            <span class="big-number-badge label-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1.5;">เด่น 8 ตัว</span>
+            ${sortedDigits.slice(0,8).map(num => `<span class="big-number-badge" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;">${num}</span>`).join('')}
+        </div>
+    `;
+
+    // ข้อ 2: เด่น 2 ตัว 
+    document.getElementById('resStep2').innerHTML = 
+        `<span class="big-number-badge label-badge" style="border-color:var(--accent-red); color:var(--accent-red);">เด่นเน้น</span>` +
+        `<span class="big-number-badge highlight-badge-red">${a2}</span>` +
+        `<span class="big-number-badge highlight-badge-red">${a3}</span>` +
+        `<span class="big-number-badge" style="font-size:11px; border:none; flex:2;"></span>`;
+
+    // ข้อ 3: เจาะ 2 ตัวหลัก (ชุด 5 ตัว)
+    document.getElementById('resStep3').innerHTML = pairs5.map(val => 
+        `<span class="big-number-badge" style="border-color:var(--accent-blue);">${val}</span>`
+    ).join('');
+
+    // ข้อ 4: เจาะ 3 ตัวหลัก (ชุด 5 ตัว)
+    document.getElementById('resStep4').innerHTML = trios5.map(val => 
+        `<span class="big-number-badge" style="border-color:var(--accent-green);">${val}</span>`
+    ).join('');
+
+    // ข้อ 5: เจาะ 4 ตัวหลัก (ชุด 5 ตัว)
+    document.getElementById('resStep5').innerHTML = quads5.map(val => 
+        `<span class="big-number-badge" style="border-color:var(--accent-purple);">${val}</span>`
+    ).join('');
+
+    // ข้อ 6: วินหลัก 5 ตัว
+    document.getElementById('resStep6').innerHTML = 
+        `<span class="big-number-badge label-badge" style="border-color:var(--accent-orange); color:var(--accent-orange);">วินหลัก</span>` +
+        [a1, a2, a3, a4, a5].map(num => `<span class="big-number-badge highlight-badge-orange">${num}</span>`).join('');
+
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ฟังก์ชันล้างข้อมูล
+function clearAllData() {
+    document.getElementById('rawTextData').value = '';
+    document.getElementById('resultSection').style.display = 'none';
+    compiledTexts = {};
+}
+
+// ระบบคัดลอกอัจฉริยะ (Universal Copy) รองรับมือถือทุกระบบ iOS / Android / LINE App
+function executeCopy(textToCopy) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => { alert('คัดลอกลงคลิปบอร์ดสำเร็จ! 🎉'); })
+            .catch(() => { useFallbackCopy(textToCopy); });
+    } else {
+        useFallbackCopy(textToCopy);
+    }
+}
+
+// ฟังก์ชันสร้างกล่องข้อความจำลองเพื่อคัดลอกบนมือถือ (แก้ปัญหากดไม่ติด)
+function useFallbackCopy(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.width = "2em";
+    textArea.style.height = "2em";
+    textArea.style.padding = "0";
+    textArea.style.border = "none";
+    textArea.style.outline = "none";
+    textArea.style.boxShadow = "none";
+    textArea.style.background = "transparent";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    textArea.setSelectionRange(0, 99999);
+
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            alert('คัดลอกลงคลิปบอร์ดสำเร็จ! 🎉');
+        } else {
+            alert('กรุณากดค้างเพื่อคัดลอกข้อความเองครับ');
+        }
+    } catch (err) {
+        alert('ไม่สามารถคัดลอกอัตโนมัติได้ในแอปนี้');
+    }
+
+    document.body.removeChild(textArea);
+}
+
+function copySingleRow(rowNum) {
+    const textToCopy = compiledTexts[`row${rowNum}`];
+    executeCopy(textToCopy);
+}
+
+function copyAllToClipboard() {
+    const finalTemplate = 
+`${compiledTexts.header}
+========================
+${compiledTexts.row1}
+========================
+${compiledTexts.row2}
+========================
+${compiledTexts.row3}
+========================
+${compiledTexts.row4}
+========================
+${compiledTexts.row5}
+========================
+${compiledTexts.row6}
+========================
+ขอให้ทุกท่านโชคดี ร่ำรวยปังๆ ครับ! 💰✨`;
+
+    executeCopy(finalTemplate);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบวิเคราะห์และสรุปแนวโน้มหวยสูตรครูต้อย VIP Pro 4D</title>
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --secondary-color: #1e293b;
+            --accent-color: #d4af37;
+            --accent-hover: #aa841c;
+            --text-main: #f8fafc;
+            --text-dark: #334155;
+            --bg-body: #f1f5f9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 30px;
+            text-align: center;
+            border-bottom: 4px solid var(--accent-color);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 10px 0 0;
+            color: var(--accent-color);
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        input[type="text"], textarea {
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #f8fafc;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+            background-color: #fff;
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-main);
+            border: 1px solid var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            color: var(--accent-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .alert-box {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+        }
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid var(--warning);
+        }
+
+        .result-section {
+            display: none;
+            border-top: 2px dashed #cbd5e1;
+            padding-top: 30px;
+        }
+
+        .share-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .share-output {
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .btn-copy {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-copy:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .grid-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .card h3 {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 6px;
+        }
+
+        .number-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .num-item {
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #475569;
+        }
+
+        .highlight {
+            background: #fef08a !important;
+            color: #a16207 !important;
+            border: 1px solid #fde047;
+        }
+        
+        .disabled-num {
+            background: #fee2e2 !important;
+            color: #b91c1c !important;
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>ระบบวิเคราะห์และสรุปแนวโน้มหวยสูตรครูต้อย VIP Pro 4D</h1>
+        <p>ADVANCED ANALYTICS & 4-DIGIT COMBINATION SYSTEM</p>
+    </div>
+
+    <div class="content">
+        <div class="meta-grid">
+            <div class="form-group">
+                <label for="lottoName">ชื่อหวย / รอบ (ดึงอัตโนมัติจากบรรทัดแรก)</label>
+                <input type="text" id="lottoName" placeholder="เช่น ยี่กี DNAfour264">
+            </div>
+            <div class="form-group">
+                <label for="adminName">ชื่อแอดมินผู้ให้แนวทาง</label>
+                <input type="text" id="adminName" placeholder="เช่น Admin" value="Admin">
+            </div>
+            <div class="form-group">
+                <label for="killDigits">ตัวเลขดับรอบนี้ (ระบุเพื่อตัดทุน เช่น 4, 8)</label>
+                <input type="text" id="killDigits" placeholder="ระบุเลขดับเดี่ยว เช่น 4">
+            </div>
+        </div>
+
+        <div id="doubleAlert" class="alert-box alert-warning">⚠️ คำเตือนระบบ: สถิติรอบล่าสุดเริ่มมี เลขเบิ้ล/เลขหาม ไหลถี่ขึ้น ระวังปรับแผนทุนสำรอง!</div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="statsInput">วางสถิติหวยในกรอบด้านล่าง:</label>
+            <textarea id="statsInput" rows="8" placeholder="วางสถิติที่นี่..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-primary" onclick="processData()">⚡ ประมวลผลขั้นสูง (วิเคราะห์ 4 ตัวแตก)</button>
+            <button class="btn-danger" onclick="clearForm()">🧹 ล้างข้อมูล</button>
+        </div>
+
+        <div id="resultSection" class="result-section">
+            <div class="form-group">
+                <label>📋 ข้อความสรุปแนวทางพร้อมคัดลอกแชร์ลงกลุ่ม (มีชุดเจาะ 4 ตัวแตก):</label>
+                <div class="share-box">
+                    <div id="shareOutput" class="share-output"></div>
+                    <button class="btn-copy" onclick="copyToClipboard()">📋 คัดลอกข้อความทั้งหมด</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>🔍 ตารางสูตรเดิม (สีเหลือง=เคยออกในสถิติ, สีแดงขีดฆ่า=ติดเลขดับถูกตัดทิ้ง):</label>
+                <div class="grid-tables">
+                    <div class="card"><h3>2 ตัว ชุด 1/7 (ทุน 12 เลข)</h3><div class="number-list" id="set2_17"></div></div>
+                    <div class="card"><h3>2 ตัว ชุด 0/2 (ทุน 12 เลข)</h3><div class="number-list" id="set2_02"></div></div>
+                    <div class="card"><h3>2 ตัว ชุด มงคล (ทุน 12 เลข)</h3><div class="number-list" id="set2_mongkol"></div></div>
+                    <div class="card"><h3>3 ตัว ชุด 1/7+0/2 (ทุน 24 เลข)</h3><div class="number-list" id="set3_17_02"></div></div>
+                    <div class="card"><h3>3 ตัว ชุด 1/7+มง (ทุน 24 เลข)</h3><div class="number-list" id="set3_17_mk"></div></div>
+                    <div class="card"><h3>3 ตัว ชุด 0/2+มง (ทุน 24 เลข)</h3><div class="number-list" id="set3_02_mk"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast">✨ คัดลอกเนื้อหาไปยังคลิปบอร์ดแล้ว!</div>
+
+<script>
+const formulaData = {
+    set2_17: ["13", "18", "14", "15", "16", "19", "76", "79", "73", "78", "74", "75"],
+    set2_02: ["23", "28", "24", "25", "26", "29", "03", "08", "04", "05", "06", "09"],
+    set2_mongkol: ["34", "35", "36", "39", "84", "85", "86", "89", "56", "59", "46", "49"],
+    set3_17_02: ["132", "130", "182", "180", "142", "140", "152", "150", "162", "160", "192", "190", "732", "730", "782", "780", "742", "740", "752", "750", "762", "760", "792", "790"],
+    set3_17_mk: ["134", "135", "136", "139", "184", "185", "186", "189", "734", "735", "736", "739", "784", "785", "786", "789", "146", "149", "156", "159", "746", "749", "756", "759"],
+    set3_02_mk: ["234", "235", "236", "239", "284", "285", "286", "289", "246", "249", "256", "259", "034", "035", "036", "039", "084", "085", "086", "089", "046", "049", "056", "059"]
+};
+
+function processData() {
+    const rawInput = document.getElementById("statsInput").value.trim();
+    if (!rawInput) return;
+
+    const lines = rawInput.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    
+    if (lines.length > 0 && !lines[0].includes('➡️') && !lines[0].includes(':')) {
+        let detectedName = lines[0].replace(/[🩷📌✨🌟👑🎯]/g, '').trim();
+        document.getElementById("lottoName").value = detectedName;
+    }
+
+    const lottoName = document.getElementById("lottoName").value || "ยี่กี VIP";
+    const adminName = document.getElementById("adminName").value || "แอดมิน";
+    
+    const killInput = document.getElementById("killDigits").value.trim();
+    const killList = killInput ? killInput.split(',').map(k => k.trim()).filter(k => k.length > 0) : [];
+
+    let extracted2D = [];
+    let extracted3D = [];
+    let lastRoundNum = "";
+    
+    const rewardLines = lines.filter(line => line.includes('➡️'));
+    const recentLines = rewardLines.slice(-5);
+
+    let doubleCount = 0;
+    let singleNumberFreq = {};
+
+    rewardLines.forEach(line => {
+        const initialSplit = line.split('➡️');
+        if (initialSplit.length >= 2) {
+            const parts = initialSplit[1].split('-');
+            if (parts.length === 2) {
+                let topNum = parts[0].trim();
+                let bottomNum = parts[1].trim();
+                extracted2D.push(bottomNum);
+                extracted2D.push(topNum.slice(-2));
+                if(topNum.length >= 3) {
+                    extracted3D.push(topNum.slice(-3));
+                }
+            }
+        }
+    });
+
+    recentLines.forEach(line => {
+        const initialSplit = line.split('➡️');
+        if (initialSplit.length >= 2) {
+            const parts = initialSplit[1].split('-');
+            if (parts.length === 2) {
+                let topNum = parts[0].trim();
+                let bottomNum = parts[1].trim();
+                
+                if(bottomNum[0] === bottomNum[1] || topNum.slice(-2)[0] === topNum.slice(-2)[1] || (topNum.length >= 3 && (topNum.slice(-3)[0] === topNum.slice(-3)[1] || topNum.slice(-3)[1] === topNum.slice(-3)[2] || topNum.slice(-3)[0] === topNum.slice(-3)[2]))) {
+                    doubleCount++;
+                }
+                
+                const allDigits = (topNum + bottomNum).split('');
+                allDigits.forEach(d => {
+                    if(/[0-9]/.test(d)) {
+                        singleNumberFreq[d] = (singleNumberFreq[d] || 0) + 1;
+                    }
+                });
+                
+                const timeSplit = line.split(':');
+                if (timeSplit.length > 0) {
+                    lastRoundNum = timeSplit[0].trim();
+                }
+            }
+        }
+    });
+
+    const doubleAlert = document.getElementById("doubleAlert");
+    if(doubleCount >= 2) {
+        doubleAlert.style.display = "block";
+    } else {
+        doubleAlert.style.display = "none";
+    }
+
+    const allExtracted = [...extracted2D, ...extracted3D];
+    
+    renderSet("set2_17", formulaData.set2_17, allExtracted, killList);
+    renderSet("set2_02", formulaData.set2_02, allExtracted, killList);
+    renderSet("set2_mongkol", formulaData.set2_mongkol, allExtracted, killList);
+    renderSet("set3_17_02", formulaData.set3_17_02, allExtracted, killList);
+    renderSet("set3_17_mk", formulaData.set3_17_mk, allExtracted, killList);
+    renderSet("set3_02_mk", formulaData.set3_02_mk, allExtracted, killList);
+
+    let score = { '1/7': 0, '0/2': 0, 'มงคล': 0 };
+    recentLines.forEach(line => {
+        const initialSplit = line.split('➡️');
+        if (initialSplit.length >= 2) {
+            const parts = initialSplit[1].split('-');
+            if (parts.length === 2) {
+                let topNum = parts[0].trim().slice(-2);
+                let bottomNum = parts[1].trim();
+                [topNum, bottomNum].forEach(num => {
+                    if(formulaData.set2_17.includes(num)) score['1/7'] += 2;
+                    if(formulaData.set2_02.includes(num)) score['0/2'] += 2;
+                    if(formulaData.set2_mongkol.includes(num)) score['มงคล'] += 2;
+                });
+            }
+        }
+    });
+
+    let bestSet = Object.keys(score).reduce((a, b) => score[a] > score[b] ? a : b);
+    let nextRound = lastRoundNum ? parseInt(lastRoundNum) + 1 : "ถัดไป";
+
+    const filterKill2D = (arr) => arr.filter(num => !killList.some(k => num.includes(k)));
+    const filterKill3D = (arr) => arr.filter(num => !killList.some(k => num.includes(k)));
+
+    let final2D = [];
+    let final3D_A = [];
+    let final3D_B = [];
+    let title3D_A = "";
+    let title3D_B = "";
+    let baseDigits4D = [];
+
+    if (bestSet === '1/7') {
+        final2D = filterKill2D(formulaData.set2_17);
+        final3D_A = filterKill3D(formulaData.set3_17_02);
+        final3D_B = filterKill3D(formulaData.set3_17_mk);
+        title3D_A = "เจาะ 3 ตัวตรง (ชุด 1/7 + 0/2)";
+        title3D_B = "เจาะ 3 ตัวตรง (ชุด 1/7 + มงคล)";
+        baseDigits4D = ["1", "7", "3", "8", "4", "5"];
+    } else if (bestSet === '0/2') {
+        final2D = filterKill2D(formulaData.set2_02);
+        final3D_A = filterKill3D(formulaData.set3_17_02);
+        final3D_B = filterKill3D(formulaData.set3_02_mk);
+        title3D_A = "เจาะ 3 ตัวตรง (ชุด 1/7 + 0/2)";
+        title3D_B = "เจาะ 3 ตัวตรง (ชุด 0/2 + มงคล)";
+        baseDigits4D = ["0", "2", "3", "8", "4", "5"];
+    } else {
+        final2D = filterKill2D(formulaData.set2_mongkol);
+        final3D_A = filterKill3D(formulaData.set3_17_mk);
+        final3D_B = filterKill3D(formulaData.set3_02_mk);
+        title3D_A = "เจาะ 3 ตัวตรง (ชุด 1/7 + มงคล)";
+        title3D_B = "เจาะ 3 ตัวตรง (ชุด 0/2 + มงคล)";
+        baseDigits4D = ["3", "4", "5", "6", "8", "9"];
+    }
+
+    let sortedDigits = Object.keys(singleNumberFreq).sort((a,b) => singleNumberFreq[b] - singleNumberFreq[a]);
+    let topClearDigits = sortedDigits.filter(d => !killList.includes(d)).slice(0, 3).join(', ');
+    let hot4DList = sortedDigits.filter(d => !killList.includes(d)).slice(0, 4);
+
+    while (hot4DList.length < 4) {
+        for (let num of baseDigits4D) {
+            if (!hot4DList.includes(num) && !killList.includes(num)) { hot4DList.push(num); break; }
+        }
+        if(hot4DList.length < 4) hot4DList.push("0");
+    }
+
+    let shareText = `╔════════════════════╗\n`;
+    shareText += `   🎯 สรุปแนวทางรอบที่: ${nextRound} 🎯\n`;
+    shareText += `   📌 หวย: ${lottoName}\n`;
+    shareText += `╚════════════════════╝\n\n`;
+    shareText += `💡 สูตรเดินดีล่าสุด (5 รอบหลัง): 【 ชุด ${bestSet} 】\n`;
+    if(killList.length > 0) shareText += `🚫 ตัดเลขดับแอดมินออกแล้ว: [ ${killList.join(', ')} ]\n`;
+    if(topClearDigits) shareText += `⭐ ตัวเลขเด่นไหลแรง: [ ${topClearDigits} ]\n`;
+    if(doubleCount >= 2) shareText += `⚠️ เฝ้าระวังพิเศษ: มีแนวโน้มเบิ้ล-หาม แทรก!\n`;
+    shareText += `\n`;
+
+    shareText += `👉 เน้น 2 ตัวบน-ล่าง:\n   ${final2D.length > 0 ? final2D.join(' ') : 'ไม่เหลือตัวเลือกเนื่องจากติดดับ'}\n\n`;
+    
+    shareText += `👉 ${title3D_A} (ครบ 24 ชุด):\n`;
+    for (let i = 0; i < final3D_A.length; i += 6) {
+        shareText += `   ${final3D_A.slice(i, i + 6).join('  ')}\n`;
+    }
+    
+    shareText += `\n👉 ${title3D_B} (ครบ 24 ชุด):\n`;
+    for (let i = 0; i < final3D_B.length; i += 6) {
+        shareText += `   ${final3D_B.slice(i, i + 6).join('  ')}\n`;
+    }
+
+    shareText += `\n👑【 เจาะลึกชุด 4 ตัวแตก VIP 】👑\n`;
+    let win4D_1 = hot4DList.join('');
+    let win4D_2 = [hot4DList[0], hot4DList[1], hot4DList[2], hot4DList[3]].join('');
+    shareText += `👉 Option A (วินมัดรวมกลุ่มเด่น):  ${win4D_1}\n`;
+    
+    let h1 = hot4DList[0], h2 = hot4DList[1], h3 = hot4DList[2];
+    shareText += `👉 Option B (เจาะเบิ้ลหามพิกัดไหล): ${h1}${h1}${h2}${h3}   ${h1}${h2}${h3}${h3}   ${h1}${h2}${h1}${h2}\n`;
+
+    let currentCost2D = final2D.length;
+    let currentCost3D = final3D_A.length + final3D_B.length;
+    shareText += `\n💵 ลดทุนเหลือ 2ตัว: ${currentCost2D} ชุด | 3ตัวตรง: ${currentCost3D} ชุด\n`;
+    shareText += `✍️ บันทึกและวิเคราะห์โดย: ${adminName}\n`;
+    shareText += `⚠️ เป็นเพียงแนวทางสถิติ โปรดใช้วิจารณญาณ`;
+
+    document.getElementById("shareOutput").innerText = shareText;
+    document.getElementById("resultSection").style.display = "block";
+}
+
+function renderSet(elementId, dataset, highlights, killList) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = "";
+    dataset.forEach(num => {
+        const span = document.createElement("span");
+        span.className = "num-item";
+        
+        const isKilled = killList.some(k => num.includes(k));
+        const isHighlighted = highlights.includes(num);
+        
+        if (isKilled) {
+            span.className += " disabled-num";
+        } else if (isHighlighted) {
+            span.className += " highlight";
+        }
+        
+        span.textContent = num;
+        container.appendChild(span);
+    });
+}
+
+function clearForm() {
+    document.getElementById("statsInput").value = "";
+    document.getElementById("lottoName").value = "";
+    document.getElementById("killDigits").value = "";
+    document.getElementById("resultSection").style.display = "none";
+    document.getElementById("doubleAlert").style.display = "none";
+}
+
+function copyToClipboard() {
+    const textToCopy = document.getElementById("shareOutput").innerText;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2500);
+    });
+}
+</script>
+</body>
+</html>

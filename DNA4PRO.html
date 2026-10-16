@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DNA MASTER PRO V18.7</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --brand: #2563eb; --accent: #7c3aed; --bg: #f8fafc; --text: #1e293b; --success: #10b981; --border: #e2e8f0; }
+        body { font-family: 'Kanit', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 40px; }
+        .top-nav { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .metric-card { text-align: center; padding: 10px 4px; background: white; border-radius: 14px; border: 1px solid var(--border); }
+        .metric-label { font-size: 0.65rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .metric-value { font-size: 1rem; font-weight: 700; color: var(--brand); font-family: 'JetBrains Mono', monospace; }
+        .container { max-width: 1100px; margin: 15px auto; padding: 0 12px; }
+        .glass-card { background: white; border-radius: 24px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 10px 30px -5px rgba(0,0,0,0.04); }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        input, select, textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; font-size: 1rem; box-sizing: border-box; outline: none; }
+        .btn-pro { background: linear-gradient(135deg, var(--brand), var(--accent)); color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 600; font-size: 1.1rem; cursor: pointer; width: 100%; box-shadow: 0 8px 20px -6px rgba(37,99,235,0.4); }
+        .table-wrapper { overflow-x: auto; border-radius: 18px; border: 1px solid var(--border); background: white; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 0.85rem; }
+        th { background: #f1f5f9; padding: 15px 8px; color: #64748b; font-weight: 600; border-bottom: 2px solid var(--border); }
+        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #f8fafc; }
+        .win-tag { background: var(--success); color: white; padding: 3px 7px; border-radius: 6px; font-weight: 600; font-size: 0.7rem; display: inline-block; margin-top: 4px; }
+        .loss-tag { background: #e2e8f0; color: #94a3b8; padding: 3px 7px; border-radius: 6px; font-weight: 600; font-size: 0.7rem; }
+        .col-result { background: #fffbeb !important; border-left: 3px solid #fbbf24; font-weight: bold; }
+        .report-box { background: white; border-radius: 24px; padding: 22px; margin-top: 18px; border: 1px solid var(--border); border-left: 6px solid var(--brand); position: relative; }
+        .best-badge { position: absolute; right: 0; top: 0; background: #fbbf24; color: #78350f; font-size: 0.7rem; padding: 5px 15px; border-radius: 0 0 0 15px; font-weight: bold; }
+        .copy-area { background: #f8fafc; padding: 18px; border-radius: 14px; font-size: 0.88rem; white-space: pre-wrap; margin: 12px 0; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
+        .btn-copy { background: #f0f7ff; color: var(--brand); border: 1.5px solid var(--brand); padding: 14px; width: 100%; border-radius: 14px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="metric-card"><div class="metric-label">กำไรสะสม</div><div id="topProfit" class="metric-value">0</div></div>
+    <div class="metric-card"><div class="metric-label">GOAL</div><div id="topGoal" class="metric-value">0%</div></div>
+    <div class="metric-card"><div class="metric-label">STATUS</div><div id="topStatus" class="metric-value" style="font-size:0.75rem; color:var(--success)">V18.7 PRO</div></div>
+</nav>
+
+<div class="container">
+    <div class="glass-card">
+        <h2 style="margin:0 0 18px 0; text-align:center; color:var(--brand);">💎 DNA MASTER LINE PRO</h2>
+        <div class="input-group">
+            <input type="text" id="adminName" placeholder="ชื่อแอดมิน">
+            <input type="number" id="profitTarget" placeholder="เป้ากำไร (฿)" inputmode="numeric">
+        </div>
+        <select id="winType" onchange="updateUI()" style="margin-bottom:12px">
+            <option value="วินบน4ตัว">วินบน 4 หลัก (เจาะตรง+โต๊ด)</option>
+            <option value="วินล่าง">วินล่าง 2 หลัก (เจาะล่างตรง)</option>
+        </select>
+        <textarea id="bulkInput" rows="2" placeholder="วางสถิติ (บรรทัดละงวด)..."></textarea>
+        <button class="btn-pro" onclick="processChain()">🚀 วิเคราะห์ระบบ & คำนวณเลขเด่น</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead><tr id="hRow"><th>งวด</th></tr><tr id="aRow"><td>ACC %</td></tr></thead>
+            <tbody id="bBody"></tbody>
+        </table>
+    </div>
+    <div id="statsContainer"></div>
+    <button onclick="clearAll()" style="width:100%; background:none; border:none; color:#64748b; margin-top:50px; text-decoration:underline; font-size:0.8rem; cursor:pointer;">Reset System</button>
+</div>
+
+<script>
+    const PAY = { '4D': 8000, '4DT': 320, '3D': 850, '3DT': 120, '2D': 90 };
+    const labels = ["5/1", "5/2", "6/1", "6/2", "7/1", "7/2", "8/1", "8/2", "9/1", "9/2"];
+    const sizes = [5, 5, 6, 6, 7, 7, 8, 8, 9, 9]; // แก้ไขค่า sizes ให้สมบูรณ์
+
+    let historyData = JSON.parse(localStorage.getItem('v18_final_dna_v3')) || [];
+
+    window.onload = () => {
+        document.getElementById('adminName').value = localStorage.getItem('v18_admin') || 'ADMIN';
+        document.getElementById('profitTarget').value = localStorage.getItem('v18_target') || 1000;
+        updateUI();
+    };
+
+    // เจาะชุดวินตรงจากซ้ายไปขวา (Combination)
+    function getCombinations(arr, size) {
+        let res = [];
+        const f = (start, current) => {
+            if (current.length === size) { res.push(current.join('')); return; }
+            for (let i = start; i < arr.length; i++) f(i + 1, current.concat(arr[i]));
+        };
+        f(0, []);
+        return res;
+    }
+
+    function calculateSets(base) {
+        let res = [];
+        let num = parseInt(base.replace(/[^0-9]/g, "")) || 1;
+        for (let i = 0; i < 10; i++) {
+            let val = (i % 2 === 0) ? Math.sqrt(num + (i * 47.9)) : Math.pow(num + i, 1/2.1);
+            let dec = val.toFixed(15).split('.')[1] || "0123456789";
+            let temp = new Set();
+            for(let c=0; temp.size < sizes[i] && c < dec.length; c++) temp.add(dec[c]);
+            let fb = "0123456789";
+            for(let j=0; temp.size < sizes[i]; j++) temp.add(fb[j]);
+            res.push(Array.from(temp));
+        }
+        return res;
+    }
+
+    function checkWinDetail(set, result, type) {
+        if(!result) return { ok: false, status: 'รอผล', income: 0, hit: '' };
+        let clean = result.replace(/[^0-9]/g, ""), isM = (t) => t.split('').every(d => set.includes(d));
+        let cost = set.length * (set.length - 1);
+        
+        if(type === "วินบน4ตัว" && clean.length >= 4) {
+            let t4 = clean.substring(0,4), t3 = clean.substring(1,4), t2 = clean.substring(2,4);
+            if(getCombinations(set, 4).includes(t4)) return { ok: true, income: PAY['4D']-cost, status: 'ตรง', hit: t4 };
+            if(isM(t4)) return { ok: true, income: PAY['4DT']-cost, status: 'โต๊ด', hit: t4 };
+            if(getCombinations(set, 3).includes(t3)) return { ok: true, income: PAY['3D']-cost, status: 'ตรง', hit: t3 };
+            if(isM(t3)) return { ok: true, income: PAY['3DT']-cost, status: 'โต๊ด', hit: t3 };
+            if(isM(t2)) return { ok: true, income: PAY['2D']-cost, status: 'ตรง', hit: t2 };
+            return { ok: false, income: -cost, status: 'LOSS', hit: '' };
+        } else {
+            let t2l = clean.slice(-2);
+            if(isM(t2l)) return { ok: true, income: PAY['2D']-cost, status: 'ล่าง', hit: t2l };
+            return { ok: false, income: -cost, status: 'LOSS', hit: '' };
+        }
+    }
+
+    function updateUI() {
+        const type = document.getElementById('winType').value;
+        const bBody = document.getElementById('bBody');
+        let wins = new Array(10).fill(0), maxProfit = 0, totalR = historyData.filter(h => h.actual).length;
+        
+        let accRates = labels.map((_, i) => {
+            let w = 0; historyData.filter(h => h.actual).forEach(h => { if(checkWinDetail(h.sets[i], h.actual, type).ok) w++; });
+            return totalR ? Math.round((w/totalR)*100) : 0;
+        });
+        const bestAcc = Math.max(...accRates);
+
+        document.getElementById('hRow').innerHTML = "<th>งวด</th>" + labels.map((l, i) => `<th class="${accRates[i] === bestAcc && bestAcc > 0 ? 'high-acc' : ''}">${l}</th>`).join('') + "<th class='col-result'>ผลรางวัล</th>";
+        bBody.innerHTML = historyData.slice().reverse().map((row, revIdx) => {
+            const idx = historyData.length - 1 - revIdx;
+            const cells = row.sets.map((s, i) => {
+                const res = checkWinDetail(s, row.actual, type);
+                if(row.actual && res.ok) wins[i]++;
+                return `<td class="${accRates[i] === bestAcc && bestAcc > 0 ? 'high-acc' : ''}">${s.join('')}<br><span class="${row.actual ? (res.ok?'win-tag':'loss-tag') : ''}">${row.actual ? (res.ok ? res.hit + res.status : 'LOSS') : '-'}</span></td>`;
+            }).join('');
+            return `<tr><td>${row.actual ? `<span onclick="deleteRow(${idx})" style="color:red;cursor:pointer">✕</span>` : '<b>NEXT</b>'}</td>${cells}<td class="col-result"><input type="text" value="${row.actual||''}" onchange="updateResult(${idx}, this.value)" style="width:100px; text-align:center; border:none; background:transparent; font-weight:bold; color:#b45309;"></td></tr>`;
+        }).join('');
+
+        let p_list = labels.map((_, i) => {
+            let p = 0; historyData.filter(h => h.actual).forEach(h => { p += checkWinDetail(h.sets[i], h.actual, type).income; });
+            return p;
+        });
+        maxProfit = Math.max(...p_list, 0);
+        document.getElementById('topProfit').innerText = maxProfit.toLocaleString();
+        let target = parseFloat(document.getElementById('profitTarget').value) || 1;
+        document.getElementById('topGoal').innerText = Math.min(100, Math.round((maxProfit/target)*100)) + "%";
+
+        renderReports(wins, totalR, type, bestAcc);
+        localStorage.setItem('v18_final_dna_v3', JSON.stringify(historyData));
+        localStorage.setItem('v18_admin', document.getElementById('adminName').value);
+        localStorage.setItem('v18_target', document.getElementById('profitTarget').value);
+    }
+
+    function renderReports(wins, total, type, bestAcc) {
+        const admin = document.getElementById('adminName').value || 'ADMIN';
+        const reports = labels.map((l, i) => {
+            const rate = total ? Math.round((wins[i]/total)*100) : 0;
+            const nextSet = historyData.find(h => !h.actual)?.sets[i] || [];
+            let p = 0, log = historyData.filter(h => h.actual).map((h, idx) => {
+                const res = checkWinDetail(h.sets[i], h.actual, type); p += res.income;
+                return `${idx+1}. ${h.sets[i].join('')} [${h.actual}] ${res.ok?'✅ '+res.hit+res.status:'❌ LOSS'}`;
+            }).reverse().join('\n');
+            const d2 = getCombinations(nextSet, 2), d3 = getCombinations(nextSet, 3), d4 = getCombinations(nextSet, 4);
+            const fmt = (arr) => { let s = ""; for(let k=0; k<arr.length; k+=5) s += arr.slice(k, k+5).join(', ') + (k+5 < arr.length ? ',\n' : ''); return s; };
+            const text = `🏆 สูตร ${l} [แม่นยำ ${rate}%] 🏆\nBY: ${admin}\n----------------------\n🔮 เด่นรอบหน้า: ${nextSet.join('')}\n\n🔸 เจาะตรง 2 ตัว (${d2.length} ชุด):\n${fmt(d2)}\n\n🔸 เจาะตรง 3 ตัว (${d3.length} ชุด):\n${fmt(d3)}\n\n🔸 เจาะตรง 4 ตัว (${d4.length} ชุด):\n${fmt(d4)}\n\n📈 สถิติ:\n${log || 'ไม่มีข้อมูล'}\n----------------------\n💰 กำไรสะสม: ${p.toLocaleString()} บาท`;
+            return { l, rate, text, i };
+        });
+        reports.sort((a, b) => b.rate - a.rate);
+        document.getElementById('statsContainer').innerHTML = reports.map((d, idx) => `
+            <div class="report-box">
+                ${idx === 0 && d.rate > 0 ? '<span class="best-badge">⭐ แม่นยำสูงสุด</span>' : ''}
+                <div style="font-weight:600; color:var(--brand); margin-bottom:10px;">📋 รายงานชุดเด่น ${d.l}</div>
+                <div id="rep${d.i}" class="copy-area">${d.text}</div>
+                <button class="btn-copy" onclick="copyText('rep${d.i}')">คัดลอกรายงานชุด ${d.l}</button>
+            </div>`).join('');
+    }
+
+    function processChain() {
+        const val = document.getElementById('bulkInput').value.trim();
+        if(!val) return;
+        const lines = val.split('\n').map(l => l.trim()).filter(l => l.length >= 2);
+        historyData = [];
+        for(let i=0; i<lines.length-1; i++) historyData.push({ sets: calculateSets(lines[i]), actual: lines[i+1] });
+        historyData.push({ sets: calculateSets(lines[lines.length-1]), actual: null });
+        updateUI();
+    }
+    function updateResult(idx, val) { if(val.length >= 2) { historyData[idx].actual = val; if(idx === historyData.length - 1) historyData.push({ sets: calculateSets(val), actual: null }); updateUI(); } }
+    function deleteRow(idx) { if(confirm('ลบงวดนี้?')) { historyData.splice(idx,1); updateUI(); } }
+    async function copyText(id) { try { await navigator.clipboard.writeText(document.getElementById(id).innerText); alert("คัดลอกสำเร็จ!"); } catch(e) {} }
+    function clearAll() { if(confirm('ลบข้อมูลทั้งหมด?')) { localStorage.removeItem('v18_final_dna_v3'); historyData = []; updateUI(); } }
+</script>
+</body>
+</html>

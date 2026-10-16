@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DOMINO WIN ORIGINAL v2026</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --bg: #ffffff; --card: #f8fafc; --primary: #2563eb; --success: #16a34a; --gold: #b45309; --border: #e2e8f0; --text: #1e293b; }
+        body { font-family: 'Chakra Petch', sans-serif; background-color: #f1f5f9; color: var(--text); padding: 10px; margin: 0; }
+        .container { max-width: 1200px; margin: auto; background: var(--bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+        h1 { color: var(--gold); margin: 0; text-align: center; font-size: 20px; margin-bottom: 15px; }
+        .bulk-box { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .bulk-area { width: 100%; height: 80px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; margin-bottom: 8px; resize: none; box-sizing: border-box; }
+        .btn-bulk { background: var(--primary); color: white; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 15px; }
+        .settings-box { background: #fffbeb; padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #fde68a; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        select { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; font-family: 'Chakra Petch'; font-weight: bold; }
+        .stat-bar { margin: 15px 0; padding: 15px; background: #fff; border-radius: 12px; display: flex; justify-content: space-around; border: 1px solid var(--border); }
+        .stat-val { font-size: 20px; color: var(--primary); font-weight: bold; display: block; }
+        .table-container { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; min-width: 1050px; background: #fff; }
+        th { background: #f1f5f9; color: var(--text); font-size: 13px; padding: 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .num-card { background: #f1f5f9; border-radius: 5px; padding: 4px 8px; font-size: 13px; font-weight: bold; display: inline-block; margin: 2px; border: 1px solid #e2e8f0; color: #334155; }
+        .is-win { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
+        .is-todd { background: #fef3c7 !important; color: #92400e !important; }
+        .is-rev { background: #f3e8ff !important; color: #6b21a8 !important; }
+        .res-input { width: 65px; border: 1px solid #cbd5e1; text-align: center; border-radius: 6px; padding: 5px; font-weight: bold; font-size: 15px; }
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 20px; }
+        .report-area { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 15px; }
+        .report-content { font-size: 13px; color: #475569; white-space: pre-wrap; height: 120px; overflow-y: auto; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+        .btn-summary { background: var(--success); color: white; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; border: none; }
+        .btn-del { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body onload="loadData();">
+
+<div class="container">
+    <h1>💎 DOMINO WIN ORIGINAL v2026</h1>
+    <div id="clock" style="text-align:center; font-size:12px; color:#64748b; margin-bottom:15px;"></div>
+
+    <div class="bulk-box">
+        <textarea id="bulkInput" class="bulk-area" placeholder="วางสถิติ (ชื่อ เลข) หรือห่วงโซ่ (000-00)..."></textarea>
+        <button class="btn-bulk" onclick="processBulk()">⚡ วิเคราะห์เลข & คำนวณตามลำดับ</button>
+    </div>
+
+    <div class="bulk-box" style="background: #f0fdf4;">
+        <textarea id="resultUpdate" class="bulk-area" placeholder="วางผลรางวัลอัปเดต (091-52 ฮานอย)..."></textarea>
+        <button class="btn-bulk" style="background: var(--success);" onclick="execBulkUpdate()">✅ อัปเดตผลรางวัลอัตโนมัติ</button>
+    </div>
+
+    <div class="settings-box">
+        <label>เลือกสูตร:</label>
+        <select id="formulaSel" onchange="saveSet()">
+            <option value="star">สูตร * (ราก 1.76)</option>
+            <option value="hash">สูตร # (ราก 3)</option>
+        </select>
+        <button class="btn-summary" onclick="copyAllSummary()">📋 คัดลอกสรุปรวม</button>
+        <button class="btn-summary" onclick="shareAllSummary()" style="background: #3b82f6;">📤 แชร์สรุป</button>
+        <button class="btn-del" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
+    </div>
+
+    <div class="stat-bar">
+        <div>ทั้งหมด <span id="statTotal" class="stat-val" style="color:#64748b">0</span></div>
+        <div>เน้น <span id="statFocus" class="stat-val">0%</span></div>
+        <div>รูด <span id="statRuud" class="stat-val">0%</span></div>
+        <div>วิน <span id="statWin6" class="stat-val">0%</span></div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>หวย/รอบ</th>
+                    <th>วิน 6 (ตามลำดับ)</th>
+                    <th>เด่น</th>
+                    <th>รูด</th>
+                    <th>เจาะ 2</th>
+                    <th>เจาะ 3</th>
+                    <th style="background:#fffbeb">ผล [บน-ล่าง]</th>
+                    <th>แชร์/ลบ</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="report-grid">
+        <div class="report-area"><h3>🎯 สายเน้น <button class="btn-summary" onclick="copyBox('res-focus')">ก๊อป</button></h3><div id="res-focus" class="report-content"></div></div>
+        <div class="report-area"><h3>🎡 สายรูด <button class="btn-summary" onclick="copyBox('res-ruud')">ก๊อป</button></h3><div id="res-ruud" class="report-content"></div></div>
+        <div class="report-area"><h3>🔢 สายวิน <button class="btn-summary" onclick="copyBox('res-win')">ก๊อป</button></h3><div id="res-win" class="report-content"></div></div>
+        <div class="report-area"><h3>📢 สายเจาะ <button class="btn-summary" onclick="copyBox('res-drill')">ก๊อป</button></h3><div id="res-drill" class="report-content"></div></div>
+    </div>
+</div>
+
+<script>
+    const KEY = 'domino_final_fix_v2026';
+    let dataList = JSON.parse(localStorage.getItem(KEY)) || [];
+
+    function saveSet() { localStorage.setItem('f_type_dom', document.getElementById('formulaSel').value); }
+    function loadData() { 
+        document.getElementById('formulaSel').value = localStorage.getItem('f_type_dom') || 'star';
+        updateClock(); renderTable(); 
+    }
+    function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleString('th-TH'); setTimeout(updateClock, 1000); }
+
+        function calculateFormula(inputStr) {
+        const type = document.getElementById('formulaSel').value;
+        let t = inputStr.slice(0,3), b = inputStr.slice(3,5);
+        let n = parseFloat(t + "." + b) || 0;
+        let w6 = [], focus = "", ruud = "", s2 = [], s3 = [];
+
+        if (type === 'star') {
+            let res = Math.pow(n, 1 / 1.76982).toFixed(12);
+            let parts = res.split('.');
+            let dec = parts[1]; // ส่วนทศนิยมเป็น String
+            
+            focus = dec.charAt(3);
+            ruud = dec.charAt(3) + "-" + dec.charAt(4);
+            
+            // --- แก้ไข: วิน 6 ตัว (เติมให้ครบถ้าเลขซ้ำเยอะ) ---
+            let ws = new Set();
+            // ดึงจากทศนิยมตำแหน่งที่ 3 เป็นต้นไปตามสูตรต้นฉบับ
+            for (let i = 3; i < dec.length; i++) {
+                if (ws.size < 6) ws.add(dec.charAt(i));
+            }
+            // ถ้ายังไม่ครบ 6 ตัว ให้ดึงเลข 0-9 มาเติมตัวที่ขาด
+            const digits = ["0","1","2","3","4","5","6","7","8","9"];
+            for (let d of digits) {
+                if (ws.size < 6) ws.add(d);
+            }
+            w6 = Array.from(ws);
+            
+            // เจาะตามลำดับวินที่ได้ (ไม่เรียง)
+            s2 = [w6[0]+w6[1], w6[1]+w6[2], w6[2]+w6[3], w6[3]+w6[4], w6[4]+w6[5], w6[0]+w6[2]];
+            s3 = [w6[0]+w6[1]+w6[2], w6[1]+w6[2]+w6[3], w6[3]+w6[4]+w6[5]];
+        } else {
+            let res = Math.pow(n, 1 / 3).toFixed(12).replace('.', '');
+            let ws = new Set();
+            for (let i = 0; i < res.length; i++) {
+                if (ws.size < 6) ws.add(res.charAt(i));
+            }
+            // เติมให้ครบ 6
+            const digits = ["0","1","2","3","4","5","6","7","8","9"];
+            for (let d of digits) {
+                if (ws.size < 6) ws.add(d);
+            }
+            w6 = Array.from(ws);
+            focus = w6[0];
+            ruud = w6[0] + "-" + w6[1];
+            s2 = [w6[0]+w6[1], w6[1]+w6[2], w6[2]+w6[3], w6[3]+w6[4], w6[4]+w6[5]];
+            s3 = [w6[0]+w6[1]+w6[2], w6[2]+w6[3]+w6[4]];
+        }
+        return { focus, ruud, rNum: ruud.split('-'), win6: w6, s2, s3 };
+    }
+
+    function renderTable() {
+        const body = document.getElementById('tableBody'); body.innerHTML = '';
+        dataList.forEach(e => {
+            const f = calculateFormula(e.inputStr);
+            const res = e.resultStr;
+            let h = { f: false, r: false, w: false };
+            if (res.length === 5) {
+                const targets = (res.slice(1, 3) + res.slice(3, 5)).split('');
+                if (targets.includes(f.focus.toString())) h.f = true;
+                if (f.rNum.some(n => targets.includes(n.toString()))) h.r = true;
+                if (res.slice(1, 3).split('').every(x => f.win6.join('').includes(x)) || res.slice(3, 5).split('').every(x => f.win6.join('').includes(x))) h.w = true;
+            }
+            body.innerHTML += `<tr>
+                <td><strong>${e.name}</strong><br><small>${e.time}</small></td>
+                <td style="color:#94a3b8;">${e.inputStr}</td>
+                <td class="${h.w ? 'is-win' : ''}">${f.win6.map(n => `<div class="num-card">${n}</div>`).join('')}</td>
+                <td class="${h.f ? 'is-win' : ''}" style="font-size:18px;">${f.focus}</td>
+                <td class="${h.r ? 'is-win' : ''}">${f.ruud}</td>
+                <td>${f.s2.map(n => `<div class="num-card ${res && (n == res.slice(1, 3) || n == res.slice(3, 5) || n.split('').reverse().join('') == res.slice(3, 5)) ? 'is-win' : ''}">${n}</div>`).join('')}</td>
+                <td>${f.s3.map(n => `<div class="num-card ${res && (n == res.slice(0, 3) || n.split('').sort().join('') == res.slice(0, 3).split('').sort().join('')) ? 'is-todd' : ''}">${n}</div>`).join('')}</td>
+                <td><input type="number" class="res-input" value="${res}" oninput="updateRes('${e.id}', this.value)"></td>
+                <td><button onclick="copySingle('${e.id}')" style="background:#fff; border:1px solid #ddd; cursor:pointer; padding:5px;">แชร์</button> <button onclick="del('${e.id}')" class="btn-del">ลบ</button></td>
+            </tr>`;
+        });
+        updateStats(); renderSummaryBoxes();
+    }
+
+    function processBulk() {
+        const raw = document.getElementById('bulkInput').value.trim();
+        if (!raw) return;
+        let head = ""; const lines = raw.split('\n');
+        for (let l of lines) if (l.includes("สถิติ")) { head = l.replace(/สถิติย้อนหลัง/g, '').replace(/[^\u0E00-\u0E7F\w\s]/g, '').trim(); break; }
+        const pattern = /(\d{3})\s*-\s*(\d{2})/;
+        const temp = [];
+        lines.forEach(l => {
+            const m = l.match(pattern);
+            if (m) {
+                let name = l.replace(m[0], '').replace(/[^\u0E00-\u0E7F\w\s]/g, '').trim();
+                temp.push({ name: name || head || "ทั่วไป", full: m[1] + m[2] });
+            }
+        });
+        if (!temp.length) return alert("ไม่พบรูปแบบตัวเลข 000-00");
+        const isChain = temp.every(d => d.name === temp[0].name);
+        const newE = [];
+        for (let i = 0; i < temp.length; i++) {
+            newE.push({ id: Date.now() + "_" + i, name: temp[i].name, inputStr: temp[i].full, resultStr: (isChain && temp[i + 1]) ? temp[i + 1].full : "", time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) });
+        }
+        dataList = isChain ? [...newE, ...dataList] : [...newE.reverse(), ...dataList];
+        saveAndReload(); document.getElementById('bulkInput').value = '';
+    }
+
+    function execBulkUpdate() {
+        const raw = document.getElementById('resultUpdate').value.trim();
+        const pattern = /(\d{3})\s*-\s*(\d{2})/;
+        raw.split('\n').forEach(l => {
+            const m = l.match(pattern);
+            if (m) {
+                let name = l.replace(m[0], '').replace(/[^\u0E00-\u0E7F\w\s]/g, '').trim();
+                let item = dataList.find(d => d.name.includes(name) && d.resultStr === "");
+                if (item) item.resultStr = m[1] + m[2];
+            }
+        });
+        saveAndReload(); document.getElementById('resultUpdate').value = '';
+    }
+
+    function updateRes(id, val) {
+        const idx = dataList.findIndex(x => x.id == id);
+        if (idx > -1) {
+            dataList[idx].resultStr = val.slice(0, 5);
+            localStorage.setItem(KEY, JSON.stringify(dataList));
+            if (val.length === 5 || val.length === 0) renderTable();
+        }
+    }
+
+    function smartCopy(text) {
+        const area = document.createElement("textarea");
+        area.value = text; area.style.position = "fixed"; area.style.left = "-9999px"; area.style.top = "0";
+        document.body.appendChild(area); area.focus(); area.select(); area.setSelectionRange(0, 99999);
+        try { document.execCommand('copy'); alert("คัดลอกสำเร็จ! ✨"); } catch (err) { alert("ไม่สำเร็จ"); }
+        document.body.removeChild(area);
+    }
+
+    function copyBox(id) { smartCopy(document.getElementById(id).innerText); }
+    function copyAllSummary() { smartCopy(window.currentSummary); }
+    async function shareAllSummary() { if (navigator.share) navigator.share({ text: window.currentSummary }); else copyAllSummary(); }
+    
+    function copySingle(id) {
+        const e = dataList.find(x => x.id == id);
+        const f = calculateFormula(e.inputStr);
+        const txt = `🎯 ${e.name}\nเด่น: ${f.focus}\nวิน: ${f.win6.join('')}\nเจาะ2: ${f.s2.join(',')}\nเจาะ3: ${f.s3.join(',')}\nBy DOMINO`;
+        smartCopy(txt);
+    }
+
+        function renderSummaryBoxes() {
+        let rep = { f: "", r: "", w: "", d: "" };
+        // ดึงข้อมูล 15 รายการล่าสุดมาแสดง
+        dataList.slice(0, 15).forEach(item => {
+            const f = calculateFormula(item.inputStr);
+            const res = item.resultStr;
+            const resDisp = res.length === 5 ? ` ➔ [${res.slice(0,3)}-${res.slice(3,5)}]` : " ➔ ⏳ รอผล";
+            
+            // ตั้งค่าสถานะเริ่มต้น
+            let s = { f:'⏳', r:'⏳', w:'⏳', d:'⏳' };
+            
+            if(res.length === 5) {
+                const t3 = res.slice(0,3), t2 = res.slice(1,3), b2 = res.slice(3,5);
+                const targets = (t2+b2).split(''); // รวมเลขบน-ล่าง
+                
+                // 1. เช็คสายเน้น
+                s.f = targets.includes(f.focus.toString()) ? '✅' : '❌';
+                
+                // 2. เช็คสายรูด
+                s.r = f.rNum.some(n => targets.includes(n.toString())) ? '✅' : '❌';
+                
+                // 3. เช็คสายวิน (วินแตกบน หรือ ล่าง)
+                const winStr = f.win6.join('');
+                const winHitT = t2.split('').every(x => winStr.includes(x));
+                const winHitB = b2.split('').every(x => winStr.includes(x));
+                s.w = (winHitT || winHitB) ? '✅' : '❌';
+                
+                // 4. เช็คสายเจาะ (ตรง, กลับ หรือ โต๊ด)
+                const hit2 = f.s2.some(n => n == t2 || n == b2 || n.split('').reverse().join('') == b2);
+                const hit3 = f.s3.some(n => n == t3 || n.split('').sort().join('') == t3.split('').sort().join(''));
+                s.d = (hit2 || hit3) ? '✅' : '❌';
+            }
+
+            // จัดรูปแบบข้อความในแต่ละกล่อง
+            rep.f += `${s.f} ${item.name} ➔ ${f.focus}${resDisp}\n`;
+            rep.r += `${s.r} ${item.name} ➔ ${f.ruud}${resDisp}\n`;
+            rep.w += `${s.w} ${item.name} ➔ ${f.win6.join('')}${resDisp}\n`;
+            rep.d += `${s.d} ${item.name} ➔ เจาะ:${f.s2[0]},${f.s2[1]}...${resDisp}\n`;
+        });
+        
+        // อัปเดตข้อมูลลงในหน้าเว็บ
+        document.getElementById('res-focus').innerText = rep.f || "ไม่มีข้อมูล";
+        document.getElementById('res-ruud').innerText = rep.r || "ไม่มีข้อมูล";
+        document.getElementById('res-win').innerText = rep.w || "ไม่มีข้อมูล";
+        document.getElementById('res-drill').innerText = rep.d || "ไม่มีข้อมูล";
+
+        // สร้างข้อความสรุปรวมสำหรับปุ่มแชร์/คัดลอกทั้งหมด
+        window.currentSummary = `💎 [ สรุปผลงาน DOMINO ]\n\n🎯 สายเน้น:\n${rep.f}\n🎡 สายรูด:\n${rep.r}\n🔢 สายวิน:\n${rep.w}\n📢 สายเจาะ:\n${rep.d}\nBy LINE ID:momongmo`;
+    }
+
+
+    function updateStats() {
+        const p = dataList.filter(d => d.resultStr.length === 5);
+        document.getElementById('statTotal').innerText = dataList.length;
+        if (p.length) {
+            let fC = 0, rC = 0, wC = 0;
+            p.forEach(e => {
+                const f = calculateFormula(e.inputStr);
+                const targets = (e.resultStr.slice(1, 3) + e.resultStr.slice(3, 5)).split('');
+                if (targets.includes(f.focus.toString())) fC++;
+                if (f.rNum.some(n => targets.includes(n.toString()))) rC++;
+                if (e.resultStr.slice(1, 3).split('').every(x => f.win6.join('').includes(x)) || e.resultStr.slice(3, 5).split('').every(x => f.win6.join('').includes(x))) wC++;
+            });
+            document.getElementById('statFocus').innerText = (fC / p.length * 100).toFixed(0) + '%';
+            document.getElementById('statRuud').innerText = (rC / p.length * 100).toFixed(0) + '%';
+            document.getElementById('statWin6').innerText = (wC / p.length * 100).toFixed(0) + '%';
+        }
+    }
+
+    function del(id) { if (confirm('ลบรายการนี้?')) { dataList = dataList.filter(x => x.id != id); saveAndReload(); } }
+    function clearAllData() { if (confirm('ล้างข้อมูลทั้งหมด?')) { dataList = []; saveAndReload(); } }
+    function saveAndReload() { localStorage.setItem(KEY, JSON.stringify(dataList)); renderTable(); }
+</script>
+</body>
+</html>

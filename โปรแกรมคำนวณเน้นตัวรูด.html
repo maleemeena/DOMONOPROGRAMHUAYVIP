@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌿 MINT PRO V17.7 | ULTIMATE HYBRID</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <style>
+        :root { --primary: #2e7d32; --mint: #4caf50; --light-mint: #e8f5e9; --bg: #f4f7f4; --card: #ffffff; --gold: #b8860b; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); padding: 5px; margin: 0; }
+        .container { max-width: 500px; margin: auto; background: var(--card); border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        h3 { background: linear-gradient(135deg, var(--mint), var(--primary)); color: white; margin: 0; padding: 15px; font-size: 20px; text-align: center; font-family: 'Itim', cursive; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+        .dash-item { background: var(--light-mint); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid #c8e6c9; }
+        .dash-full { grid-column: span 2; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ffb74d; }
+        .dash-val { font-size: 16px; font-weight: 800; color: var(--primary); }
+        .dash-focus { color: #e65100; font-size: 13px; font-family: monospace; line-height: 1.4; }
+        .dash-label { font-size: 10px; color: #666; font-weight: bold; margin-bottom: 3px; }
+        .input-card { padding: 15px; background: #fff; border-bottom: 1px solid #eee; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; outline: none; }
+        .btn-main { background: linear-gradient(to bottom, #81c784, #4caf50); color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #388e3c; }
+        .flow-container { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 15px; justify-content: center; background: #fff; border-bottom: 1px dashed #ddd; }
+        .flow-tag { background: #fff; border: 1px solid var(--mint); color: var(--primary); padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .report-box { margin: 12px; border-radius: 15px; border: 1px solid #eee; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .report-header { background: var(--light-mint); padding: 10px; font-weight: bold; color: var(--primary); text-align: center; font-size: 14px; }
+        .copy-area { padding: 20px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: #333; background: #fafafa; }
+        .stats-toggle { background: #f9fdf9; color: var(--primary); padding: 10px; font-size: 11px; cursor: pointer; text-align: center; font-weight: bold; border-top: 1px solid #eee; }
+        .stats-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #fff; }
+        .stats-content.show { max-height: 800px; overflow-y: auto; border-top: 1px solid #eee; }
+        .btn-group { display: flex; border-top: 1px solid #eee; }
+        .btn-copy { flex: 1; background: var(--mint); color: white; border: none; padding: 12px; font-weight: bold; cursor: pointer; }
+        .btn-cap { flex: 1; background: #FF9800; color: white; border: none; padding: 12px; font-weight: bold; cursor: pointer; border-left: 1px solid #fff; }
+        .table-wrap { overflow-x: auto; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th, td { padding: 8px 4px; text-align: center; font-size: 11px; border-bottom: 1px solid #f1f8e9; }
+        .win-badge { padding: 2px 5px; border-radius: 5px; font-size: 9px; font-weight: bold; color: white; }
+        .bg-win { background: var(--mint); } .bg-loss { background: #cfd8dc; color: #546e7a; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="captureArea">
+    <h3>🌿 MINT PRO V17.7 🍃</h3>
+    <div class="dashboard">
+        <div class="dash-item dash-full" id="focusBox" style="display:none;">
+            <div class="dash-label">🌟 เลขเน้นรูด 5 สูตร</div>
+            <div id="focusDashVal" class="dash-val dash-focus">---</div>
+        </div>
+        <div class="dash-item"><div class="dash-label">กำไรรวม</div><div id="currentProfit" class="dash-val">0</div></div>
+        <div class="dash-item"><div class="dash-label">เรทวินเฉลี่ย</div><div id="currentWinRate" class="dash-val">0%</div></div>
+    </div>
+
+    <div class="input-card">
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="adminName" value="แม่ค้าขายโปรคำนวณไงจะใครล่ะ">
+            <input type="number" id="profitTarget" value="1000">
+        </div>
+        <div style="display: flex; gap: 5px;">
+            <select id="winType" onchange="updateUI()">
+                <option value="วินบน">วินบน</option>
+                <option value="วินล่าง">วินล่าง</option>
+                <option value="รูด2ตัว" selected>รูด 2 ตัว (บน-ล่าง)</option>
+                <option value="เสียว1ตัว">เสียว 1 ตัว (บน-ล่าง)</option>
+            </select>
+            <select id="logicType" onchange="updateUI()">
+                <option value="original" selected>สูตรดั้งเดิม</option>
+                <option value="hybrid">สูตรผสม</option>
+            </select>
+        </div>
+        <textarea id="bulkInput" rows="2" placeholder="วางสถิติ 5 หลัก..."></textarea>
+        <button class="btn-main" onclick="processChain()">🚀 วิเคราะห์ข้อมูล 🚀</button>
+    </div>
+
+    <div id="flowTagDisplay" class="flow-container"></div>
+    <div id="reportsContainer"></div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>งวด</th><th id="acc_0">ส.1(5)</th><th id="acc_1">ส.2(6)</th><th id="acc_2">ส.3(6)</th><th id="acc_3">ส.4(7)</th><th id="acc_4">ส.5(7)</th><th>ผล</th></tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+        </table>
+    </div>
+    
+    <button onclick="clearAll()" style="background:none; border:none; color:#ccc; width:100%; padding:20px; font-size:10px; cursor:pointer;">RESET ALL DATA (ล้างสถิติทั้งหมด)</button>
+</div>
+
+<script>
+    const PAYOUT = 92;
+    const configSz = [5, 6, 6, 7, 7];
+    let historyData = JSON.parse(localStorage.getItem('mint_v17_ultimate_v7')) || [];
+    let hotFlowNums = [];
+
+    function getRootStr(num, fIdx) {
+        let n = parseFloat(num);
+        let val = Math.sqrt(n * (fIdx + 1.512));
+        return val.toFixed(15).replace('.', '').split('') || "0123456789".split('');
+    }
+
+    function calculateSets(res) {
+        let sets = [];
+        let num = parseInt(res.slice(-5)) || 12345;
+        let type = document.getElementById('winType').value;
+        for (let i = 0; i < 5; i++) {
+            let target = type.includes("วิน") ? configSz[i] : (type === "รูด2ตัว" ? 2 : 1);
+            let s = new Set();
+            let seed = getRootStr(num, i);
+            let c = 0;
+            while(s.size < target && c < seed.length) { s.add(seed[c]); c++; }
+            for(let n=0; n<=9 && s.size < target; n++) s.add(n.toString());
+            sets.push(Array.from(s).sort().join(''));
+        }
+        return sets;
+    }
+
+    function checkWin(setStr, actual, type) {
+        if(!actual || actual.length < 5) return { ok: false, hits: [] };
+        let set = setStr.split('');
+        let t3 = actual.slice(2), t2 = actual.slice(3), b2 = actual.slice(1,3);
+        let ok = false; let hits = [];
+        if(type === "วินบน") {
+            let isM = (t) => t.split('').every(d => set.includes(d));
+            if(isM(t3)) { ok = true; hits.push(t3); }
+            if(isM(t2)) { ok = true; hits.push(t2); }
+        } else if(type === "วินล่าง") {
+            if(b2.split('').every(d => set.includes(d))) { ok = true; hits.push(b2); }
+        } else {
+            let match = actual.split('').filter(n => set.includes(n));
+            ok = match.length > 0; hits = match;
+        }
+        return { ok, hits: [...new Set(hits)] };
+    }
+
+    function analyzeFlow() {
+        let counts = {};
+        historyData.filter(h => h.actual).forEach(h => {
+            h.actual.split('').forEach(num => counts[num] = (counts[num] || 0) + 1);
+        });
+        hotFlowNums = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+        while(hotFlowNums.length < 10) { for(let i=0; i<=9; i++) if(!hotFlowNums.includes(i.toString())) hotFlowNums.push(i.toString()); }
+        
+        let flowHtml = "<span>🔥 เลขไหลมาแรง: </span>";
+        hotFlowNums.slice(0, 5).forEach(num => { flowHtml += `<span class="flow-tag">${num}</span>`; });
+        document.getElementById('flowTagDisplay').innerHTML = flowHtml;
+    }
+
+    function renderSortedReports(winsArr, total, type) {
+        const container = document.getElementById('reportsContainer');
+        container.innerHTML = ""; if(!historyData.length) return;
+        const last = historyData[historyData.length - 1];
+        const isFocusMode = type.includes("รูด") || type.includes("เสียว");
+
+        let focusArr = last.sets.map((s, idx) => `ส.${idx+1}:${s.substring(0,2)}`);
+        if(isFocusMode) {
+            document.getElementById('focusBox').style.display = "block";
+            document.getElementById('focusDashVal').innerText = focusArr.join(' | ');
+        }
+
+        configSz.forEach((sz, i) => {
+            let formulaSet = last.sets[i].split('');
+            
+            let j2Set = new Set();
+            formulaSet.forEach(d => {
+                hotFlowNums.slice(0, 5).forEach(f => {
+                    if(d !== f && j2Set.size < 7) j2Set.add([d, f].sort().join(''));
+                });
+            });
+
+            let j3Set = new Set();
+            for(let a=0; a<formulaSet.length; a++){
+                for(let b=a+1; b<formulaSet.length; b++){
+                    hotFlowNums.slice(0, 3).forEach(f => {
+                        if(j3Set.size < 5 && !formulaSet.includes(f)) {
+                            j3Set.add([formulaSet[a], formulaSet[b], f].sort().join(''));
+                        }
+                    });
+                }
+            }
+
+            let hTxt = ""; let currentProfit = 0;
+            historyData.filter(h => h.actual).forEach((h, hIdx) => {
+                let r = checkWin(h.sets[i], h.actual, type);
+                let actual = h.actual;
+                let t3 = actual.slice(2), t2 = actual.slice(3), b2 = actual.slice(1,3);
+                let jHit = "";
+                Array.from(j2Set).forEach(j => { 
+                    if(t2 === j || t2 === j.split('').reverse().join('') || b2 === j || b2 === j.split('').reverse().join('')) jHit += ` [${j}เจาะเข้า]`; 
+                });
+                Array.from(j3Set).forEach(j => { 
+                    if(t3 === j) jHit += ` [${j}3ตัวตรง!]`; 
+                    else if(j.split('').every(d => t3.includes(d))) jHit += ` [${j}3ตัวเข้า!]`;
+                });
+                
+                let focusMsg = "";
+                h.sets.forEach((s, sIdx) => { if(actual.includes(s.substring(0,2))) focusMsg = ` 🔥 ${s.substring(0,2)} ส.${sIdx+1}เน้นเข้า!`; });
+
+                hTxt += `งวด ${hIdx+1}: ${h.sets[i]} [${actual}] ${r.ok?'✅':'❌'}${r.hits.length?` [${r.hits.join(',')}]`:''}${jHit}${focusMsg}\n`;
+                let cost = type.includes("วิน") ? (sz*sz-sz)/2 : (type === "รูด2ตัว" ? 36 : 19);
+                currentProfit += r.ok ? (PAYOUT - cost) : -cost;
+            });
+
+            let report = `🌿 **สูตร ส.${i+1} (${sz} ตัว) | ${document.getElementById('adminName').value}**\n━━━━━━━━━━━━━━━\n🎯 รูปแบบ: ${type}\n${isFocusMode?`🌟 เลขเน้น 5 สูตร: [ ${focusArr.join(' | ')} ]\n`:''}🔢 เด่นวิน: [ ${formulaSet.join('-')} ]\n🔥 เจาะ 2 (7 ชุด): ${Array.from(j2Set).join(' , ')}\n🚀 เจาะ 3 (5 ชุด): ${Array.from(j3Set).join(' , ')}\n━━━━━━━━━━━━━━━\n📊 เข้า ${winsArr[i]}/${total} | 💰 กำไร: ${currentProfit.toLocaleString()} บ.`;
+            
+            let box = document.createElement('div');
+            box.className = 'report-box';
+            box.innerHTML = `<div class="report-header">ใบแนวทาง ส.${i+1}</div><div class="copy-area" id="copy${i}">${report}</div><div class="stats-toggle" onclick="this.nextElementSibling.classList.toggle('show')">📜 ดูประวัติย้อนหลัง ▼</div><div class="stats-content"><div style="padding:15px; font-size:11px; white-space:pre-wrap;">${hTxt}</div></div><div class="btn-group"><button class="btn-copy" onclick="copyReport('copy${i}')">📋 คัดลอก</button><button class="btn-cap" onclick="captureReport(this)">📸 เซฟรูป</button></div>`;
+            container.appendChild(box);
+        });
+    }
+
+    function processChain() {
+        const raw = document.getElementById('bulkInput').value.trim();
+        if(!raw) return alert("กรุณาวางสถิติ!");
+        const lines = raw.split(/\s+/).filter(l => l.length >= 5);
+        historyData = [];
+        for(let i=0; i < lines.length; i++) {
+            historyData.push({ sets: calculateSets(lines[i]), actual: (i + 1 < lines.length) ? lines[i+1] : null });
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        analyzeFlow();
+        localStorage.setItem('mint_v17_ultimate_v7', JSON.stringify(historyData));
+        const type = document.getElementById('winType').value;
+        const body = document.getElementById('logTableBody');
+        body.innerHTML = "";
+        let wins = [0, 0, 0, 0, 0], totalR = 0;
+        historyData.slice().reverse().forEach((row, idx) => {
+            if(row.actual) { totalR++; row.sets.forEach((s, i) => { if(checkWin(s, row.actual, type).ok) wins[i]++; }); }
+            let tr = `<tr><td>${historyData.length - idx}</td>`;
+            row.sets.forEach((s, i) => {
+                let r = checkWin(s, row.actual, type);
+                tr += `<td>${s}<br><span class="win-badge ${r.ok?'bg-win':'bg-loss'}">${r.ok?'WIN':(row.actual?'LOSS':'รอ')}</span></td>`;
+            });
+            tr += `<td>${row.actual || ''}</td></tr>`;
+            body.innerHTML += tr;
+        });
+        
+        let avgP = 0;
+        configSz.forEach((sz, i) => {
+            let p = totalR ? Math.round((wins[i]/totalR)*100) : 0;
+            document.getElementById('acc_'+i).innerHTML = `ส.${i+1}(${sz})<br><span>${p}%</span>`;
+            avgP += p;
+        });
+        document.getElementById('currentWinRate').innerText = totalR ? Math.round(avgP/5) + "%" : "0%";
+        renderSortedReports(wins, totalR, type);
+    }
+
+    function copyReport(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("คัดลอกแนวทางแล้ว!"); }
+    function captureReport(btn) {
+        html2canvas(btn.closest('.report-box'), { scale: 2 }).then(canvas => {
+            const link = document.createElement('a'); link.download = 'REPORT.png'; link.href = canvas.toDataURL(); link.click();
+        });
+    }
+    function clearAll() { if(confirm("ล้างสถิติ?")) { localStorage.removeItem('mint_v17_ultimate_v7'); historyData = []; updateUI(); location.reload(); } }
+    window.onload = updateUI;
+</script>
+</body>
+</html>
