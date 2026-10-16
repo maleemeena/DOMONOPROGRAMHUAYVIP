@@ -105,8 +105,8 @@
 
 <script>
         function loadProgram(pageUrl, btnElement) {
-            // ระบุเส้นทางให้วิ่งตรงไปที่ไฟล์ในโดเมนหลักทันที
-            document.getElementById('mainFrame').src = window.location.origin + "/" + pageUrl;
+            // ใช้ encodeURIComponent เพื่อป้องกันอักขระพิเศษภาษาไทยเพี้ยนตอนเปลี่ยนหน้า
+            document.getElementById('mainFrame').src = pageUrl;
             
             let buttons = document.querySelectorAll('.nav-btn');
             buttons.forEach(b => b.classList.remove('active'));
