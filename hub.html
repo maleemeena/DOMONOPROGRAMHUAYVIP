@@ -13,7 +13,6 @@
             flex-direction: column; 
             height: 100vh; 
         }
-        /* แถบเมนูด้านบน เลื่อนซ้าย-ขวาได้สะดวก */
         .navbar { 
             background: #d63384; 
             color: white; 
@@ -51,7 +50,6 @@
             color: #d63384; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        /* หน้าต่างแสดงผลโปรแกรมย่อยภายใน */
         .iframe-container { 
             flex: 1; 
             width: 100%; 
@@ -62,7 +60,6 @@
 </head>
 <body>
 
-    <!-- แถบเมนูเลือกโปรแกรมทั้งหมดตามที่คุณมีในไฟล์ -->
     <div class="navbar">
         <button class="nav-btn active" onclick="loadProgram('SET5ONDUBBLE.html', this)">🔮 รากทรัพย์คู่เด่น</button>
         <button class="nav-btn" onclick="loadProgram('DOMINO569SCAN.html', this)">💎 569 SCAN</button>
@@ -82,7 +79,7 @@
         <button class="nav-btn" onclick="loadProgram('สุตรเน้นวิน6ตัว5สูตร.html', this)">🔢 วิน 6 ตัว 5 สูตร</button>
         <button class="nav-btn" onclick="loadProgram('สูตรหวยลาวBYmomongmo.html', this)">🇱🇦 หวยลาว Momongmo</button>
         <button class="nav-btn" onclick="loadProgram('สูตรหุ้นปกและVIPbymomongmo.html', this)">📈 หุ้นปกติ & VIP</button>
-        <button class="nav-btn" onclick="loadProgram('DNA4PRO.html', this)">🧬 DNA 4 PRO</button>
+        <button class="nav-btn" onclick="loadProgram('DNA4PRO.html', this)">🧬 DNA4PRO</button>
         <button class="nav-btn" onclick="loadProgram('DOMINIDNA2569.html', this)">🧬 DOMINI DNA 2569</button>
         <button class="nav-btn" onclick="loadProgram('DOMINO100PER.html', this)">💯 DOMINO 100%</button>
         <button class="nav-btn" onclick="loadProgram('DOMINOสูตรเลขชุด2.html', this)">📋 เลขชุด 2</button>
@@ -92,7 +89,7 @@
         <button class="nav-btn" onclick="loadProgram('DOMINOPROtee5678.html', this)">🌟 PRO tee5678</button>
         <button class="nav-btn" onclick="loadProgram('DOMINORICHLISTLOVE.html', this)">💖 RICHLIST LOVE</button>
         <button class="nav-btn" onclick="loadProgram('DOMINOrunrun.html', this)">🏃 DOMINO RUNRUN</button>
-        <button class="nav-btn" onclick="loadProgram('FUNWINPAKbyDOMINO.html', this)">🎉 FUNWIN PAK</button>
+        <button class="nav-btn" onclick="loadProgram>FUNWINPAKbyDOMINO.html', this)">🎉 FUNWIN PAK</button>
         <button class="nav-btn" onclick="loadProgram('HAND2569.html', this)">🖐️ HAND 2569</button>
         <button class="nav-btn" onclick="loadProgram('P4W8stiDOMINO.html', this)">⚡ P4W8 STI</button>
         <button class="nav-btn" onclick="loadProgram('SET5Onframe.html', this)">🖼️ SET5 Onframe</button>
@@ -104,15 +101,11 @@
         <button class="nav-btn" onclick="loadProgram('YEEKEE2569.html', this)">🎰 YEEKEE 2569</button>
     </div>
 
-    <!-- พื้นที่แสดงผลโปรแกรม (เริ่มต้นโหลด SET5ONDUBBLE.html) -->
     <iframe id="mainFrame" class="iframe-container" src="SET5ONDUBBLE.html"></iframe>
 
     <script>
         function loadProgram(pageUrl, btnElement) {
-            // เปลี่ยนหน้าเว็บใน iframe ตามปุ่มที่ผู้ใช้กดเลือก
             document.getElementById('mainFrame').src = pageUrl;
-
-            // สลับสถานะไฮไลต์ปุ่ม active
             let buttons = document.querySelectorAll('.nav-btn');
             buttons.forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
