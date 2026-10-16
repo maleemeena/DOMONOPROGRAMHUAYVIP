@@ -159,14 +159,22 @@
         }
 
         // ดึงวันหมดอายุมาแสดงผล
-        window.onload = function() {
-            let expireDate = localStorage.getItem("expireDate");
-            if(expireDate) {
-                document.getElementById('expireDisplay').innerHTML = "📅 หมดอายุ: " + expireDate;
-            } else {
-                document.getElementById('expireDisplay').innerHTML = "📅 สถานะ: VIP";
-            }
+       window.onload = function() {
+    let expireDate = localStorage.getItem("expireDate");
+    if(expireDate) {
+        // ถ้าเป็นรูปแบบวันที่ยาวๆ ให้แปลงเป็นรูปแบบสั้น (dd/MM/yyyy)
+        let d = new Date(expireDate);
+        if (!isNaN(d.getTime())) {
+            let day = String(d.getDate()).padStart(2, '0');
+            let month = String(d.getMonth() + 1).padStart(2, '0');
+            let year = d.getFullYear();
+            expireDate = `${day}/${month}/${year}`;
         }
+        document.getElementById('expireDisplay').innerHTML = "📅 หมดอายุ: " + expireDate;
+    } else {
+        document.getElementById('expireDisplay').innerHTML = "📅 สถานะ: VIP";
+    }
+}
     </script>
 </body>
 </html>
