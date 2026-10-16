@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Domino Chain Analysis 2026</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { 
+            --pink-soft: #ffdde1; --pink-bold: #f06292;
+            --blue-soft: #e0f7fa; --purple-soft: #f3e5f5;
+            --text-main: #5d4037; --danger: #ef9a9a;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Mali', cursive; background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); padding: 5px; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: auto; background: rgba(255, 255, 255, 0.95); padding: 8px; border-radius: 20px; border: 3px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header-section { text-align: center; margin-bottom: 8px; }
+        h1 { font-size: 16px; margin: 0; color: #ec407a; }
+        
+        .stats-summary { background: white; border: 2px solid var(--pink-soft); border-radius: 15px; padding: 8px; margin-bottom: 10px; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 5px; }
+        .stat-card { background: var(--blue-soft); padding: 4px; border-radius: 10px; border: 1px dashed #b2ebf2; font-size: 10px; font-weight: bold; }
+        .stat-card span { color: #00acc1; font-size: 12px; }
+
+        .bulk-box { background: #fff; border: 2px dashed var(--pink-bold); border-radius: 15px; padding: 10px; margin-bottom: 10px; }
+        .bulk-area { width: 100%; height: 100px; border: 1px solid #ddd; border-radius: 10px; padding: 8px; font-size: 11px; font-family: 'Mali'; outline: none; margin-bottom: 5px; }
+        .btn-bulk { background: #4db6ac; color: white; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; border:none; box-shadow: 0 3px #00796b; cursor: pointer; }
+
+        .input-box { background: var(--pink-soft); padding: 10px; border-radius: 15px; margin-bottom: 10px; border: 2px solid white; }
+        .input-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
+        input { flex: 1; min-width: 80px; padding: 8px; border: 2px solid white; border-radius: 12px; font-size: 13px; outline: none; font-family: 'Mali'; }
+        button { border: none; cursor: pointer; font-weight: bold; font-family: 'Mali'; transition: 0.2s; }
+        .btn-calc { background: #f06292; color: white; flex: 2; border-radius: 12px; box-shadow: 0 3px #ad1457; height: 40px; }
+        .btn-clear { background: #ce93d8; color: white; flex: 1; border-radius: 12px; font-size: 10px; box-shadow: 0 3px #8e24aa; }
+
+        .table-container { width: 100%; overflow-x: auto; border-radius: 12px; background: white; border: 2px solid var(--pink-soft); -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; table-layout: fixed; }
+        th, td { padding: 6px 3px; text-align: center; border: 1px solid #ffeff2; font-size: 11px; }
+        th { background: #fce4ec; color: #d81b60; font-weight: bold; }
+        .col-info { width: 95px; position: sticky; left: 0; z-index: 10; background: #fff1f3 !important; border-right: 2px solid var(--pink-soft) !important; }
+        .col-input { width: 75px; } .col-pt, .col-pb { width: 90px; } .col-wt, .col-wb { width: 145px; } .col-action { width: 130px; }
+
+        .grid-nums { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
+        .num-card { background: var(--purple-soft); padding: 2px 4px; border-radius: 5px; font-weight: bold; font-size: 11px; border: 1px solid #fff; min-width: 18px; }
+        .is-win { background-color: #2e7d32 !important; color: white !important; transform: scale(1.05); }
+        .check-input { width: 100%; padding: 4px; text-align: center; border: 2px solid var(--pink-bold); border-radius: 8px; font-size: 12px; }
+        .badge { font-size: 8px; padding: 1px 3px; border-radius: 4px; color: white; display: inline-block; margin-top: 2px; }
+        .b-top { background: #90caf9; } .b-bot { background: #f48fb1; }
+
+        .summary-reports { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+        @media(min-width: 768px) { .summary-reports { grid-template-columns: 1fr 1fr; } }
+        .report-box { background: white; border: 2px solid var(--pink-soft); border-radius: 15px; padding: 10px; overflow: hidden; }
+        .report-box h3 { font-size: 13px; color: #d81b60; margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center; }
+        .report-area { background: #fffcfd; border: 1px solid #ffe4e8; border-radius: 10px; padding: 8px; font-size: 10px; line-height: 1.5; white-space: pre-wrap; font-family: 'Mali'; max-height: 250px; overflow-y: auto; width: 100%; word-break: break-all; }
+        .btn-copy-mini { background: #f06292; color: white; font-size: 9px; padding: 3px 6px; border-radius: 5px; border:none; cursor:pointer; }
+    </style>
+</head>
+<body onload="loadData(); updateClock();">
+
+<div class="container">
+    <div class="header-section">
+        <div id="clock" style="color:#ad1457; font-size: 11px; font-weight: bold;"></div>
+        <h1>🌸 DOMINO CHAIN STATS 2026 🌸</h1>
+    </div>
+
+    <div class="stats-summary">
+        <strong style="color:#0288d1; font-size: 12px;">📊 วิเคราะห์สถิติ (<span id="total-count">0</span> รายการ)</strong>
+        <div class="stats-grid">
+            <div class="stat-card">พิกัดบน: <span id="st-pt">0%</span> | วินบน: <span id="st-wt">0%</span></div>
+            <div class="stat-card">พิกัดล่าง: <span id="st-pb">0%</span> | วินล่าง: <span id="st-wb">0%</span></div>
+        </div>
+    </div>
+
+    <!-- ส่วนวิเคราะห์สถิติชุด (Chain Analysis) -->
+    <div class="bulk-box">
+        <textarea id="bulkInput" class="bulk-area" placeholder="วางสถิติย้อนหลังที่นี่... ระบบจะจับคู่เลขนำและเลขตรวจให้อัตโนมัติ"></textarea>
+        <button class="btn-bulk" onclick="processBulk()">⚡ วิเคราะห์สถิติห่วงโซ่อัจฉริยะ</button>
+    </div>
+
+    <div class="input-box">
+        <div class="input-row">
+            <input type="text" id="lotteryName" placeholder="หวย/รอบ">
+            <input type="number" id="mainInput" placeholder="เลขนำ 5 หลัก" inputmode="numeric">
+        </div>
+        <div class="input-row">
+            <button class="btn-calc" onclick="processCalculation()">💖 เพิ่มรอบเดียว</button>
+            <button class="btn-clear" onclick="clearAll()">🧹 ล้างทั้งหมด</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-info">ข้อมูล</th><th class="col-input">เลขนำ</th><th class="col-pt">พิกัดบน</th>
+                    <th class="col-pb">พิกัดล่าง</th><th class="col-wt">วินบน(8)</th><th class="col-wb">วินล่าง(8)</th><th class="col-action">ผลตรวจ/จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="summary-reports">
+        <div class="report-box"><h3>🎀 สรุปพิกัดบน <button class="btn-copy-mini" onclick="copyFullReport('res-pt')">คัดลอก</button></h3><div id="res-pt" class="report-area"></div></div>
+        <div class="report-box"><h3>🎀 สรุปพิกัดล่าง <button class="btn-copy-mini" onclick="copyFullReport('res-pb')">คัดลอก</button></h3><div id="res-pb" class="report-area"></div></div>
+        <div class="report-box"><h3>🎀 สรุปวินบน <button class="btn-copy-mini" onclick="copyFullReport('res-wt')">คัดลอก</button></h3><div id="res-wt" class="report-area"></div></div>
+        <div class="report-box"><h3>🎀 สรุปวินล่าง <button class="btn-copy-mini" onclick="copyFullReport('res-wb')">คัดลอก</button></h3><div id="res-wb" class="report-area"></div></div>
+    </div>
+</div>
+
+<script>
+    const KEY = 'domino_chain_v2026';
+    let db = JSON.parse(localStorage.getItem(KEY)) || [];
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = "📅 " + now.toLocaleString('th-TH');
+        setTimeout(updateClock, 1000);
+    }
+    updateClock();
+
+    // --- ฟังก์ชันดึงสถิติอัจฉริยะ (ดึงชื่อหวยทุกรูปแบบ + ดึงครบทุกรอบ) ---
+    function processBulk() {
+        const raw = document.getElementById('bulkInput').value.trim();
+        if(!raw) return alert("กรุณาวางข้อมูลสถิติก่อนนะค๊าา 🌸");
+
+        const lines = raw.split('\n');
+        const tempData = [];
+
+        // 1. หาชื่อหวยหลักจากหัวข้อ (กรณีเป็นห่วงโซ่)
+        let headerName = "";
+        const headerRegex = /สถิติย้อนหลัง\s+([^\n\r\|]+)/i;
+        const headerMatch = raw.match(headerRegex);
+        if(headerMatch && headerMatch[1]) {
+            headerName = headerMatch[1].replace(/[🇻🇳🇱🇦🇲🇾🇩🇪➖➖|]/g, '').trim();
+        }
+
+        // 2. กวาดข้อมูลลง Array ชั่วคราวก่อน เพื่อเอาไว้เช็คชื่อ
+        lines.forEach((line) => {
+            const numMatch = line.match(/(\d{3})\s*-\s*(\d{2})/);
+            if (numMatch) {
+                let rowName = line.replace(numMatch[0], '')
+                                  .replace(/[\d{1,2}\s]+(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+\d{2}/, '')
+                                  .replace(/[🇱🇦🇻🇳🇲🇾🇩🇪|]/g, '')
+                                  .trim();
+                
+                tempData.push({
+                    name: rowName || headerName || "ทั่วไป",
+                    full: numMatch[1] + numMatch[2]
+                });
+            }
+        });
+
+        if(tempData.length < 1) return alert("ไม่พบรูปแบบตัวเลข 000-00 เลยค่ะ 🎀");
+
+        // 3. เช็คโหมด: ถ้าชื่อหวยเหมือนกันหมดทั้งรายการ ให้เปิดโหมด "ห่วงโซ่" (ดึงผลรอบถัดไป)
+        const isChain = tempData.every(d => d.name === tempData[0].name);
+
+        const newEntries = [];
+        for(let i=0; i < tempData.length; i++) {
+            const current = tempData[i];
+            const next = tempData[i+1];
+
+            const entry = createEntryObject(current.name, current.full);
+            entry.id = Date.now() + "_" + i + "_" + Math.random().toString(36).substr(2, 5);
+            
+            // --- จุดที่แก้ไข: ถ้าเป็นห่วงโซ่ ให้ดึงเลขรอบถัดไปมาตรวจ ---
+            if(isChain && next) {
+                entry.result = next.full; 
+            } else {
+                entry.result = ""; // ถ้าหลายหวยปนกัน ให้ว่างไว้ตามเดิม
+            }
+
+            newEntries.push(entry);
+        }
+
+        // เพิ่มเข้าฐานข้อมูล
+        db = [...newEntries.reverse(), ...db];
+        saveAndReload();
+        document.getElementById('bulkInput').value = '';
+        alert(`ดึงข้อมูลสำเร็จ ${newEntries.length} รายการ (โหมด: ${isChain ? 'ห่วงโซ่' : 'แยกหวย'}) ✨`);
+    }
+
+
+    // --- ฟังก์ชันสร้างสูตร (คงเดิม) ---
+    function createEntryObject(name, input) {
+        const numInput = BigInt(input);
+        const squared = (numInput * numInput).toString();
+        const rawStr = squared + input + "0123456789";
+        const freqMap = {};
+        rawStr.split('').forEach(c => { const n = parseInt(c); freqMap[n] = (freqMap[n] || 0) + 1; });
+        const sorted = Object.keys(freqMap).sort((a, b) => freqMap[b] !== freqMap[a] ? freqMap[b] - freqMap[a] : Number(b) - Number(a)).map(Number);
+
+        const pt = [sorted[0], sorted[1], sorted[8], sorted[9]].sort((a, b) => a - b);
+        const pb = [sorted[0], sorted[1], sorted[2], sorted[3]].sort((a, b) => a - b);
+        const wt = [...new Set([...pt, sorted[2], sorted[3], sorted[4], sorted[5]])].slice(0, 8).sort((a, b) => a - b);
+        const wb = [...new Set([...pb, sorted[5], sorted[6], sorted[7], sorted[8]])].slice(0, 8).sort((a, b) => a - b);
+
+        const now = new Date();
+        return {
+            id: Date.now() + "_" + Math.random().toString(36).substr(2, 5), 
+            name, input, pt, pb, wt, wb, result: '',
+            dateStr: now.toLocaleDateString('th-TH', { day:'numeric', month:'short' }),
+            timeStr: now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }),
+            wins: { pt:false, pb:false, wt:false, wb:false }
+        };
+    }
+
+    // --- ฟังก์ชันปุ่มแชร์ (ปี 2026) ---
+    function copySingle(id) {
+        const item = db.find(x => x.id == id);
+        if (!item) return alert("ไม่พบข้อมูลค่ะ");
+
+        const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+        const resTxt = item.result ? `[ ${item.result.slice(0,3)} - ${item.result.slice(3,5)} ]` : "⏳ รอผลรางวัล...";
+        const emj = (b) => b ? "✅" : "📌";
+
+        const txt = `🎯 ANALYTICS: ${item.name}
+📅 วันที่: ${today}
+⏰ เวลา: ${item.timeStr || ""}
+━━━━━━━━━━━━━━
+${emj(item.wins.pt)} เน้นบน: ${item.pt.join('')}
+${emj(item.wins.pb)} รูดล่าง: ${item.pb.join('')}
+🔢 วินบน: ${item.wt.join('')}
+🔢 วินล่าง: ${item.wb.join('')}
+━━━━━━━━━━━━━━
+📢 ผลตรวจ: ${resTxt}
+By Master 2026`;
+
+        navigator.clipboard.writeText(txt).then(() => alert("คัดลอกข้อมูลแชร์แล้ว ✨"));
+    }
+
+    function updateItemSilent(id, val) {
+        if(val.length > 5) val = val.slice(0,5);
+        const idx = db.findIndex(x => x.id == id);
+        if(idx === -1) return;
+        db[idx].result = val;
+        checkLogic(id, val);
+        updateStats();
+        renderSummary();
+        localStorage.setItem(KEY, JSON.stringify(db));
+    }
+
+    function checkLogic(id, val) {
+        const item = db.find(x => x.id == id);
+        const row = document.getElementById(`r-${id}`);
+        if(!row || !item) return;
+        row.querySelectorAll('.num-card').forEach(c => c.classList.remove('is-win'));
+        item.wins = { pt:false, pb:false, wt:false, wb:false };
+        if(val.length < 5) return;
+        const t2 = val.slice(1,3), b2 = val.slice(3,5);
+        t2.split('').forEach(d => { if(item.pt.includes(Number(d))) { if(row.querySelector(`#pt-${id} [data-v="${d}"]`)) row.querySelector(`#pt-${id} [data-v="${d}"]`).classList.add('is-win'); item.wins.pt = true; } });
+        b2.split('').forEach(d => { if(item.pb.includes(Number(d))) { if(row.querySelector(`#pb-${id} [data-v="${d}"]`)) row.querySelector(`#pb-${id} [data-v="${d}"]`).classList.add('is-win'); item.wins.pb = true; } });
+        const winCheck = (arr, res) => res.split('').every(d => arr.includes(Number(d)));
+        if(winCheck(item.wt, t2)) { row.querySelectorAll(`#wt-${id} .num-card`).forEach(e => e.classList.add('is-win')); item.wins.wt = true; }
+        if(winCheck(item.wb, b2)) { row.querySelectorAll(`#wb-${id} .num-card`).forEach(e => e.classList.add('is-win')); item.wins.wb = true; }
+    }
+
+    function renderSummary() {
+        const now = new Date();
+        const header = `📅 วันที่: ${now.toLocaleDateString('th-TH')} ⏰ ${now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}\n━━━━━━\n`;
+        let r = { pt: `📊 พิกัดบน\n${header}`, pb: `📊 พิกัดล่าง\n${header}`, wt: `📊 วินบน\n${header}`, wb: `📊 วินล่าง\n${header}` };
+        db.forEach(item => {
+            let f = item.result.length >= 5 ? `ผล ${item.result.slice(0,3)}-${item.result.slice(3,5)}` : "รอผล...";
+            const icon = (w) => (item.result.length < 5) ? "⏳" : (w ? "🎀" : "💣");
+            r.pt += `📍 ${item.name} [${item.pt.join('')}]=${f} ${icon(item.wins.pt)}\n`;
+            r.pb += `📍 ${item.name} [${item.pb.join('')}]=${f} ${icon(item.wins.pb)}\n`;
+            r.wt += `📍 ${item.name} [${item.wt.join('')}]=${f} ${icon(item.wins.wt)}\n`;
+            r.wb += `📍 ${item.name} [${item.wb.join('')}]=${f} ${icon(item.wins.wb)}\n`;
+        });
+        document.getElementById('res-pt').innerText = r.pt;
+        document.getElementById('res-pb').innerText = r.pb;
+        document.getElementById('res-wt').innerText = r.wt;
+        document.getElementById('res-wb').innerText = r.wb;
+    }
+
+    function updateStats() {
+        const total = db.length;
+        if(document.getElementById('total-count')) document.getElementById('total-count').innerText = total;
+        ['pt', 'wt', 'pb', 'wb'].forEach(k => {
+            const w = db.filter(x => x.wins[k]).length;
+            if(document.getElementById(`st-${k}`)) document.getElementById(`st-${k}`).innerText = total ? Math.round((w / total) * 100) + "%" : "0%";
+        });
+    }
+
+    function loadData() {
+        const tbody = document.getElementById('tableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        db.forEach(item => renderRow(item));
+        updateStats();
+        renderSummary();
+    }
+
+    function renderRow(item) {
+        const tbody = document.getElementById('tableBody');
+        const row = tbody.insertRow(-1); row.id = `r-${item.id}`;
+        row.innerHTML = `
+            <td class="col-info"><strong>${item.name}</strong><br><small style="font-size:8px">${item.dateStr}</small></td>
+            <td class="col-input" style="color:#f06292; font-weight:bold;">${item.input}</td>
+            <td class="col-pt"><div class="grid-nums" id="pt-${item.id}">${item.pt.map(n => `<div class="num-card" data-v="${n}">${n}</div>`).join('')}</div><span class="badge b-top">พิกัดบน</span></td>
+            <td class="col-pb"><div class="grid-nums" id="pb-${item.id}">${item.pb.map(n => `<div class="num-card" data-v="${n}">${n}</div>`).join('')}</div><span class="badge b-bot">พิกัดล่าง</span></td>
+            <td class="col-wt"><div class="grid-nums" id="wt-${item.id}">${item.wt.map(n => `<div class="num-card" data-v="${n}">${n}</div>`).join('')}</div><span class="badge b-top">วินบน</span></td>
+            <td class="col-wb"><div class="grid-nums" id="wb-${item.id}">${item.wb.map(n => `<div class="num-card" data-v="${n}">${n}</div>`).join('')}</div><span class="badge b-bot">วินล่าง</span></td>
+            <td class="col-action">
+                <input type="number" class="check-input" placeholder="ผล 5 หลัก" value="${item.result}" oninput="updateItemSilent('${item.id}', this.value)">
+                <div style="margin-top:3px; display:flex; gap:2px;"><button style="background:#81d4fa; flex:1; font-size:8px; padding:3px; border-radius:5px; border:none;" onclick="copySingle('${item.id}')">📋แชร์</button><button style="background:#ef9a9a; color:white; border-radius:5px; padding:3px 6px; border:none;" onclick="delItem('${item.id}')">🗑️</button></div>
+            </td>
+        `;
+        if(item.result) checkLogic(item.id, item.result);
+    }
+
+    function saveAndReload() { localStorage.setItem(KEY, JSON.stringify(db)); loadData(); }
+    function delItem(id) { if(confirm('ลบรายการนี้?')) { db = db.filter(x => x.id != id); saveAndReload(); } }
+    function clearAll() { if(confirm('ล้างทั้งหมด?')) { db = []; saveAndReload(); } }
+    function copyFullReport(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => alert("คัดลอกสรุปสถิติแล้ว 🎀")); }
+    
+    // โหลดข้อมูลเมื่อเปิดหน้าเว็บบรรทัดสุดท้าย
+    window.onload = loadData;
+</script>
+
+</body>
+</html>

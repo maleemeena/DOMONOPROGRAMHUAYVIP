@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI วิเคราะห์หวย Master Pro 2026</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --primary: #4f46e5; --secondary: #f43f5e; --success: #10b981; --bg: #f1f5f9; --dark: #1e293b; --gold: #fbbf24; --purple: #a855f7; --cyan: #06b6d4; }
+        body { font-family: 'Kanit', sans-serif; background-color: var(--bg); padding: 15px; margin: 0; color: var(--dark); }
+        .container { max-width: 650px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        h2 { text-align: center; color: var(--primary); margin: 0 0 15px 0; font-size: 22px; }
+        label { font-size: 14px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block; }
+        textarea { width: 100%; height: 120px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; box-sizing: border-box; font-family: inherit; font-size: 14px; margin-bottom: 10px; resize: none; }
+        .btn { border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; width: 100%; color: white; transition: 0.2s; margin-bottom: 10px; }
+        .btn-main { background: var(--primary); width: 100%; }
+        .btn-check { background: var(--success); width: 100%; }
+        .btn-copy { padding: 12px; font-size: 13px; border-radius: 8px; width: 100%; margin-top: 5px; }
+        .filter-section { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+        select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 16px; font-family: 'Kanit'; }
+        .stat-card { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--secondary); font-size: 14px; }
+        .summary-box { background: var(--dark); color: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 15px; }
+        .share-text { font-size: 13.5px; white-space: pre-wrap; line-height: 1.7; border-left: 3px solid var(--gold); padding-left: 15px; }
+        .result-area { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>📊 AI วิเคราะห์ & ตรวจผล 2026</h2>
+        <label>1. วางสถิติย้อนหลัง:</label>
+        <textarea id="dataAnalyze" placeholder="วางสถิติย้อนหลัง..."></textarea>
+        <button class="btn btn-main" onclick="analyzeData()">วิเคราะห์เจาะเลขเด่น-รอง</button>
+        
+        <label style="margin-top: 10px;">2. วางผลรางวัลล่าสุด:</label>
+        <textarea id="dataCheck" placeholder="วางผลรางวัลล่าสุด..."></textarea>
+        <button class="btn btn-check" onclick="checkWinResults()">ตรวจผลรางวัล ✅</button>
+    </div>
+
+    <div id="resultArea" class="result-area">
+        <div class="filter-section">
+            <label>📂 เลือกกลุ่มข้อมูล (เรียงตามลำดับที่วาง):</label>
+            <select id="groupFilter" onchange="renderView()"></select>
+        </div>
+        
+        <div id="realStatsDisplay" class="stat-card"></div>
+
+        <!-- ชุดเด่น -->
+        <div class="summary-box" style="border-top: 5px solid var(--secondary);">
+            <div id="shareD" class="share-text"></div>
+            <button class="btn btn-copy" style="background: var(--secondary);" onclick="copyText('shareD')">📋 คัดลอก [ชุดเต็มเด่น]</button>
+        </div>
+
+        <!-- ชุดรอง -->
+        <div class="summary-box" style="border-top: 5px solid var(--purple);">
+            <div id="shareR" class="share-text"></div>
+            <button class="btn btn-copy" style="background: var(--purple);" onclick="copyText('shareR')">📋 คัดลอก [ชุดเต็มรอง]</button>
+        </div>
+
+        <!-- ชุดตัด -->
+        <div class="summary-box" style="border-top: 5px solid var(--cyan);">
+            <div id="shareShort" class="share-text"></div>
+            <button class="btn btn-copy" style="background: var(--cyan);" onclick="copyText('shareShort')">📋 คัดลอก [ชุดตัด - เด่น/รอง]</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let db = [];
+    let saved = { D2:[], D3:[], D_B:[], D_H:[], R2:[], R3:[], R_B:[], R_H:[], S2:[], S3:[], D_Lbl:"", R_Lbl:"", D_Top2:"", R_Top2:"", curGroup:"", hitD:"", hitR:"" };
+    const sortDigits = (s) => s.toString().split('').sort().join('');
+
+    // ฟังก์ชันอ่านสถิติ - State-based & Order-based (ฟีเจอร์เดิมครบ)
+    function analyzeData() {
+        const text = document.getElementById('dataAnalyze').value;
+        if(!text.trim()) return alert("กรุณาวางข้อมูลก่อน");
+
+        db = [];
+        let currentGroupName = "วิเคราะห์รวม";
+        let groupsInOrder = [];
+
+        text.split('\n').forEach(line => {
+            const cleanLine = line.trim();
+            if(!cleanLine) return;
+
+            // ตรวจจับหัวข้อ "สถิติย้อนหลัง" (State-based)
+            const hMatch = cleanLine.match(/สถิติย้อนหลัง\s+([^\n🇱🇦🇻🇳🇨🇳🇭🇰➖🚩]+)/);
+            if (hMatch) {
+                currentGroupName = hMatch[1].replace(/[🇱🇦🇻🇳🇨🇳🇭🇰➖🚩]/g, '').trim();
+                return;
+            }
+
+            // ตรวจจับตัวเลข 000-00
+            const m = cleanLine.match(/(\d{3})-(\d{2})/);
+            if (m) {
+                const top = m[1], bottom = m[2];
+                let lineName = cleanLine.replace(m[0], '').replace(/[|🚩🇱🇦🇻🇳🇨🇳🇭🇰✅➖]/g, '').trim();
+                lineName = lineName.replace(/\d{1,2}\s+(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+\d{2,4}/g, '').trim();
+                
+                let finalName = (currentGroupName !== "วิเคราะห์รวม") ? currentGroupName : (lineName || "หวยทั่วไป");
+                db.push({ top, bottom, name: finalName });
+                
+                if (!groupsInOrder.includes(finalName)) groupsInOrder.push(finalName);
+            }
+        });
+
+        if(!db.length) return alert("ไม่พบตัวเลขในรูปแบบ 000-00");
+
+        const sel = document.getElementById('groupFilter');
+        sel.innerHTML = '<option value="all">-- วิเคราะห์รวมทั้งหมด --</option>';
+        groupsInOrder.forEach(g => sel.innerHTML += `<option value="${g}">${g}</option>`);
+
+        document.getElementById('resultArea').style.display = 'block';
+        saved.hitD = ""; saved.hitR = ""; 
+        renderView();
+    }
+
+    // ฟังก์ชันคำนวณและแสดงผล (เลขซ้ำ S2, S3 ครบ)
+    function renderView() {
+        const filter = document.getElementById('groupFilter').value;
+        const data = filter === 'all' ? db : db.filter(d => d.name === filter);
+        saved.curGroup = filter === 'all' ? "ผลวิเคราะห์รวมทุกหวย" : filter;
+
+        // คำนวณสถิติซ้ำ (S2, S3)
+        let t3F = {}, b2F = {};
+        data.forEach(item => {
+            let s3 = sortDigits(item.top), s2 = sortDigits(item.bottom);
+            t3F[s3] = (t3F[s3] || 0) + 1;
+            b2F[s2] = (b2F[s2] || 0) + 1;
+        });
+        saved.S2 = Object.entries(b2F).filter(x => x[1] > 1).sort((a,b)=>b[1]-a[1]).map(x => x[0]);
+        saved.S3 = Object.entries(t3F).filter(x => x[1] > 1).sort((a,b)=>b[1]-a[1]).map(x => x[0]);
+
+        // คำนวณความถี่เลขเดี่ยว
+        let counts = Array(10).fill(0).map((_, i) => ({ n: i, c: 0 }));
+        data.forEach(d => (d.top + d.bottom).split('').forEach(digit => { if(!isNaN(digit)) counts[parseInt(digit)].c++; }));
+        const T = counts.sort((a,b) => b.c - a.c).map(x => x.n);
+
+        // ชุดวิน & เลขเด่น (ลำดับ 1-2 และ 5-6)
+        const D6 = T.slice(0, 6); saved.D_Top2 = `${D6[0]} - ${D6[1]}`;
+        const R6 = T.slice(4, 10); saved.R_Top2 = `${R6[0]} - ${R6[1]}`;
+
+        const win2 = (arr) => { let r=[]; for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) r.push(arr[i]+""+arr[j]); return r; };
+        const win3 = (arr) => { let r=[]; for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) for(let k=j+1;k<arr.length;k++) r.push(arr[i]+""+arr[j]+""+arr[k]); return r; };
+        const hams = (arr) => { let r=[]; for(let i=0;i<arr.length;i++) for(let j=0;j<arr.length;j++) if(i!==j) r.push(arr[i]+""+arr[j]+""+arr[i]); return r; };
+
+        saved.D2 = win2(D6); saved.D3 = win3(D6); saved.D_B = D6.map(x => x+""+x); saved.D_H = hams(D6);
+        saved.R2 = win2(R6); saved.R3 = win3(R6); saved.R_B = R6.map(x => x+""+x); saved.R_H = hams(R6);
+        saved.D_Lbl = D6.join(''); saved.R_Lbl = R6.join('');
+
+        document.getElementById('realStatsDisplay').innerHTML = `<b>📈 สถิติซ้ำ:</b> 2ตัว(${saved.S2.join(' ') || '-'}) 3ตัว(${saved.S3.join(' ') || '-'})`;
+        updateShareText();
+    }
+
+    // ฟังก์ชันจัดการข้อความแชร์ (รวม ✅ และสถิติซ้ำ)
+    function updateShareText() {
+        const now = new Date().toLocaleString('th-TH');
+        const sSub = `📈 สถิติซ้ำ: ${[...saved.S2, ...saved.S3].join(' ') || '-'}`;
+        const footer = `\n━━━━━━━━━━━━━━━━━\nAI Master Pro 2026 🚀`;
+        
+        const mD = saved.hitD ? "✅ " : ""; 
+        const mR = saved.hitR ? "✅ " : "";
+
+        // ชุดเต็มเด่น
+        let dT = `📊 ผลวิเคราะห์: ${saved.curGroup}\n📅 ข้อมูล ณ: ${now}\n━━━━━━━━━━━━━━━━━\n`;
+        dT += `🔴${mD}[ชุดเด่นวิน 6 ตัว]: ${saved.D_Lbl}\n⭐️ ${mD}เด่น: ${saved.D_Top2}\n👉${mD}2ตัว: ${saved.D2.join(' ')}\n👉${mD}3ตัว: ${saved.D3.join(' ')}\n👉 ${mD}เบิ้ล: ${saved.D_B.join(' ')}\n👉 ${mD}หาม: ${saved.D_H.join(' ')}\n`;
+        if(saved.hitD) dT += `🏆 ผลตรวจ: ${saved.hitD}\n`;
+        dT += `━━━━━━━━━━━━━━━━━\n${sSub}${footer}`;
+        document.getElementById('shareD').innerText = dT;
+
+        // ชุดเต็มรอง
+        let rT = `📊 ผลวิเคราะห์: ${saved.curGroup}\n📅 ข้อมูล ณ: ${now}\n━━━━━━━━━━━━━━━━━\n`;
+        rT += `💡${mR}[ชุดรองวิน 5-10]: ${saved.R_Lbl}\n⭐️ ${mR}เด่น: ${saved.R_Top2}\n👉${mR}2ตัว: ${saved.R2.join(' ')}\n👉${mR}3ตัว: ${saved.R3.join(' ')}\n👉 ${mR}เบิ้ล: ${saved.R_B.join(' ')}\n👉 ${mR}หาม: ${saved.R_H.join(' ')}\n`;
+        if(saved.hitR) rT += `🏆 ผลตรวจ: ${saved.hitR}\n`;
+        rT += `━━━━━━━━━━━━━━━━━\n${sSub}${footer}`;
+        document.getElementById('shareR').innerText = rT;
+
+        // ชุดตัด (เด่น+รอง + สถิติซ้ำ)
+        let sT = `📊 [ชุดตัด]: ${saved.curGroup}\n📅 ${now}\n━━━━━━━━━━━━━━━━━\n`;
+        sT += `🔴${mD}วินเด่น: ${saved.D_Lbl}\n⭐️ ${mD}เด่น: ${saved.D_Top2}\n👉${mD}2ตัว: ${saved.D2.join(' ')}\n👉${mD}3ตัว: ${saved.D3.join(' ')}\n`;
+        if(saved.hitD) sT += `✅ ผล: ${saved.hitD}\n`;
+        sT += `━━━━━━━━━━━━━━━━━\n`;
+        sT += `💡${mR}วินรอง: ${saved.R_Lbl}\n⭐️ ${mR}เด่น: ${saved.R_Top2}\n👉${mR}2ตัว: ${saved.R2.join(' ')}\n👉${mR}3ตัว: ${saved.R3.join(' ')}\n`;
+        if(saved.hitR) sT += `✅ ผล: ${saved.hitR}\n`;
+        sT += `━━━━━━━━━━━━━━━━━\n${sSub}\nAI Master 2026 🚀`;
+        document.getElementById('shareShort').innerText = sT;
+    }
+
+    // ฟังก์ชันตรวจรางวัล
+    function checkWinResults() {
+        const text = document.getElementById('dataCheck').value;
+        if(!text.trim()) return alert("กรุณาวางผลรางวัล");
+        
+        let checkData = []; let current = "ผลตรวจ";
+        text.split('\n').forEach(line => {
+            const h = line.match(/สถิติย้อนหลัง\s+([^\n]+)/); if(h) { current = h[1].trim(); return; }
+            const m = line.match(/(\d{3})-(\d{2})/);
+            if(m) checkData.push({ top: m[1], bottom: m[2], name: current });
+        });
+
+        saved.hitD = ""; saved.hitR = "";
+        checkData.forEach(item => {
+            const d3 = item.top, d2 = item.bottom, d2T = d3.substring(1);
+            const chk = (s2, s3, sb, sh) => {
+                let h = [];
+                [...s2, ...sb].forEach(n => { if(sortDigits(n)==sortDigits(d2)) h.push(`ล่าง(${n})`); if(sortDigits(n)==sortDigits(d2T)) h.push(`บน(${n})`); });
+                [...s3, ...sh, ...saved.S3].forEach(n => { if(sortDigits(n)==sortDigits(d3)) h.push(`3ตัว(${n})`); });
+                return h;
+            };
+            let hD = chk(saved.D2, saved.D3, saved.D_B, saved.D_H);
+            let hR = chk(saved.R2, saved.R3, saved.R_B, saved.R_H);
+            if(hD.length) saved.hitD += `${item.name}(${d3}-${d2})✅${hD.join(',')} | `;
+            if(hR.length) saved.hitR += `${item.name}(${d3}-${d2})✅${hR.join(',')} | `;
+        });
+        updateShareText();
+        alert("ตรวจผลรางวัลสำเร็จ! ระบบอัปเดตเครื่องหมาย ✅ ในรายงานแล้ว");
+    }
+
+    async function copyText(id) {
+        await navigator.clipboard.writeText(document.getElementById(id).innerText);
+        alert("คัดลอกสำเร็จ!");
+    }
+</script>
+</body>
+</html>

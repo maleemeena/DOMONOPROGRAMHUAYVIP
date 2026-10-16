@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Master Premium v2026</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { 
+            --gold: #d4af37; 
+            --navy: #0f172a; 
+            --accent: #f43f5e; 
+            --success: #10b981; 
+            --gold-light: #fde68a; 
+            --border-light: rgba(212, 175, 55, 0.3);
+        }
+        
+        body { font-family: 'Chakra Petch', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; padding: 10px; margin: 0; }
+        
+        .container { max-width: 1400px; margin: auto; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 15px; border-radius: 20px; border: 1px solid var(--border-light); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        
+        /* ตาราง - ปรับปรุงใหม่ให้ยืดหยุ่นและไม่ตกขอบ */
+        .table-container { 
+            width: 100%; 
+            overflow-x: auto; 
+            border-radius: 15px; 
+            border: 1px solid var(--border-light);
+            background: rgba(15, 23, 42, 0.5);
+            position: relative;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 1300px; /* ลดลงจาก 1450px เพื่อให้ไม่ดูโหวงเกินไป */
+            table-layout: auto; 
+        }
+
+        th, td { 
+            padding: 8px 4px; /* ลด Padding ด้านข้างลงเล็กน้อย */
+            text-align: center; 
+            border: 1px solid rgba(212, 175, 55, 0.2); /* เส้นคั่นชัดเจน */
+            white-space: nowrap; /* บังคับตัวเลขบรรทัดเดียวกัน */
+            font-size: 13px;
+        }
+
+        th { 
+            background: rgba(15, 23, 42, 0.95); 
+            color: var(--gold); 
+            font-weight: 600;
+            border-bottom: 2px solid var(--gold);
+            position: sticky; /* ล็อกหัวตารางเวลาเลื่อน */
+            top: 0;
+            z-index: 10;
+        }
+
+        th:nth-child(3), td:nth-child(3),
+        th:nth-child(4), td:nth-child(4) { 
+            width: 35px !important; 
+            min-width: 35px !important;
+        }
+
+        /* ปรับฟอนต์สำหรับเลขวิน/พิกัดโดยเฉพาะ */
+        td:nth-child(n+5):nth-child(-n+18) { 
+           font-family: 'Courier New', monospace;
+           font-size: 12px; /* ลดขนาดฟอนต์ลง 1px */
+           letter-spacing: -0.5px; /* บีบระยะห่างตัวเลขให้แคบลง */
+           padding: 6px 2px !important;
+           }
+		   
+        /* คอลัมน์ผล[บน-ล่าง] - ล็อกความกว้างให้นิ่งที่สุด */
+           .col-res-box {
+           width: 75px !important;    /* ลดจาก 90px เหลือ 75px */
+           min-width: 75px !important;
+           max-width: 80px !important;
+           padding: 4px 2px !important; /* ลด padding เพื่อประหยัดพื้นที่ */
+}
+         .input-config { 
+          width: 100% !important; 
+          box-sizing: border-box;
+          text-align: center; 
+          border: 1px solid var(--gold) !important; 
+          background: #0f172a; 
+          color: var(--gold); 
+          border-radius: 4px; 
+          font-weight: bold; 
+          padding: 3px 1px; /* บีบพื้นที่แนวตั้งและแนวนอน */
+          font-size: 11px;  /* ลดขนาดฟอนต์ลงเล็กน้อยเพื่อให้พอดีช่องแคบ */
+          outline: none;
+}
+
+        /* ตกแต่งป้ายตัวเลข */
+        .num-card { 
+            padding: 2px 4px; 
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        /* ปรับขนาดช่อง "รอบ/หวย" ให้พอดีไม่ยาวเกินไป */
+        td:first-child {
+            text-align: left;
+            padding-left: 10px;
+            color: var(--gold-light);
+            min-width: 120px;
+        }
+
+td:last-child {
+    position: sticky;
+    right: 0;
+    background: #1e293b; /* สีพื้นหลังเดียวกับแถว */
+    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+    z-index: 5;
+}
+/* หากเปอร์เซ็นต์สูงกว่า 70% ให้เปลี่ยนเป็นสีทองสว่าง */
+.stat-high { color: var(--gold-light) !important; text-shadow: 0 0 5px var(--gold); }
+
+        /* ไฮไลท์เมื่อถูกรางวัล (is-win) */
+        .is-win { 
+            background: var(--success) !important;
+            color: #ffffff !important; 
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border-radius: 0px; /* ให้สีเต็มช่องตาราง */
+        }
+
+        /* Scrollbar สีทอง */
+        .table-container::-webkit-scrollbar { height: 10px; }
+        .table-container::-webkit-scrollbar-track { background: var(--navy); border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; border: 2px solid var(--navy); }
+
+        /* ปุ่มลบ */
+        .btn-del { 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            padding: 8px 12px !important;
+            border-radius: 4px; 
+            cursor: pointer;
+            font-size: 14px !important;
+        }
+		
+		        /* บังคับตัวเลขเป็นสีขาวในช่องที่ถูกรางวัล เพื่อให้อ่านง่ายบนพื้นสีเขียว */
+        .is-win, .is-win span {
+            color: #ffffff !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+		
+		.report-content {
+    font-family: 'Courier New', 'Chakra Petch', monospace; /* ใช้ฟอนต์ตัวกว้างเท่ากัน */
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap; /* บังคับให้อยู่บรรทัดเดียวกัน */
+    overflow-x: auto;    /* ถ้าบรรทัดยาวเกินให้เลื่อนขวาได้ */
+    padding: 10px;
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 8px;
+    line-height: 1.8;    /* เพิ่มระยะห่างระหว่างบรรทัด */
+}
+
+    </style>
+
+
+
+</head>
+<body onload="updateClock();"> 
+
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h1 style="color: var(--gold); margin: 0;">💎 DOMINO PREMIER ANALYTICS v2026</h1>
+        <div id="clock" style="font-size: 12px; color: #94a3b8; margin-top: 5px;"></div>
+    </div>
+
+    <div class="bulk-box">
+        <textarea id="bulkInput" class="bulk-area" placeholder="วางสถิติย้อนหลังที่นี่..."></textarea>
+        <button class="btn-bulk" onclick="processBulk()">⚡ วิเคราะห์เลข & ดึงผลอัตโนมัติ</button>
+    </div>
+<div class="bulk-box" style="border-color: var(--success); background: rgba(16, 185, 129, 0.05);">
+    <textarea id="resultBulkUpdate" class="bulk-area" style="border-color: var(--success);" placeholder="วางผลรางวัลเพื่ออัปเดต... (เช่น ฮานอย 123-45)"></textarea>
+    <button class="btn-bulk" style="background: #10b981;" onclick="execBulkUpdate()">✅ อัปเดตผลรางวัลตามรายชื่อ</button>
+</div>
+
+<!-- เปลี่ยนจาก ปรับสูตร(ทศนิยม) เป็นข้อความแจ้งสูตรปัจจุบัน -->
+<div class="settings-box">
+    <label>⚙️:</label>
+    <span style="color:var(--gold); font-size:13px;">[สูตรคงที่]</span>
+    <button class="btn-summary" onclick="copyAllSummary()">📋 คัดลอกสรุปรวมทั้งหมด</button>
+    <button onclick="clearAllData()" style="background: #ef4444; color: white; padding: 5px 15px; border-radius: 8px; font-size: 13px; border: none;">🗑️ ล้างทั้งหมด</button>
+</div>
+
+
+    <div class="input-box">
+        <div class="input-row">
+            <input type="text" id="lotteryName" placeholder="ชื่อหวย/รอบ">
+            <input type="number" id="mainInput" placeholder="เลขเดิม 5 หลัก" inputmode="numeric">
+            <button class="btn-calc" onclick="addNewData()">คำนวณ</button>
+        </div>
+    </div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <!-- แถวที่ 1: หัวข้อปกติ -->
+            <tr>
+                <th>รอบ/หวย</th>
+                <th>เลขเดิม</th>
+                <th>เน้น</th>
+                <th>รูด</th>
+                <th>พ3บ</th><th>พ3ล</th>
+                <th>พ4บ</th><th>พ4ล</th>
+                <th>ว5บ</th><th>ว5ล</th>
+                <th>ว6บ</th><th>ว6ล</th>
+                <th>ว7บ</th><th>ว7ล</th>
+                <th>ว8บ</th><th>ว8ล</th>
+                <th>ว9บ</th><th>ว9ล</th>
+                <th class="col-res-box">ผล</th>
+				<th>ก๊อปปี้</th> <!-- เพิ่มช่องนี้ให้จำนวนตรงกับ td ใน JS -->
+                <th>ลบ</th>
+            </tr>
+            <!-- แถวที่ 2: แสดงเปอร์เซ็นต์สถิติ (วางให้ตรงคอลัมน์) -->
+            <tr style="background: rgba(16, 185, 129, 0.1); color: var(--success); font-size: 11px;">
+                <td colspan="2" style="text-align:right; font-weight:bold; color:var(--gold);">สถิติชุดนี้ ⮕</td>
+                <td id="stat-foc">-</td>
+                <td id="stat-rud">-</td>
+                <td id="stat-p3b">-</td><td id="stat-p3l">-</td>
+                <td id="stat-p4b">-</td><td id="stat-p4l">-</td>
+                <td id="stat-w5b">-</td><td id="stat-w5l">-</td>
+                <td id="stat-w6b">-</td><td id="stat-w6l">-</td>
+                <td id="stat-w7b">-</td><td id="stat-w7l">-</td>
+                <td id="stat-w8b">-</td><td id="stat-w8l">-</td>
+                <td id="stat-w9b">-</td><td id="stat-w9l">-</td>
+                <td colspan="2" id="stat-total" style="color:white; font-size:10px;">ตรวจแล้ว 0/0</td>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<!-- ส่วนสรุปผลแยกประเภทรายคอลัมน์ -->
+<!-- พื้นที่รายงานสรุปแยกตามหัวข้อคอลัมน์ -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
+    <div class="report-area"><h3>🎯 เน้น <button class="btn-summary" onclick="copyFormatted('res-foc', '🎯 เน้น')">คัดลอก</button></h3><div id="res-foc" class="report-content"></div></div>
+    <div class="report-area"><h3>🎡 รูด <button class="btn-summary" onclick="copyFormatted('res-rud', '🎡 รูด')">คัดลอก</button></h3><div id="res-rud" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>📍 พิกัด 3 บน <button class="btn-summary" onclick="copyFormatted('res-p3b', '📍 พิกัด 3 บน')">คัดลอก</button></h3><div id="res-p3b" class="report-content"></div></div>
+    <div class="report-area"><h3>📍 พิกัด 3 ล่าง <button class="btn-summary" onclick="copyFormatted('res-p3l', '📍 พิกัด 3 ล่าง')">คัดลอก</button></h3><div id="res-p3l" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>📍 พิกัด 4 บน <button class="btn-summary" onclick="copyFormatted('res-p4b', '📍 พิกัด 4 บน')">คัดลอก</button></h3><div id="res-p4b" class="report-content"></div></div>
+    <div class="report-area"><h3>📍 พิกัด 4 ล่าง <button class="btn-summary" onclick="copyFormatted('res-p4l', '📍 พิกัด 4 ล่าง')">คัดลอก</button></h3><div id="res-p4l" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>🔢 วิน 5 บน <button class="btn-summary" onclick="copyFormatted('res-w5b', '🔢 วิน 5 บน')">คัดลอก</button></h3><div id="res-w5b" class="report-content"></div></div>
+    <div class="report-area"><h3>🔢 วิน 5 ล่าง <button class="btn-summary" onclick="copyFormatted('res-w5l', '🔢 วิน 5 ล่าง')">คัดลอก</button></h3><div id="res-w5l" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>🔢 วิน 6 บน <button class="btn-summary" onclick="copyFormatted('res-w6b', '🔢 วิน 6 บน')">คัดลอก</button></h3><div id="res-w6b" class="report-content"></div></div>
+    <div class="report-area"><h3>🔢 วิน 6 ล่าง <button class="btn-summary" onclick="copyFormatted('res-w6l', '🔢 วิน 6 ล่าง')">คัดลอก</button></h3><div id="res-w6l" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>🔢 วิน 7 บน <button class="btn-summary" onclick="copyFormatted('res-w7b', '🔢 วิน 7 บน')">คัดลอก</button></h3><div id="res-w7b" class="report-content"></div></div>
+    <div class="report-area"><h3>🔢 วิน 7 ล่าง <button class="btn-summary" onclick="copyFormatted('res-w7l', '🔢 วิน 7 ล่าง')">คัดลอก</button></h3><div id="res-w7l" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>🔢 วิน 8 บน <button class="btn-summary" onclick="copyFormatted('res-w8b', '🔢 วิน 8 บน')">คัดลอก</button></h3><div id="res-w8b" class="report-content"></div></div>
+    <div class="report-area"><h3>🔢 วิน 8 ล่าง <button class="btn-summary" onclick="copyFormatted('res-w8l', '🔢 วิน 8 ล่าง')">คัดลอก</button></h3><div id="res-w8l" class="report-content"></div></div>
+    
+    <div class="report-area"><h3>🔢 วิน 9 บน <button class="btn-summary" onclick="copyFormatted('res-w9b', '🔢 วิน 9 บน')">คัดลอก</button></h3><div id="res-w9b" class="report-content"></div></div>
+    <div class="report-area"><h3>🔢 วิน 9 ล่าง <button class="btn-summary" onclick="copyFormatted('res-w9l', '🔢 วิน 9 ล่าง')">คัดลอก</button></h3><div id="res-w9l" class="report-content"></div></div>
+</div>
+
+<script>
+    const KEY = 'master_premium_v2026';
+    // แก้ไขจุดเริ่มต้น: ตรวจสอบว่าข้อมูลแต่ละชิ้นมี result หรือไม่
+    let dataList = JSON.parse(localStorage.getItem(KEY)) || [];
+    dataList = dataList.map(item => ({ ...item, result: item.result || "" }));
+
+    function updateClock() {
+        const now = new Date();
+        const clockEl = document.getElementById('clock');
+        if(clockEl) clockEl.innerText = "📅 " + now.toLocaleDateString('th-TH') + " | 🕒 " + now.toLocaleTimeString('th-TH');
+        setTimeout(updateClock, 1000);
+    }
+
+    function calculateFormula(inputStr) {
+        if (!inputStr) return null;
+        let unitUpper;
+        if (inputStr.includes('-')) {
+            let parts = inputStr.split('-');
+            let topNum = parts[0];
+            unitUpper = parseInt(topNum.charAt(topNum.length - 1));
+        } else {
+            unitUpper = parseInt(inputStr.charAt(2));
+        }
+        if (isNaN(unitUpper)) return null;
+
+        const constants = [7, 2, 1, 9, 5, 6, 3, 0, 8];
+        const res = constants.map(c => (unitUpper + c) % 10);
+
+        return {
+            focus: res[0],
+            ruud: res[0] + "-" + res[1],
+            p3: res.slice(0, 3).join(""),
+            p4: res.slice(0, 4).join(""),
+            w5: res.slice(0, 5).join(""),
+            w6: res.slice(0, 6).join(""),
+            w7: res.slice(0, 7).join(""),
+            w8: res.slice(0, 8).join(""),
+            w9: res.slice(0, 9).join("")
+        };
+    }
+
+    function addNewData() {
+        const name = document.getElementById('lotteryName').value || "ไม่ระบุรอบ";
+        const input = document.getElementById('mainInput').value;
+        const data = calculateFormula(input);
+        if (!data) return alert("กรุณากรอกเลขให้ถูกต้อง");
+
+        const newItem = { name, input, ...data, result: "" };
+        dataList.unshift(newItem);
+        saveAndReload();
+        document.getElementById('mainInput').value = "";
+    }
+
+function renderTable() {
+    const tableBody = document.getElementById('tableBody');
+    if(!tableBody) return;
+    tableBody.innerHTML = '';
+    
+    dataList.forEach((item, index) => {
+        const res = item.result || "";
+
+        // เช็คสถานะการเข้าของ "เน้น" และ "รูด" (เช็คทั้งบนและล่าง)
+        const hitFocus = isHit(item.focus, res, 'p_top') || isHit(item.focus, res, 'p_bot') ? 'is-win' : '';
+        const hitRuud = isHit(item.ruud.replace('-',''), res, 'p_top') || isHit(item.ruud.replace('-',''), res, 'p_bot') ? 'is-win' : '';
+
+        tableBody.innerHTML += `<tr>
+            <td style="text-align:left; color:var(--gold-light);">${item.name}</td>
+            <td style="font-size:11px; color:#64748b;">${item.input}</td>
+            
+            <!-- เด่น/รูด (เพิ่มคลาสไฮไลท์) -->
+            <td class="${hitFocus}"><span style="color:var(--accent); font-weight:bold;">${item.focus}</span></td>
+            <td class="${hitRuud}">${item.ruud}</td>
+            
+            <!-- พิกัด 3 (บน-ล่าง) -->
+            <td class="${isHit(item.p3, res, 'p_top') ? 'is-win' : ''}">${item.p3}</td>
+            <td class="${isHit(item.p3, res, 'p_bot') ? 'is-win' : ''}">${item.p3}</td>
+            
+            <!-- พิกัด 4 (บน-ล่าง) -->
+            <td class="${isHit(item.p4, res, 'p_top') ? 'is-win' : ''}">${item.p4}</td>
+            <td class="${isHit(item.p4, res, 'p_bot') ? 'is-win' : ''}">${item.p4}</td>
+            
+            <!-- วิน 5 (บน-ล่าง) -->
+            <td class="${isHit(item.w5, res, 'w_top') ? 'is-win' : ''}">${item.w5}</td>
+            <td class="${isHit(item.w5, res, 'w_bot') ? 'is-win' : ''}">${item.w5}</td>
+            
+            <!-- วิน 6 (บน-ล่าง) -->
+            <td class="${isHit(item.w6, res, 'w_top') ? 'is-win' : ''}">${item.w6}</td>
+            <td class="${isHit(item.w6, res, 'w_bot') ? 'is-win' : ''}">${item.w6}</td>
+            
+            <!-- วิน 7 (บน-ล่าง) -->
+            <td class="${isHit(item.w7, res, 'w_top') ? 'is-win' : ''}">${item.w7}</td>
+            <td class="${isHit(item.w7, res, 'w_bot') ? 'is-win' : ''}">${item.w7}</td>
+            
+            <!-- วิน 8 (บน-ล่าง) -->
+            <td class="${isHit(item.w8, res, 'w_top') ? 'is-win' : ''}">${item.w8}</td>
+            <td class="${isHit(item.w8, res, 'w_bot') ? 'is-win' : ''}">${item.w8}</td>
+            
+            <!-- วิน 9 (บน-ล่าง) -->
+            <td class="${isHit(item.w9, res, 'w_top') ? 'is-win' : ''}">${item.w9}</td>
+            <td class="${isHit(item.w9, res, 'w_bot') ? 'is-win' : ''}">${item.w9}</td>
+
+            <!-- คอลัมน์ผลรางวัล -->
+            <td class="col-res-box">
+                <input type="text" class="input-config" value="${res}" placeholder="000-00" onchange="updateRowResult(${index}, this.value)">
+            </td>
+
+            <!-- คอลัมน์ปุ่มคัดลอก (เพิ่ม <td> ปิดให้ครบ) -->
+            <td>
+                <button onclick="copyRow(${index})" style="background:var(--success); color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">📋 คัดลอก</button>
+            </td>
+
+            <!-- ปุ่มลบ -->
+            <td>
+                <button class="btn-del" onclick="deleteRow(${index})">❌</button>
+            </td>
+        </tr>`; // <--- ใช้ Backtick ปิดท้ายที่นี่ที่เดียวพอครับ
+    });
+
+    updateReports();
+    updateStats();
+}
+
+
+function updateReports() {
+    try {
+        let lists = { foc:"", rud:"", p3b:"", p3l:"", p4b:"", p4l:"", w5b:"", w5l:"", w6b:"", w6l:"", w7b:"", w7l:"", w8b:"", w8l:"", w9b:"", w9l:"" };
+
+        dataList.forEach(item => {
+            const res = item.result || "รอผล"; 
+            const statusIcon = (form, type) => {
+                if (!res.includes('-')) return "⏳";
+                // ตรวจสอบฟังก์ชัน isHit ว่าทำงานได้ปกติ
+                return isHit(form, res, type) ? "✅" : "❌";
+            };
+            
+            // ... (โค้ด formatLine และการเพิ่มข้อมูลลง lists ของคุณ) ...
+            const formatLine = (name, formula, result, status) => {
+                 return `📌 ${name.padEnd(12)} | ${formula} | [${result.padEnd(6)}] | ${status}\n`;
+            };
+            const sF = (!res.includes('-')) ? "⏳" : (isHit(item.focus, res, 'p_top') || isHit(item.focus, res, 'p_bot') ? "✅" : "❌");
+            const sR = (!res.includes('-')) ? "⏳" : (isHit(item.ruud.replace('-',''), res, 'p_top') || isHit(item.ruud.replace('-',''), res, 'p_bot') ? "✅" : "❌");
+
+            lists.foc += formatLine(item.name, item.focus, res, sF);
+            lists.rud += formatLine(item.name, item.ruud, res, sR);
+            lists.p3b += formatLine(item.name, item.p3, res, statusIcon(item.p3, 'p_top'));
+            lists.p3l += formatLine(item.name, item.p3, res, statusIcon(item.p3, 'p_bot'));
+            lists.p4b += formatLine(item.name, item.p4, res, statusIcon(item.p4, 'p_top'));
+            lists.p4l += formatLine(item.name, item.p4, res, statusIcon(item.p4, 'p_bot'));
+            lists.w5b += formatLine(item.name, item.w5, res, statusIcon(item.w5, 'w_top'));
+            lists.w5l += formatLine(item.name, item.w5, res, statusIcon(item.w5, 'w_bot'));
+            lists.w6b += formatLine(item.name, item.w6, res, statusIcon(item.w6, 'w_top'));
+            lists.w6l += formatLine(item.name, item.w6, res, statusIcon(item.w6, 'w_bot'));
+            lists.w7b += formatLine(item.name, item.w7, res, statusIcon(item.w7, 'w_top'));
+            lists.w7l += formatLine(item.name, item.w7, res, statusIcon(item.w7, 'w_bot'));
+            lists.w8b += formatLine(item.name, item.w8, res, statusIcon(item.w8, 'w_top'));
+            lists.w8l += formatLine(item.name, item.w8, res, statusIcon(item.w8, 'w_bot'));
+            lists.w9b += formatLine(item.name, item.w9, res, statusIcon(item.w9, 'w_top'));
+            lists.w9l += formatLine(item.name, item.w9, res, statusIcon(item.w9, 'w_bot'));
+        });
+
+        // ลูปเพื่ออัปเดต DOM
+        for (let key in lists) {
+            let el = document.getElementById('res-' + key);
+            if (el) el.innerText = lists[key] || "รอกดคำนวณ...";
+        }
+    } catch (error) {
+        console.error("Error in updateReports:", error);
+        // สามารถเพิ่ม alert บอกผู้ใช้ว่ามีปัญหาได้
+        // alert("มีปัญหาในการแสดงรายงานสรุป กรุณาลองรีเฟรชหน้าใหม่"); 
+    }
+}
+
+// ฟังก์ชันคัดลอกแบบแยกหัวข้อ
+function copyFormatted(id, title) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const content = el.innerText;
+    
+    const txt = `${title}\n━━━━━━━━━━━━━━\n${content}━━━━━━━━━━━━━━\nBy Master Premium 2026`;
+
+    // วิธีคัดลอกแบบใหม่ที่ใช้ได้ทั้ง Android และ iPhone
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(txt).then(() => alert("คัดลอก " + title + " สำเร็จ! ✨"));
+    } else {
+        // วิธีสำรองสำหรับเบราว์เซอร์ในแอป Line หรือรุ่นเก่า
+        const textArea = document.createElement("textarea");
+        textArea.value = txt;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert("คัดลอก " + title + " สำเร็จ! ✨");
+        } catch (err) {
+            alert("ไม่สามารถคัดลอกได้ กรุณาลองใหม่");
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+    // ฟังก์ชัน Bulk ที่หายไป
+function processBulk() {
+    const raw = document.getElementById('bulkInput').value.trim();
+    if (!raw) return alert("กรุณาวางข้อมูล");
+
+    let headerName = "";
+    const lines = raw.split('\n');
+    
+    // 1. หาชื่อหวยจาก Header (บรรทัดที่มีอิโมจิ หรือ ชื่อหวย แต่ไม่มีเลขผลรางวัล)
+    for (let i = 0; i < Math.min(lines.length, 5); i++) {
+        let line = lines[i].trim();
+        if (line && !line.match(/(\d{3})\s*-\s*(\d{2})/) && !line.includes("➖➖")) {
+            // ล้างคำว่า สถิติย้อนหลัง ออกเพื่อให้เหลือชื่อหวยเพียวๆ (เช่น ลาวพัฒนา)
+            headerName = line.replace(/สถิติย้อนหลัง|ย้อนหลัง|สรุปผล|➖➖➖/g, '')
+                             .replace(/[^\u0E00-\u0E7Fa-zA-Z\s🇱🇦🇻🇳🇸🇬🇯🇵🇨🇳🇹🇭]/g, '') // เก็บไทย, อังกฤษ, เว้นวรรค, ธง
+                             .trim();
+            if (headerName) break;
+        }
+    }
+
+    const tempData = [];
+    const pattern = /(\d{3})\s*-\s*(\d{2})/; 
+
+    lines.forEach((line) => {
+        const m = line.match(pattern);
+        if (m) {
+            const fullNum = m[0].replace(/\s/g, ''); // ดึง 000-00
+
+            // 2. ล้างชื่อรอบในบรรทัด (เช่น ล้าง "10 ธ.ค. 68" หรือ "108: 14:55")
+            // โดยการลบวันที่/เวลา/ตัวเลขเศษออกให้หมด
+            let rowText = line.replace(m[0], '')
+                              .replace(/[0-9]{1,3}:[0-9]{2}/g, '') // ลบเวลา 14:55 หรือ รอบ 108:
+                              .replace(/[0-9]{1,2}\s+(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+[0-9]{2,4}/g, '') // ลบวันที่ไทย
+                              .replace(/[0-9]+/g, '') // ลบตัวเลขที่เหลือ (เช่น ปี 68)
+                              .replace(/[|]|-|➡️|:|_/g, '') // ลบสัญลักษณ์ขยะ
+                              .trim();
+
+            // 3. ถ้าชื่อในบรรทัดเหลือแค่ธงหรือว่าง ให้ใช้ชื่อจาก Header ด้านบน
+            // แต่ถ้ามีชื่อเฉพาะ (เช่น ลาว Extra) ให้ใช้ชื่อนั้น
+            let finalName = (rowText.length > 2 && rowText !== "🇱🇦" && rowText !== "🇹🇭") ? rowText : (headerName || "ทั่วไป");
+
+            tempData.push({ name: finalName, full: fullNum });
+        }
+    });
+
+    if (tempData.length < 1) return alert("ไม่พบรูปแบบ 000-00");
+
+    // 4. ระบบตรวจผลห่วงโซ่ (Auto Chain)
+    const newEntries = [];
+    for (let i = 0; i < tempData.length; i++) {
+        const current = tempData[i];
+        let autoResult = "";
+        
+        // ตรวจสอบว่าบรรทัดถัดไปมีชื่อเหมือนกันหรือไม่ ถ้าเหมือนให้ดึงผลมาตรวจทันที
+        if (tempData[i + 1] && current.name === tempData[i + 1].name) {
+            autoResult = tempData[i + 1].full;
+        }
+
+        newEntries.push({
+            name: current.name,
+            input: current.full,
+            result: autoResult,
+            ...calculateFormula(current.full)
+        });
+    }
+
+    dataList = [...newEntries.reverse(), ...dataList];
+    saveAndReload();
+    document.getElementById('bulkInput').value = '';
+    alert("วิเคราะห์ " + (headerName || "สำเร็จ") + " ✨");
+}
+
+function execBulkUpdate() {
+    const raw = document.getElementById('resultBulkUpdate').value.trim();
+    if (!raw) return alert("กรุณาวางข้อมูลผลตรวจ");
+
+    const lines = raw.split('\n');
+    const pattern = /(\d{3})\s*-\s*(\d{2})/;
+    let matchCount = 0;
+
+    lines.forEach(line => {
+        const m = line.match(pattern);
+        if (m) {
+            const resVal = m[0]; // ใช้ 000-00
+            let lotteryName = line.replace(m[0], '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '').trim();
+
+            for (let i = 0; i < dataList.length; i++) {
+                // อัปเดตเมื่อชื่อตรงกันและผลยังว่าง
+                if (lotteryName && dataList[i].name.includes(lotteryName) && (dataList[i].result === "" || !dataList[i].result)) {
+                    dataList[i].result = resVal;
+                    matchCount++;
+                    break;
+                }
+            }
+        }
+    });
+
+    if (matchCount > 0) {
+        saveAndReload();
+        document.getElementById('resultBulkUpdate').value = '';
+        alert(`อัปเดตผลสำเร็จ ${matchCount} รายการ ✨`);
+    } else {
+        alert("ไม่พบชื่อหวยที่ตรงกัน");
+    }
+}
+
+// ฟังก์ชันเช็คว่าเลขเข้าหรือไม่ (รองรับทั้ง บน และ ล่าง)
+function isHit(formulaStr, resultStr, type) {
+    if (!resultStr || !resultStr.includes('-')) return '';
+    const [top, bot] = resultStr.split('-');
+    const top2 = top.slice(-2).split(''); // เลข 2 ตัวบน
+    const bot2 = bot.split('');           // เลข 2 ตัวล่าง
+    
+    const fNums = formulaStr.toString().split('');
+
+    // สไตล์ไฮไลท์
+    const bgGreen = 'style="background:#d1fae5; color:#065f46; font-weight:bold;"'; // สำหรับพิกัด (เข้า 1 ตัว)
+    const bgGold = 'style="background:#fef3c7; color:#92400e; font-weight:bold;"';  // สำหรับวิน (เข้าครบ 2 ตัว)
+
+    if (type === 'p_top') {
+        return top2.some(n => fNums.includes(n)) ? bgGreen : '';
+    }
+    if (type === 'p_bot') {
+        return bot2.some(n => fNums.includes(n)) ? bgGreen : '';
+    }
+    if (type === 'w_top') {
+        return top2.every(n => fNums.includes(n)) ? bgGold : '';
+    }
+    if (type === 'w_bot') {
+        return bot2.every(n => fNums.includes(n)) ? bgGold : '';
+    }
+    return '';
+}
+
+    function saveAndReload() { localStorage.setItem(KEY, JSON.stringify(dataList)); renderTable(); }
+    function deleteRow(index) { if(confirm('ลบ?')) { dataList.splice(index, 1); saveAndReload(); } }
+    function updateRowResult(index, val) {
+    dataList[index].result = val;
+    saveAndReload();
+    
+    // ถ้าพิมพ์ครบรูปแบบ XXX-XX หรือลบจนว่าง ให้ Refresh ตารางเพื่อโชว์สีไฮไลท์
+    if (val.length >= 6 || val.length === 0) {
+        renderTable(); 
+    }
+}
+
+    function clearAllData() { if(confirm('ล้างทั้งหมด?')) { dataList = []; saveAndReload(); } }
+    
+function copyFormatted(id, title) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    const content = el.innerText;
+    if (!content || content.includes("รอกดคำนวณ")) {
+        alert("ไม่มีข้อมูลให้คัดลอก");
+        return;
+    }
+
+    // จัดรูปแบบข้อความ
+    const txt = `${title}\n━━━━━━━━━━━━━━\n${content}━━━━━━━━━━━━━━\nBy Master Premium 2026`;
+
+    // 1. ลองใช้ช่องทางปกติก่อน
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(txt)
+            .then(() => { alert("คัดลอก " + title + " สำเร็จ! ✨"); })
+            .catch(() => fallbackCopy(txt, title)); // ถ้าพลาดให้ไปใช้ทางเลือกที่ 2
+    } else {
+        // 2. ใช้ทางเลือกที่ 2 (สร้าง Element หลอก) สำหรับมือถือ/แอป LINE
+        fallbackCopy(txt, title);
+    }
+}
+
+// ฟังก์ชันสำรองเพื่อให้คัดลอกได้ทุกอุปกรณ์
+function fallbackCopy(text, title) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // ทำให้มองไม่เห็นบนหน้าจอ
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    textArea.style.top = "0";
+    document.body.appendChild(textArea);
+    
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            alert("คัดลอก " + title + " สำเร็จ! ✨");
+        } else {
+            alert("ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยตนเอง");
+        }
+    } catch (err) {
+        alert("เบราว์เซอร์ไม่รองรับการคัดลอกอัตโนมัติ");
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function copyAllSummary() {
+    try {
+        // ตรวจสอบ ID ให้ตรงกับใน HTML (foc, rud, w5b)
+        const f = document.getElementById('res-foc')?.innerText || "";
+        const r = document.getElementById('res-rud')?.innerText || "";
+        const w = document.getElementById('res-w5b')?.innerText || "";
+
+        if (!f && !r) {
+            alert("ไม่มีข้อมูลให้คัดลอก");
+            return;
+        }
+
+        const txt = `💎 [ สรุปรวม DOMINO 2026 ]\n🎯 เน้น:\n${f}\n🎡 รูด:\n${r}\n🔢 วิน 5:\n${w}\nBy DOMINO Premium`;
+        
+        const textArea = document.createElement("textarea");
+        textArea.value = txt;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert("คัดลอกสรุปทั้งหมดเรียบร้อย! ✨");
+    } catch (e) {
+        alert("เกิดข้อผิดพลาดในการคัดลอก");
+    }
+}
+	
+function updateStats() {
+    let checked = 0;
+    // สร้าง Object เก็บแต้มชนะแยกทุกคอลัมน์
+    let win = {
+        foc:0, rud:0, p3b:0, p3l:0, p4b:0, p4l:0,
+        w5b:0, w5l:0, w6b:0, w6l:0, w7b:0, w7l:0, w8b:0, w8l:0, w9b:0, w9l:0
+    };
+
+    dataList.forEach(item => {
+        const res = item.result || "";
+        if (res.includes('-')) {
+            checked++;
+            // ตรวจสอบการเข้าทีละรายการ (ใช้ฟังก์ชัน isHit ที่เรามี)
+            if (isHit(item.focus, res, 'p_top') || isHit(item.focus, res, 'p_bot')) win.foc++;
+            if (isHit(item.ruud.replace('-',''), res, 'p_top') || isHit(item.ruud.replace('-',''), res, 'p_bot')) win.rud++;
+            
+            // พิกัด
+            if (isHit(item.p3, res, 'p_top')) win.p3b++; if (isHit(item.p3, res, 'p_bot')) win.p3l++;
+            if (isHit(item.p4, res, 'p_top')) win.p4b++; if (isHit(item.p4, res, 'p_bot')) win.p4l++;
+            
+            // วิน
+            if (isHit(item.w5, res, 'w_top')) win.w5b++; if (isHit(item.w5, res, 'w_bot')) win.w5l++;
+            if (isHit(item.w6, res, 'w_top')) win.w6b++; if (isHit(item.w6, res, 'w_bot')) win.w6l++;
+            if (isHit(item.w7, res, 'w_top')) win.w7b++; if (isHit(item.w7, res, 'w_bot')) win.w7l++;
+            if (isHit(item.w8, res, 'w_top')) win.w8b++; if (isHit(item.w8, res, 'w_bot')) win.w8l++;
+            if (isHit(item.w9, res, 'w_top')) win.w9b++; if (isHit(item.w9, res, 'w_bot')) win.w9l++;
+        }
+    });
+
+    const getP = (v) => (checked > 0 ? (v / checked * 100).toFixed(1) : "0") + "%";
+
+    // อัปเดตตัวเลขลงตารางสถิติ
+    for (let key in win) {
+        let el = document.getElementById('stat-' + key);
+        if (el) el.innerText = getP(win[key]);
+    }
+    document.getElementById('stat-total').innerText = `ตรวจแล้ว ${checked}/${dataList.length}`;
+}
+
+function copyRow(index) {
+    const item = dataList[index];
+    const res = item.result || "";
+    
+    // ตรวจสอบสถานะ ✅/❌ (เช็คเน้นเป็นหลัก หรือจะรวมพิกัดด้วยก็ได้)
+    let status = "⏳ รอผล";
+    if (res.includes('-')) {
+        const isWin = isHit(item.focus, res, 'p_top') || isHit(item.focus, res, 'p_bot');
+        status = isWin ? "✅ เข้า" : "❌ หลุด";
+    }
+
+    // สร้างข้อความสรุปรายบรรทัด
+    const txt = `💎 Master Premium\n📌 รอบ: ${item.name}\n🎯 เน้น: ${item.focus}\n🎡 รูด: ${item.ruud}\n📍 พิกัด: ${item.p3}\n🔢 วิน5: ${item.w5}\n🏁 ผล: ${res || '...'}\n📊 สถานะ: ${status}\n━━━━━━━━━━━━━━`;
+
+    // ใช้ระบบ Fallback Copy เพื่อให้ใช้ได้ทั้งมือถือและแอป LINE
+    const textArea = document.createElement("textarea");
+    textArea.value = txt;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        alert(`คัดลอกรอบ ${item.name} สำเร็จ! ✨`);
+    } catch (err) {
+        alert("ไม่สามารถคัดลอกได้");
+    }
+    document.body.removeChild(textArea);
+}
+
+</script>
+
+</body>
+</html>

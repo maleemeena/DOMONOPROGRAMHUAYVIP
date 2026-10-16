@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคำนวณหวย v2026 (Mobile Friendly)</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { --primary: #1e40af; --accent: #db2777; --success: #16a34a; --gold: #f59e0b; --bg: #f8fafc; }
+        body { font-family: 'Chakra Petch', sans-serif; background: var(--bg); padding: 10px; margin: 0; overflow-x: hidden; }
+        .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .live-clock { text-align: center; font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 14px; background: #eff6ff; padding: 8px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        .header-section { text-align: center; margin-bottom: 20px; }
+        
+        .input-box { display: flex; gap: 10px; justify-content: center; align-items: flex-end; background: #f1f5f9; padding: 15px; border-radius: 12px; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; text-align: left; flex: 1; min-width: 140px; }
+        .input-group label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #475569; }
+        input { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; }
+        
+        .btn-calc { background: var(--primary); color: white; flex: 1; min-width: 120px; }
+        .btn-clear { background: #64748b; color: white; flex: 1; min-width: 120px; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* สไตล์ตารางที่รองรับมือถือ */
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        
+        @media screen and (max-width: 992px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; padding: 10px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            td { border: none; position: relative; padding-left: 40% !important; text-align: left !important; min-height: 40px; display: flex; align-items: center; border-bottom: 1px solid #f1f5f9; }
+            td:before { position: absolute; left: 10px; width: 35%; padding-right: 10px; white-space: nowrap; content: attr(data-label); font-weight: bold; color: #64748b; font-size: 12px; }
+            td:last-child { border-bottom: none; }
+            .grid-8 { grid-template-columns: repeat(2, 1fr) !important; } /* ในมือถือโชว์ 2 คอลัมน์ */
+        }
+
+        th { background: #f8fafc; padding: 12px; color: #64748b; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; text-align: center; font-size: 14px; }
+
+        .grid-nums { display: grid; gap: 4px; width: 100%; }
+        .grid-6 { grid-template-columns: repeat(3, 1fr); }
+        .grid-8 { grid-template-columns: repeat(4, 1fr); }
+        .num-card { background: #f8fafc; border: 1px solid #dee2e6; padding: 5px; border-radius: 6px; font-weight: bold; text-align: center; }
+        
+        .single-focus { font-size: 28px; color: var(--accent); font-weight: 800; }
+        .ruud-box { font-size: 20px; color: var(--primary); font-weight: bold; }
+        
+        @keyframes blink-win { 0%, 100% { background-color: var(--success); color: white; } 50% { background-color: transparent; color: var(--success); } }
+        .is-win { animation: blink-win 0.8s infinite; border: 2px solid var(--success) !important; border-radius: 8px; }
+        
+        .check-area { background: #fffbeb; padding: 10px; border-radius: 12px; border: 1px solid #fef3c7; width: 100%; box-sizing: border-box; }
+        .btn-copy { background: var(--gold); color: white; width: 100%; margin-top: 8px; font-size: 12px; padding: 8px; border-radius: 6px; }
+    </style>
+</head>
+<body onload="updateClock()">
+
+<div class="container">
+    <div id="clock" class="live-clock">กำลังโหลดเวลา...</div>
+    <div class="header-section">
+        <h1>🚀 DOMINOหวยคำนวณ v2026</h1>
+        <div class="input-box">
+            <div class="input-group"><label>ชื่อหวย/รอบ</label><input type="text" id="lotteryName" placeholder="เช่น ยี่กี 15"></div>
+            <div class="input-group"><label>ผลล่าสุด 6 หลัก</label><input type="number" id="mainInput" placeholder="123456" oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);"></div>
+            <div style="display: flex; gap: 5px; width: 100%;">
+                <button class="btn-calc" onclick="processCalculation()">คำนวณ</button>
+                <button class="btn-clear" onclick="if(confirm('ล้างตาราง?')) document.getElementById('tableBody').innerHTML=''">ล้าง</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th>ชื่อหวย/เวลา</th>
+                    <th>เน้น</th>
+                    <th>รูด</th>
+                    <th>WIN 6</th>
+                    <th>เจาะ 2</th>
+                    <th>เจาะ 3</th>
+                    <th>เจาะ 4</th>
+                    <th>ตรวจผล/แชร์</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        setTimeout(updateClock, 1000);
+    }
+
+    function processCalculation() {
+        const inputStr = document.getElementById('mainInput').value;
+        const name = document.getElementById('lotteryName').value || "หวยคำนวณ";
+        if (inputStr.length < 6) { alert('กรุณาใส่เลขให้ครบ 6 หลัก'); return; }
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+        const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+        const P = parseInt(inputStr[2]), R = parseInt(inputStr[3]), U = parseInt(inputStr[4]);
+        const base = Math.pow((P + R + U), 2);
+        const res = [Math.abs(base-24), Math.abs(base-39), Math.abs(base-49), Math.abs(base-54)];
+        const allDigits = (res.join('') + P + R + U + '0123456789').split('').map(Number);
+        const freq = {};
+        allDigits.forEach(d => { freq[d] = (freq[d] || 0) + 1; });
+        const win6 = Object.keys(freq).sort((a, b) => freq[b] - freq[a]).slice(0, 6).map(Number);
+        const single = win6[0], r1 = win6[0], r2 = win6[1];
+
+        let s2 = [], used2 = new Set();
+        for(let i=0; i<2; i++){
+            for(let j=0; j<win6.length; j++){
+                if(win6[i] !== win6[j] && s2.length < 8){
+                    let pair = [win6[i], win6[j]].sort().join('');
+                    if(!used2.has(pair)){ used2.add(pair); s2.push(""+win6[i]+win6[j]); }
+                }
+            }
+        }
+
+        let s3 = [], used3 = new Set();
+        for(let i=0; i<s2.length; i++){
+            for(let k=0; k<win6.length; k++){
+                let trioArr = (win6[k] + s2[i]).split('');
+                if(new Set(trioArr).size === 3){
+                    let tSort = trioArr.sort().join('');
+                    if(!used3.has(tSort)){ used3.add(tSort); s3.push(win6[k] + s2[i]); break; }
+                }
+            }
+        }
+
+        let s4 = [], used4 = new Set();
+        for(let i=0; i<s3.length; i++){
+            for(let k=0; k<win6.length; k++){
+                let quadArr = (win6[k] + s3[i]).split('');
+                if(new Set(quadArr).size === 4){
+                    let qSort = quadArr.sort().join('');
+                    if(!used4.has(qSort)){ used4.add(qSort); s4.push(win6[k] + s3[i]); break; }
+                }
+            }
+        }
+
+        const tbody = document.getElementById('tableBody');
+        const row = tbody.insertRow(0);
+        const uid = Date.now();
+        row.innerHTML = `
+            <td data-label="ชื่อหวย/เวลา"><strong>${name}</strong><br><small>${dateStr} | ${timeStr}</small></td>
+            <td data-label="เน้น" class="single-focus" id="s-${uid}">${single}</td>
+            <td data-label="รูด" class="ruud-box" id="r-${uid}">${r1}-${r2}</td>
+            <td data-label="WIN 6"><div class="grid-nums grid-6" id="winbox-${uid}">${win6.map(n => `<div class="num-card">${n}</div>`).join('')}</div></td>
+            <td data-label="เจาะ 2"><div class="grid-nums grid-8">${s2.map(n => `<div class="num-card" data-v2="${n}">${n}</div>`).join('')}</div></td>
+            <td data-label="เจาะ 3"><div class="grid-nums grid-8">${s3.map(n => `<div class="num-card" data-v3="${n}">${n}</div>`).join('')}</div></td>
+            <td data-label="เจาะ 4"><div class="grid-nums grid-8">${s4.map(n => `<div class="num-card" data-v4="${n}">${n}</div>`).join('')}</div></td>
+            <td data-label="ตรวจ/แชร์"><div class="check-area">
+                <input type="number" id="check-${uid}" class="check-input" placeholder="ผล 6 หลัก" oninput="checkResult(this, '${s2.join(',')}', '${s3.join(',')}', '${s4.join(',')}', '${uid}', '${r1},${r2}', '${single}', '${win6.join('')}')">
+                <div class="msg-area" id="msg-${uid}"></div>
+                <button class="btn-copy" onclick="copyToClipboard('${name}', '${dateStr}', '${timeStr}', '${single}', '${r1}-${r2}', '${win6.join('')}', '${s2.join(' ')}', '${s3.join(' ')}', '${s4.join(' ')}', '${uid}')">คัดลอกแชร์</button>
+            </div></td>`;
+        document.getElementById('mainInput').value = '';
+    }
+
+    function checkResult(el, s2S, s3S, s4S, uid, rS, sing, w6S) {
+        const val = el.value; const row = el.closest('tr'); const msg = el.nextElementSibling;
+        row.querySelectorAll('.num-card, .single-focus, .ruud-box, .grid-6').forEach(e => e.classList.remove('is-win'));
+        if (val.length < 6) { msg.innerHTML=""; return; }
+        const t4 = val.slice(0,4), t3 = val.slice(1,4), t2 = val.slice(2,4), b2 = val.slice(4,6);
+        const s2A = s2S.split(','), s3A = s3S.split(','), s4A = s4S.split(','), rA = rS.split(','), w6A = w6S.split('');
+        let wins = [];
+        const targets2 = (t2 + b2).split('');
+        if (targets2.includes(sing.toString())) { document.getElementById(`s-${uid}`).classList.add('is-win'); wins.push("เน้นเข้า"); }
+        rA.forEach(r => { if (targets2.includes(r.toString())) { document.getElementById(`r-${uid}`).classList.add('is-win'); wins.push("รูดเข้า"); }});
+        const cinW = (dStr) => dStr.split('').every(d => w6A.includes(d));
+        if (cinW(t4)) wins.push("วิน 4 บนแตก!");
+        if (cinW(t3)) wins.push("วิน 3 บนแตก");
+        if (cinW(t2)) wins.push("วิน 2 บนแตก");
+        if (cinW(b2)) wins.push("วิน 2 ล่างแตก");
+        if (wins.some(w => w.includes("วิน"))) document.getElementById(`winbox-${uid}`).classList.add('is-win');
+        s2A.forEach(n => { if (sortStr(n) === sortStr(t2) || sortStr(n) === sortStr(b2)) { row.querySelector(`[data-v2="${n}"]`)?.classList.add('is-win'); wins.push("เจาะ 2 เข้า"); }});
+        s3A.forEach(n => { if (sortStr(n) === sortStr(t3)) { row.querySelector(`[data-v3="${n}"]`)?.classList.add('is-win'); wins.push("เจาะ 3 บนแตก"); }});
+        s4A.forEach(n => { if (sortStr(n) === sortStr(t4)) { row.querySelector(`[data-v4="${n}"]`)?.classList.add('is-win'); wins.push("เจาะ 4 บนแตก!"); }});
+        msg.innerHTML = wins.length > 0 ? `<div style="color:var(--success); font-weight:bold; font-size:11px; margin-top:5px;">✅ ${[...new Set(wins)].join('<br>✅ ')}</div>` : `<small style="color:gray">ไม่ถูก</small>`;
+    }
+    function sortStr(s) { return s.split('').sort().join(''); }
+    function copyToClipboard(name, date, time, sing, ruud, win, s2, s3, s4, uid) {
+        const checkVal = document.getElementById(`check-${uid}`).value;
+        const msgVal = document.getElementById(`msg-${uid}`).innerText.replace(/\n/g, ", ");
+        let resTxt = checkVal ? `\n🏁 ผล: ${checkVal}\n📢 ตรวจ: ${msgVal || 'รอผล'}` : `\n🏁 ผล: รอผลรางวัล`;
+        const text = `🎯 แนวทาง: ${name}\n📅 ${date} | ⏰ ${time}\n━━━━━━━━━━━━━━\n🔝 เน้น: [ ${sing} ]\n🎡 รูด: ${ruud}\n🔢 วิน 6: ${win}\n🔸 เจาะ 2: ${s2}\n🔹 เจาะ 3: ${s3}\n💎 เจาะ 4: ${s4}\n━━━━━━━━━━━━━━${resTxt}\nBy DOMINOระบบคำนวณ 2026`;
+        navigator.clipboard.writeText(text).then(() => alert("คัดลอกสำเร็จ!"));
+    }
+</script>
+</body>
+</html>

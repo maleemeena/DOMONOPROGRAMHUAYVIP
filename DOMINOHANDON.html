@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DOMINO MASTER 2026 ULTIMATE PRO (RED-W2)</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #0f172a; --accent: #be123c; --gold: #ca8a04; --bg: #f1f5f9; 
+            --win: #059669; --drill: #2563eb; --cute: #f472b6;
+            --color-basic: #1e293b; --color-plus: #e11d48; --color-back: #d97706;
+            --color-j3: #0ea5e9; 
+        }
+        * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 5px; color: var(--primary); }
+        .container { max-width: 500px; margin: auto; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .stat-row-item { display: flex; flex-direction: column; background: #ffffff; margin-bottom: 6px; padding: 8px 12px; border-radius: 10px; border-left: 5px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-info { display: flex; align-items: center; justify-content: space-between; }
+        .stat-label { font-weight: 800; font-size: 0.7rem; color: var(--primary); }
+        .stat-bar-bg { background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-out; }
+        .bulk-box { width: 100%; height: 60px; padding: 8px; border-radius: 10px; border: 2px solid #e2e8f0; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; resize: none; }
+        .main-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: 800; cursor: pointer; margin-bottom: 8px; }
+        .btn-anal { background: var(--primary); color: #fbbf24; }
+        .btn-update { background: var(--win); color: white; }
+        .btn-cute { background: var(--cute); color: white; }
+        .table-wrapper { width: 100%; overflow: hidden; border-radius: 12px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
+        th { background: #f8fafc; padding: 8px 2px; font-size: 0.45rem; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 8px 2px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 0.5rem; vertical-align: top; }
+        .prime-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 0.75rem; margin: 3px auto; border: 2px solid transparent; }
+        .badge { padding: 2px 4px; border-radius: 4px; font-size: 0.42rem; font-weight: 800; color: white; display: inline-block; margin: 1px; }
+        .warn-pill { background: #fee2e2; color: #ef4444; padding: 2px 4px; border-radius: 4px; font-size: 0.45rem; font-weight: 900; display: inline-block; border: 1px solid #fecaca; margin-top: 3px; }
+        .drill-box { text-align: left; background: #f8fafc; border-radius: 6px; padding: 6px; border: 1px solid #edf2f7; }
+        .drill-label { font-weight: 900; font-size: 0.45rem; color: var(--primary); display: block; margin: 4px 0 2px 0; border-bottom: 1px solid #e2e8f0; }
+        .num-grid { display: grid; gap: 2px; }
+        .num-chip { background: white; border: 1px solid #cbd5e1; padding: 2px 1px; border-radius: 3px; font-size: 0.45rem; font-weight: 700; text-align: center; }
+        .copy-pill { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px; font-size: 0.4rem; cursor: pointer; margin-top: 4px; width: 100%; font-weight: 800; color: var(--drill); }
+        .row-hit { background-color: #ecfdf5 !important; }
+        .res-input { width: 90%; font-size: 0.6rem; padding: 4px; border: 1px solid #e2e8f0; border-radius: 5px; font-weight: bold; text-align: center; }
+        #reportModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; }
+        .modal-content { background:white; width:92%; max-width:380px; border-radius:30px; padding:20px; text-align:center; border: 4px solid var(--cute); max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center; font-size:0.9rem; margin:5px;">📊 DOMINO MASTER 2026 PRO</h2>
+    <div class="stat-container" id="statRankingBox"></div>
+    <textarea id="bulkInput" class="bulk-box" placeholder="วิเคราะห์: ลาว 12345 (ใช้ 3 ตัวท้าย)"></textarea>
+    <button class="main-btn btn-anal" onclick="processBulk()">⚡ วิเคราะห์ข้อมูล</button>
+    <textarea id="bulkResult" class="bulk-box" style="border-color: var(--win)" placeholder="บันทึกผล: ลาว 67890"></textarea>
+    <button class="main-btn btn-update" onclick="processBulkResult()">✅ อัปเดตผลรางวัล</button>
+    <button class="main-btn btn-cute" onclick="showCuteReport()">✨ สรุปรายงานการ์ดน่ารัก</button>
+
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th style="width:22%">หวย</th><th style="width:12%">เด่น BPK</th><th style="width:43%">ชุดเจาะเน้น / วิน</th><th style="width:12%">ผล</th><th style="width:11%">สถานะ</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <button class="main-btn" style="background:#ef4444; color:white; margin-top:15px; opacity:0.6;" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+</div>
+
+<div id="reportModal" onclick="closeReport()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div id="reportContent"></div>
+        <button class="main-btn btn-cute" style="margin-top:10px;" onclick="copyFullReport()">📋 ก๊อปปี้สรุปรายงาน</button>
+    </div>
+</div>
+
+<script>
+let database = JSON.parse(localStorage.getItem('domino_v2026_final_fix_v5')) || [];
+const sortS = (s) => s ? s.toString().split('').sort().join('') : "";
+
+const getTopFreq = (str, limit) => {
+    let counts = Array(10).fill(0);
+    str.split('').forEach(c => { if(!isNaN(parseInt(c))) counts[parseInt(c)]++; });
+    return [...Array(10).keys()].sort((a,b) => (counts[b] - counts[a]) || (b - a)).slice(0, limit);
+};
+
+const combo = (nums, size) => {
+    let res = [];
+    const f = (start, cur) => {
+        if (cur.length === size) { res.push(sortS(cur.join(''))); return; }
+        for (let i = start; i < nums.length; i++) f(i + 1, [...cur, nums[i]]);
+    }
+    f(0, []); return [...new Set(res)];
+};
+
+const getThaiDateTime = () => {
+    const now = new Date();
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+    return now.toLocaleString('th-TH', options).replace(',', '');
+};
+
+function calculateSet(nStr3) {
+    let nBig3 = BigInt(nStr3);
+    let nSq = nBig3 * nBig3;
+    const s1 = (nSq - 24n).toString(), s2 = (nSq - 39n).toString(), s3 = (nSq - 49n).toString(), s4 = (nSq - 54n).toString();
+    const allRes = s1 + s2 + s3 + s4;
+    const j4 = [s1.slice(-2), s2.slice(-2), s3.slice(-2), s4.slice(-2)];
+    
+    let status = "";
+    const triples = allRes.match(/(000|111|222|333|444|555|666|777|888|999)/g);
+    const doubles = allRes.match(/(00|11|22|33|44|55|66|77|88|99)/g);
+    if (triples) status = `⚠️ ตอง ${[...new Set(triples.map(t=>t))].join(',')}`;
+    else if (doubles) status = `⚠️ เบิ้ล ${[...new Set(doubles.map(d=>d))].join(',')}`;
+
+    const top6 = getTopFreq(allRes, 6);
+    return { primes: top6.slice(0, 3), status, win6: top6.join(''), j4: j4, j2: combo(top6, 2), j3: combo(top6, 3), createdAt: getThaiDateTime() };
+}
+
+function checkHits(row) {
+    if(!row.winValue || row.winValue.length < 2) return {badges: "-", textList: [], hitItems: []};
+    const res = row.winValue;
+    const s2u = sortS(res.substring(1,3)), s2l = sortS(res.substring(3,5)), s3u = sortS(res.substring(0,3));
+    let badges = [], txt = [], hitItems = [];
+    row.primes.forEach((p, i) => { if(res.includes(p.toString())) { badges.push(`<span class="badge" style="background:var(--color-${['basic','plus','back'][i]})">${p}</span>`); hitItems.push(`D${i+1}`); } });
+    row.j4.forEach(j => { if(sortS(j) === s2u || sortS(j) === s2l) { badges.push(`<span class="badge" style="background:var(--accent)">${j}</span>`); txt.push(`${j}W2`); hitItems.push('W2'); } });
+    if(row.j2.some(n => n === s2u)) { badges.push(`<span class="badge" style="background:var(--win)">${res.substring(1,3)}</span>`); hitItems.push('J2U'); }
+    if(row.j2.some(n => n === s2l)) { badges.push(`<span class="badge" style="background:var(--win)">${res.substring(3,5)}</span>`); hitItems.push('J2L'); }
+    if(row.j3.includes(s3u)) { badges.push(`<span class="badge" style="background:var(--color-j3)">${res.substring(0,3)}</span>`); txt.push(`${res.substring(0,3)}J3`); hitItems.push('J3'); }
+    return { badges: badges.length > 0 ? badges.join('') : '❌', textList: txt, hitItems: hitItems };
+}
+
+function render() {
+    document.getElementById('tableBody').innerHTML = database.map((row, idx) => {
+        const hits = checkHits(row);
+        const s2u = row.winValue ? sortS(row.winValue.substring(1,3)) : "";
+        const s2l = row.winValue ? sortS(row.winValue.substring(3,5)) : "";
+        const s3u = row.winValue ? sortS(row.winValue.substring(0,3)) : "";
+        return `<tr>
+            <td style="text-align:left;"><b>${row.market}</b><br>${row.status ? `<span class="warn-pill">${row.status}</span>` : ''}<button class="copy-pill" onclick="shareToGroup(${idx})">🚀 ส่งเข้ากลุ่ม</button></td>
+            <td>${row.primes.map((p,i)=>`<div class="prime-num" style="background:var(--color-${['basic','plus','back'][i]}); ${row.winValue && row.winValue.includes(p.toString()) ? 'border-color:#fbbf24;box-shadow:0 0 5px #fbbf24;' : ''}">${p}</div>`).join('')}</td>
+            <td><div class="drill-box">
+                <span class="drill-label">🎯 เจาะเน้น (W2):</span>
+                <div class="num-grid" style="grid-template-columns: repeat(4, 1fr);">${row.j4.map(n=>`<span class="num-chip" style="${(sortS(n)==s2u||sortS(n)==s2l) ? 'background:var(--accent);color:white;' : ''}">${n}</span>`).join('')}</div>
+                <span class="drill-label">💎 วิน 6 (J2): ${row.win6}</span>
+                <div class="num-grid" style="grid-template-columns: repeat(5, 1fr);">${row.j2.map(n=>`<span class="num-chip" style="${(n==s2u||n==s2l) ? 'background:#fbbf24; color:white;' : ''}">${n}</span>`).join('')}</div>
+                <span class="drill-label">🔥 วิน 3 (J3):</span>
+                <div class="num-grid" style="grid-template-columns: repeat(5, 1fr);">${row.j3.map(n=>`<span class="num-chip" style="${n==s3u ? 'background:var(--color-j3);color:white;' : ''}">${n}</span>`).join('')}</div>
+            </div></td>
+            <td><input type="text" class="res-input" value="${row.winValue||''}" onchange="updateWin(${idx}, this.value)"></td>
+            <td style="${hits.hitItems.length > 0 ? 'background:var(--win);color:white;' : ''}">${hits.badges}</td>
+        </tr>`;
+    }).join('');
+}
+
+function calculateStats() {
+    let s = { d1: { name: "เด่น B", count: 0, color: "var(--color-basic)" }, d2: { name: "เด่น P", count: 0, color: "var(--color-plus)" }, d3: { name: "เด่น K", count: 0, color: "var(--color-back)" }, w2: { name: "W2 เน้น", count: 0, color: "var(--accent)" }, j2u: { name: "J2 บน", count: 0, color: "var(--win)" }, j2l: { name: "J2 ล่าง", count: 0, color: "var(--win)" }, j3: { name: "J3 วิน 3", count: 0, color: "var(--color-j3)" } };
+    let act = database.filter(r => r.winValue && r.winValue.length >= 2).length;
+    database.forEach(r => { if (!r.winValue || r.winValue.length < 2) return; const h = checkHits(r); h.hitItems.forEach(i => { if(i==='D1')s.d1.count++; if(i==='D2')s.d2.count++; if(i==='D3')s.d3.count++; if(i==='W2')s.w2.count++; if(i==='J2U')s.j2u.count++; if(i==='J2L')s.j2l.count++; if(i==='J3')s.j3.count++; }); });
+    let sorted = Object.values(s).sort((a,b) => b.count - a.count);
+    const box = document.getElementById('statRankingBox');
+    box.innerHTML = `<div style="font-size:0.7rem; font-weight:800; color:#1e293b; margin-bottom:10px;">🏆 อันดับสูตรแม่นยำสูงสุด (Data: ${act} รอบ)</div>`;
+    sorted.forEach((item, idx) => { const per = act > 0 ? ((item.count / act) * 100).toFixed(0) : 0; box.innerHTML += `<div class="stat-row-item" style="border-left-color:${item.color}"><div class="stat-info"><span class="stat-label">${idx+1}. ${item.name}</span><span class="stat-count">${item.count} ครั้ง</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${per}%; background:${item.color}"></div></div><div style="font-size:0.5rem; text-align:right; margin-top:2px; font-weight:800; color:${item.color}">${per}% Accuracy</div></div>`; });
+}
+
+function shareToGroup(idx) {
+    const r = database[idx]; const h = checkHits(r); const timeNow = getThaiDateTime(); const res = r.winValue || "";
+    const s3u = res.length >= 3 ? sortS(res.substring(0,3)) : "---";
+    const s2u = res.length >= 3 ? sortS(res.substring(1,3)) : "---";
+    const s2l = res.length >= 5 ? sortS(res.substring(3,5)) : "---";
+    
+    const fPrimes = r.primes.map(p => res.includes(p.toString()) ? `${p}✅` : p).join(' - ');
+    const fW2 = r.j4.map(n => (sortS(n) === s2u || sortS(n) === s2l) ? `${n}✅` : n).join(' , ');
+    const fJ2 = r.j2.map(n => (n === s2u || n === s2l) ? `${n}✅` : n).join(',');
+    
+    let j3Rows = [];
+    for (let i = 0; i < r.j3.length; i += 5) {
+        let chunk = r.j3.slice(i, i + 5).map(n => (n === s3u) ? `${n}✅` : n);
+        j3Rows.push(chunk.join(', '));
+    }
+
+    const text = `
+🔥 DOMINO PRO 2026 🔥
+📌 ${r.market} ${r.status || ''}
+📅 วิเคราะห์: ${r.createdAt}
+🕒 แชร์เมื่อ: ${timeNow}
+----------------------
+🎯 เด่น: ${fPrimes}
+🔴 เจาะเน้น W2: [ ${fW2} ]
+💎 วิน 6 ตัว: ${r.win6}
+🔵 วิน 2 ตัว: ${fJ2}
+⭐️ เจาะ 3 ตัว:
+${j3Rows.join('\n')}
+----------------------
+📊 ผลรางวัล: ${res || 'รอผล'}
+${h.hitItems.length > 0 ? '✅ สรุปผล: ' + h.textList.join(' ') : '⏳ สถานะ: รอลุ้นผลงาน'}
+`.trim();
+    navigator.clipboard.writeText(text).then(() => alert("คัดลอกสรุปผลแบบละเอียดแล้ว!"));
+}
+
+function processBulk() {
+    const input = document.getElementById('bulkInput').value.trim();
+    input.split('\n').forEach(line => {
+        const parts = line.trim().split(/\s+/);
+        if(parts.length >= 2) {
+            const m = parts.slice(0, -1).join(' '), nStr3 = parts[parts.length - 1].replace(/[^0-9]/g, '').slice(-3);
+            if(nStr3.length === 3) database.unshift({ market: m, ...calculateSet(nStr3), winValue: "" });
+        }
+    });
+    updateData(); document.getElementById('bulkInput').value = "";
+}
+
+function processBulkResult() {
+    const input = document.getElementById('bulkResult').value.trim();
+    input.split('\n').forEach(line => {
+        const parts = line.trim().split(/\s+/);
+        if(parts.length >= 2) {
+            const target = database.find(r => r.market.includes(parts.slice(0,-1).join(' ')) && !r.winValue);
+            if(target) target.winValue = parts[parts.length - 1].replace(/[^0-9]/g, '');
+        }
+    });
+    updateData(); document.getElementById('bulkResult').value = "";
+}
+
+function showCuteReport() {
+    const modal = document.getElementById('reportModal'), content = document.getElementById('reportContent');
+    let winList = database.filter(r => r.winValue && checkHits(r).hitItems.length > 0);
+    content.innerHTML = `<h3>🌸 SUCCESS REPORT 2026</h3><div style="background:#fff1f2; padding:10px; border-radius:15px; font-weight:800; margin-bottom:10px;">ผลงานเข้าเป้า: ${winList.length} รอบ</div><div style="text-align:left; font-size:0.6rem; line-height:1.6;">${winList.map(r=>{ const h = checkHits(r); return `✅ <b>${r.market}</b>: ${h.textList.join(', ')}`; }).join('<br>')}</div>`;
+    modal.style.display = 'flex';
+}
+
+function updateWin(idx, val) { database[idx].winValue = val; updateData(); }
+function updateData() { localStorage.setItem('domino_v2026_final_fix_v5', JSON.stringify(database)); render(); calculateStats(); }
+function closeReport() { document.getElementById('reportModal').style.display = 'none'; }
+function copyFullReport() { navigator.clipboard.writeText(document.getElementById('reportContent').innerText).then(()=>alert("ก๊อปปี้รายงานแล้ว!")); }
+function clearAllData() { if(confirm("ล้างข้อมูลทั้งหมด?")) { database = []; updateData(); } }
+updateData();
+</script>
+</body>
+</html>

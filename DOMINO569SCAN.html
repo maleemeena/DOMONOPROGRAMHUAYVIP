@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💎 DOMINO569SCAN 💎</title>
+    <style>
+        :root {
+            --bg-body: #fdfcfb; --bg-card: #ffffff; --text-main: #2c3e50;
+            --orange-soft: #fff4e6; --orange-main: #f39c12;
+            --green-soft: #e9f7ef; --green-main: #27ae60;
+            --red-soft: #fef2f2; --red-main: #e74c3c;
+            --border: #f1f3f5; --input-bg: #f8f9fa;
+        }
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a; --bg-card: #2d2d2d; --text-main: #e0e0e0;
+            --orange-soft: #3d2b10; --orange-main: #ffa726;
+            --green-soft: #1b2e2a; --green-main: #66bb6a;
+            --red-soft: #331a1a; --red-main: #ef5350;
+            --border: #404040; --input-bg: #383838;
+        }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding: 12px; transition: 0.3s; }
+        .main-card { background: var(--bg-card); border-radius: 20px; padding: 0; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow: hidden; }
+        .hot-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px; scrollbar-width: none; }
+        .hot-item { background: linear-gradient(135deg, var(--green-main), #2ecc71); color: white; padding: 10px 18px; border-radius: 15px; text-align: center; min-width: 65px; }
+        .hot-item b { font-size: 20px; display: block; }
+        summary { cursor: pointer; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); }
+        .content { padding: 15px; border-top: 1px solid var(--border); }
+        input, select, textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; background: var(--input-bg); color: var(--text-main); box-sizing: border-box; margin-bottom: 8px; outline: none; }
+        .btn-calc { background: linear-gradient(135deg, var(--orange-main), #f1c40f); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .btn-scan { background: #34495e; color: #f1c40f; border: 1px solid #f1c40f; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .acc-badge { background: var(--green-soft); color: var(--green-main); padding: 4px 12px; border-radius: 20px; font-weight: bold; border: 1px solid var(--green-main); }
+        .win-tag { border-radius: 6px; padding: 3px 8px; font-size: 10px; font-weight: bold; display: inline-block; }
+        .bg-win2 { background: var(--green-soft); color: var(--green-main); }
+        .is-loss { background: var(--red-soft); color: var(--red-main); }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
+        td { padding: 10px 5px; border-bottom: 1px solid var(--border); }
+        pre { white-space: pre-wrap; font-family: monospace; font-size: 11px; line-height: 1.5; color: var(--text-main); padding: 12px; border-radius: 12px; background: var(--input-bg); border: 1px dashed var(--orange-main); }
+    </style>
+</head>
+<body>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <h2 style="margin: 0; font-size: 20px; color: var(--orange-main);">💎 DOMINO569SCAN</h2>
+    <button onclick="toggleDarkMode()" id="themeBtn" style="border:none; background:var(--orange-soft); color:var(--orange-main); padding:8px 18px; border-radius:20px; font-weight:bold; cursor:pointer;">🌙 DARK</button>
+</div>
+
+<details class="main-card" id="hotSection" style="display:none;">
+    <summary>🔥 วิเคราะห์เลขไหลแรง (Hot Digits)</summary>
+    <div class="content"><div class="hot-container" id="hotDigits"></div></div>
+</details>
+
+<details class="main-card" open>
+    <summary>📝 ตั้งค่าและสถิติ</summary>
+    <div class="content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <input type="text" id="lottoName" placeholder="ชื่อหวย" value="หวยยี่กี">
+            <input type="text" id="adminName" placeholder="แอดมิน" value="ADMIN">
+        </div>
+        <textarea id="bulkInput" rows="3" placeholder="วางสถิติ เช่น 94: 13:45 ➡️ 642 - 82"></textarea>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div><small>ทุน/ตัว:</small><input type="number" id="cost" value="1"></div>
+            <div><small>จ่าย 2ตัว:</small><input type="number" id="p2" value="90"></div>
+        </div>
+        <select id="winType">
+            <option value="พิกัด5บน">🎯 พิกัด 5 บน (รูด)</option>
+            <option value="พิกัด6บน">🎯 พิกัด 6 บน (รูด)</option>
+            <option value="วิน9บนล่าง">💎 วิน 9 [บน+ล่าง]</option>
+        </select>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+            <div>
+                <small>ค่า Root (ปรับเอง):</small>
+                <input type="number" id="rootVal" value="2.0" step="0.1" style="margin-bottom:0;">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button class="btn-scan" onclick="autoScanRoot()" style="margin:0; padding:12px; font-size:13px; width:100%;">🚀 AI SCAN ROOT</button>
+            </div>
+        </div>
+        
+        <button class="btn-calc" onclick="processAll()">🚀 วิเคราะห์และคำนวณ</button>
+        <button onclick="location.reload()" style="width:100%; border:none; background:none; color:var(--red-main); margin-top:10px; cursor:pointer; font-size:12px;">🧹 ล้างข้อมูลทั้งหมด</button>
+    </div>
+</details>
+
+<details class="main-card" id="profitSection" style="display:none;">
+    <summary>💰 ตารางกำไรสุทธิสะสม</summary>
+    <div class="content" id="profitGrid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;"></div>
+</details>
+
+<details class="main-card" id="historySection" style="display:none;">
+    <summary>📊 ประวัติย้อนหลัง 5 งวดล่าสุด</summary>
+    <div class="content">
+        <table><thead><tr><th>งวด</th><th>S1</th><th>S2</th><th>S3</th><th>ผล</th></tr></thead><tbody id="bBody"></tbody></table>
+    </div>
+</details>
+
+<div id="reportArea"></div>
+
+<script>
+    let hotList = [];
+    let winLogs = [[], [], []];
+    const labels = ["S1", "S2", "S3"];
+
+    function toggleDarkMode() {
+        const body = document.documentElement;
+        const isDark = body.getAttribute('data-theme') === 'dark';
+        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        document.getElementById('themeBtn').innerText = isDark ? '🌙 DARK' : '☀️ LIGHT';
+    }
+
+    function extractData(t) {
+        let nums = t.match(/\d+/g); if (!nums || nums.length < 2) return null;
+        let bottom = nums[nums.length-1], top = nums[nums.length-2];
+        return { top2: top.slice(-2), bottom2: bottom.slice(-2), full: top + '-' + bottom, round: nums };
+    }
+
+    function calculateSets(base, r, size) {
+        let res = []; let b = parseFloat(base) || 0; let root = parseFloat(r) || 2.0;
+        for(let i=0; i<3; i++) {
+            let val = Math.pow(b + (i * 137.45) + (i * 9.89), 1 / root);
+            let dec = val.toFixed(20).split('.');
+            let temp = new Set();
+            for(let j=0; temp.size < size && j < dec.length; j++) temp.add(dec[j]);
+            for(let j=0; temp.size < size; j++) temp.add("0123456789"[j]);
+            res.push(Array.from(temp).sort().join(''));
+        }
+        return res;
+    }
+
+    function checkWin(set, actual, mode) {
+        let d = extractData(actual); if(!d) return { ok: false, st: '❌', hit: '' };
+        let isMatch = (target, s) => target.split('').every(x => s.includes(x));
+        let win = false, status = "❌", hitNum = "";
+        if(mode === "วิน9บนล่าง") {
+            if(isMatch(d.top2, set)) { win = true; status = "บน"; hitNum = d.top2; }
+            if(isMatch(d.bottom2, set)) { win = true; status = (status === "บน" ? "บน+ล่าง" : "ล่าง"); hitNum += (hitNum?','+d.bottom2:d.bottom2); }
+        } else {
+            let hits = d.top2.split('').filter(x => set.includes(x));
+            if(hits.length > 0) { win = true; status = hits.length+"เด้ง"; hitNum = Array.from(new Set(hits)).join(''); }
+        }
+        return { ok: win, st: status, hit: hitNum };
+    }
+
+    function autoScanRoot() {
+        let input = document.getElementById('bulkInput').value.trim().split('\n').filter(l => l.match(/\d+/g)?.length >= 2);
+        if(input.length < 3) return alert("ขอสถิติอย่างน้อย 3 งวดเพื่อสแกน");
+        let bestR = 2.0, maxWin = 0, m = document.getElementById('winType').value;
+        let size = m.includes("9") ? 9 : (m.includes("6") ? 6 : 5);
+        
+        for(let r=1.0; r<=8.0; r=+(r+0.1).toFixed(1)) {
+            let totalWin = 0;
+            for(let i=1; i<input.length; i++) {
+                let prev = extractData(input[i-1]);
+                let sets = calculateSets(prev.top2+"."+prev.bottom2, r, size);
+                sets.forEach(s => { if(checkWin(s, input[i], m).ok) totalWin++; });
+            }
+            if(totalWin > maxWin) { maxWin = totalWin; bestR = r; }
+        }
+        document.getElementById('rootVal').value = bestR;
+        processAll();
+        alert("✅ AI SCAN จบ! พบค่า Root ที่ดีที่สุด: " + bestR);
+    }
+
+    function processAll() {
+        let input = document.getElementById('bulkInput').value.trim().split('\n').filter(l => l.match(/\d+/g)?.length >= 2);
+        if(!input.length) return;
+        let counts = {};
+        input.forEach(l => { let d = extractData(l); if(d) (d.top2+d.bottom2).split('').forEach(n => counts[n] = (counts[n]||0)+1); });
+        let sortedHot = Object.entries(counts).sort((a,b)=>b-a).slice(0,5);
+        hotList = sortedHot.map(x => x);
+        document.getElementById('hotSection').style.display = 'block';
+        document.getElementById('hotDigits').innerHTML = sortedHot.map(x => `<div class="hot-item"><b>${x}</b><small>${x} ครั้ง</small></div>`).join('');
+
+        let m = document.getElementById('winType').value, r = document.getElementById('rootVal').value;
+        let unit = parseFloat(document.getElementById('cost').value) || 1, pay = parseFloat(document.getElementById('p2').value) || 90;
+        let size = m.includes("9") ? 9 : (m.includes("6") ? 6 : 5), baseSets = m === "วิน9บนล่าง" ? 90 : (m.includes("5") ? 95 : 114);
+        let profits =, winCounts =, mults =, history = []; winLogs = [[],[],[]];
+
+        input.forEach((line, i) => {
+            let prevData = i > 0 ? extractData(input[i-1]) : null;
+            let sets = calculateSets(prevData ? prevData.top2+"."+prevData.bottom2 : "0.0", r, size);
+            if(i > 0) {
+                let d = extractData(line);
+                sets.forEach((s, idx) => {
+                    let res = checkWin(s, line, m), cost = baseSets * unit * mults[idx];
+                    if(res.ok) {
+                        let hitMult = (res.st.includes("2") || res.st.includes("+")) ? 2 : 1;
+                        profits[idx] += (pay * unit * mults[idx] * hitMult) - cost;
+                        winCounts[idx]++; mults[idx] = 1;
+                        winLogs[idx].push(`${d.round}: [${s.split('').join(' ')}] ทุน ${cost} ออก ${d.full} -> ✅ [${res.hit}]`);
+                    } else {
+                        profits[idx] -= cost; mults[idx] *= 2;
+                        winLogs[idx].push(`${d.round}: [${s.split('').join(' ')}] ทุน ${cost} ออก ${d.full} -> ❌ หลุด`);
+                    }
+                });
+                history.push({ sets, actual: line, round: d.round });
+            }
+        });
+
+        document.getElementById('profitSection').style.display = 'block';
+        document.getElementById('profitGrid').innerHTML = profits.map((p, i) => `<div style="background:${p>=0?'var(--green-soft)':'var(--red-soft)'}; padding:10px; border-radius:12px; text-align:center; border:1px solid ${p>=0?'var(--green-main)':'var(--red-main)'}"><small>S${i+1}</small><br><b style="color:${p>=0?'var(--green-main)':'var(--red-main)'}">${p.toLocaleString()}</b></div>`).join('');
+        document.getElementById('historySection').style.display = 'block';
+        let bBody = document.getElementById('bBody'); bBody.innerHTML = "";
+        history.slice().reverse().slice(0, 5).forEach(h => {
+            let row = `<tr><td>${h.round}</td>`;
+            h.sets.forEach(s => { let res = checkWin(s, h.actual, m); row += `<td><small>${s}</small><br><span class="win-tag ${res.ok?'bg-win2':'is-loss'}">${res.st}</span></td>`; });
+            let d = extractData(h.actual); row += `<td><b>${d.full}</b></td></tr>`; bBody.innerHTML += row;
+        });
+        renderReports(calculateSets(extractData(input[input.length-1]).top2+"."+extractData(input[input.length-1]).bottom2, r, size), winCounts, input.length-1, m, profits);
+    }
+
+    function renderReports(nextSets, winCounts, total, m, profits) {
+        let area = document.getElementById('reportArea'); area.innerHTML = "";
+        let data = labels.map((l, i) => ({ label: l, set: nextSets[i], acc: Math.round(winCounts[i]/total*100) || 0, idx: i, profit: profits[i] })).sort((a,b) => b.acc - a.acc);
+        data.forEach((d, rank) => {
+            let pairs = []; for(let i=0; i<d.set.length; i++) for(let j=i+1; j<d.set.length; j++) pairs.push(d.set[i]+d.set[j]);
+            let highlights = pairs.filter(p => p.split('').some(n => hotList.map(x=>x).includes(n))).slice(0, 8);
+            let logs = winLogs[d.idx].slice().reverse().slice(0, 5).join('\n');
+            let txt = `✨ ▬▬▬ 💎 ${document.getElementById('lottoName').value} ▬▬▬ ✨\n👑 แอด: ${document.getElementById('adminName').value}\n📊 สูตร: ${d.label} [แม่นยำ ${d.acc}%]\n----------------------------------\n🔥 เลขเสียวตัวเดียว:  【 ${hotList.length > 0 ? hotList : "-"} 】\n🔮 เลขเด่น:  『 ${d.set.split('').join('  ')} 』\n💥 เน้นเบิ้ล: ${d.set.split('').map(n=>n+n).join(' ')}\n\n🎯 เจาะเน้น:\n▶️  ${highlights.join(' - ')}\n----------------------------------\n📈 สถิติ 5 งวดล่าสุด (รอบ: [วาง] ทุน ออก):\n${logs}\n💰 กำไรสะสม: ${d.profit.toLocaleString()} บาท\n----------------------------------\n🚀 BY DOMINO569`;
+            area.innerHTML += `<details class="main-card" ${rank===0?'open':''}><summary><div>${rank===0?'👑 ':''}รายงานสูตร ${d.label}</div><div class="acc-badge">${d.acc}%</div></summary><div class="content"><pre id="cp${d.idx}">${txt}</pre><button onclick="copyToClip('cp${d.idx}')" style="width:100%; border:none; padding:15px; background:linear-gradient(135deg, var(--orange-main), #f1c40f); color:white; border-radius:12px; font-weight:bold; cursor:pointer; margin-top:10px;">📋 คัดลอกรายงานสูตรนี้</button></div></details>`;
+        });
+    }
+    function copyToClip(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => alert("📋 คัดลอกรายงานเรียบร้อยแล้ว!")); }
+</script>
+</body>
+</html>
