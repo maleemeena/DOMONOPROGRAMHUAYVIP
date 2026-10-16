@@ -103,9 +103,11 @@
 
     <iframe id="mainFrame" class="iframe-container" src="SET5ONDUBBLE.html"></iframe>
 
-    <script>
+<script>
         function loadProgram(pageUrl, btnElement) {
-            document.getElementById('mainFrame').src = pageUrl;
+            // ระบุเส้นทางให้วิ่งตรงไปที่ไฟล์ในโดเมนหลักทันที
+            document.getElementById('mainFrame').src = window.location.origin + "/" + pageUrl;
+            
             let buttons = document.querySelectorAll('.nav-btn');
             buttons.forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
