@@ -123,7 +123,7 @@
             document.getElementById('loading').style.display = "block";
 
             // 🔗 ลิงก์ Apps Script API ของคุณ
-            let scriptURL = "https://script.google.com/macros/s/AKfycbycXQnCzYjSEngOzKbzsIJ_P7FU1DukCWq49qWiKQ_KzE-B23nWxARUG8qeK5byaLKx/exec";
+            let scriptURL = "https://script.google.com/macros/s/AKfycbw3Mnh09X5Lx7vxnbwvfmE5UYE2jF9XPFoX_yqW42LR8gl88L2LnqGl906d4pAZpmZr/exec";
 
             let formData = new FormData();
             formData.append("password", password);
@@ -137,15 +137,25 @@
             .then(result => {
                 document.getElementById('loading').style.display = "none";
                 
-                // 🌟 บันทึกรหัสผ่านหรือจำลองวันหมดอายุ (หรือจะปรับให้ Google Apps Script ส่งวันหมดอายุจริงกลับมาด้วยก็ได้ครับ)
-                localStorage.setItem("expireDate", "30 วัน (VIP)"); // หรือกำหนดค่าตามที่ต้องการแสดง
-
-                // เข้าสู่ระบบสำเร็จ พาไปหน้า Hub รวมโปรแกรม
-                window.location.href = "hub.html";
+                // ตรวจสอบผลลัพธ์ที่ส่งกลับมาจาก Apps Script
+                if (result.startsWith("Success")) {
+                    let parts = result.split("|");
+                    let expireDate = parts[1] || "ไม่ระบุ";
+                    
+                    // 🌟 บันทึกวันหมดอายุจริงที่ดึงมาจากชีต
+                    localStorage.setItem("expireDate", expireDate);
+                    window.location.href = "hub.html";
+                } else if (result === "Invalid_User") {
+                    alert("⚠️ รหัสผ่านไม่ถูกต้อง หรืออาจหมดอายุแล้ว");
+                } else {
+                    // เผื่อกรณีโค้ดหลังบ้านยังเป็นเวอร์ชันเก่า ให้กำหนดค่าสำรองไว้
+                    localStorage.setItem("expireDate", "VIP Access");
+                    window.location.href = "hub.html";
+                }
             })
             .catch(error => {
                 document.getElementById('loading').style.display = "none";
-                // กรณีติด CORS ให้พาข้ามไปหน้า Hub ทันทีเพื่อให้ใช้งานต่อได้ไม่ติดขัด
+                // กรณีติด CORS ให้พาข้ามไปหน้า Hub พร้อมกำหนดค่าสำรอง
                 localStorage.setItem("expireDate", "VIP Access");
                 window.location.href = "hub.html";
             });
