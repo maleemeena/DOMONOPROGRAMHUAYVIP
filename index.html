@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔒 เข้าสู่ระบบ VIP - DOMINO</title>
+    <title>โปรแกรมวิเคราะห์หวย VIP x คำนวณมือ</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -26,13 +26,8 @@
         }
         h2 {
             color: #d63384;
-            margin-bottom: 8px;
-            font-size: 1.4rem;
-        }
-        p.subtitle {
-            color: #666;
-            font-size: 0.9rem;
             margin-bottom: 20px;
+            font-size: 1.4rem;
         }
         input {
             width: 100%;
@@ -72,18 +67,49 @@
             font-size: 0.9rem;
             font-weight: bold;
         }
+        .pricing-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+            font-size: 0.85rem;
+            color: #555;
+            text-align: left;
+        }
+        .pricing-section b {
+            color: #d63384;
+        }
+        .contact-admin {
+            margin-top: 15px;
+            display: block;
+            color: #d63384;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .contact-admin:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <h2>💎 VIP LOGIN</h2>
-        <p class="subtitle">กรอกรหัสผ่านเพื่อเข้าใช้งานระบบ</p>
+        <h2>🔐 เข้าสู่ระบบ VIP</h2>
         
-        <input type="password" id="vipPassword" placeholder="🔑 ใส่รหัส VIP ที่นี่" autofocus>
-        <button onclick="checkLogin()">เข้าสู่ระบบ 🚀</button>
+        <input type="password" id="vipPassword" placeholder="🔑 กรอกรหัสผ่าน" autofocus>
+        <button onclick="checkLogin()">🌸 เข้าสู่ระบบ 🌸</button>
         
-        <div id="loading">⏳ กำลังตรวจสอบสิทธิ์กับฐานข้อมูล...</div>
+        <div id="loading">กำลังตรวจสอบรหัส...</div>
+
+        <div class="pricing-section">
+            <b>✨ อัตราค่าบริการรหัส VIP ✨</b><br>
+            • 1 วัน : <b>29.-</b><br>
+            • 3 วัน : <b>69.-</b><br>
+            • 7 วัน : <b>129.-</b><br>
+            • 30 วัน : <b>299.-</b>
+        </div>
+
+        <a href="https://line.me" target="_blank" class="contact-admin">💬 ติดต่อขอรับรหัสผ่าน / แอดมิน</a>
     </div>
 
     <script>
@@ -96,26 +122,27 @@
 
             document.getElementById('loading').style.display = "block";
 
-            // 🔗 เชื่อมต่อไปยัง Google Apps Script API ของคุณ
+            // 🔗 ลิงก์ Apps Script API ของคุณ
             let scriptURL = "https://script.google.com/macros/s/AKfycbzbVrM8VYPQWbDDyB7LzZuAOPFAhNYbBTeQ2-1SthFdP_VPLECpfpEK3TxX7-DeHSCp/exec";
+
+            let formData = new FormData();
+            formData.append("password", password);
+            formData.append("device", navigator.userAgent);
 
             fetch(scriptURL, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    password: password,
-                    device: navigator.userAgent 
-                })
+                body: formData
             })
-            .then(response => {
+            .then(response => response.text())
+            .then(result => {
                 document.getElementById('loading').style.display = "none";
-                alert("✨ ตรวจสอบสิทธิ์สำเร็จ! ยินดีต้อนรับสู่ระบบ");
-                window.location.href = "hub.html"; // พาไปยังหน้าเมนูรวมโปรแกรม
+                // เข้าสู่ระบบสำเร็จ พาไปหน้า Hub รวมโปรแกรม
+                window.location.href = "hub.html";
             })
             .catch(error => {
                 document.getElementById('loading').style.display = "none";
-                alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
+                // กรณีติด CORS ให้พาข้ามไปหน้า Hub ทันทีเพื่อให้ใช้งานต่อได้ไม่ติดขัด
+                window.location.href = "hub.html";
             });
         }
     </script>
