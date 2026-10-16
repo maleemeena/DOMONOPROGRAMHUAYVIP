@@ -113,7 +113,7 @@
     </div>
 
 <script>
-        function checkLogin() {
+        async function checkLogin() {
             let password = document.getElementById('vipPassword').value.trim();
             if (!password) {
                 alert("⚠️ กรุณากรอกรหัสผ่านก่อนนะจ๊ะ");
@@ -125,38 +125,47 @@
             // 🔗 ลิงก์ Apps Script API ของคุณ
             let scriptURL = "https://script.google.com/macros/s/AKfycbw3Mnh09X5Lx7vxnbwvfmE5UYE2jF9XPFoX_yqW42LR8gl88L2LnqGl906d4pAZpmZr/exec";
 
-            let formData = new FormData();
-            formData.append("password", password);
-            formData.append("device", navigator.userAgent);
+            // 1. ดึง IP Address จริงของผู้ใช้งาน
+            let userIp = "Unknown";
+            try {
+                let ipRes = await fetch('https://api.ipify.org?format=json');
+                let ipData = await ipRes.json();
+                userIp = ipData.ip;
+            } catch (e) {
+                console.log("ไม่สามารถดึง IP ได้");
+            }
 
-            fetch(scriptURL, {
-                method: "POST",
-                body: formData
-            })
+            // 2. ตรวจสอบประเภทอุปกรณ์ให้แสดงสั้นๆ (Mobile หรือ PC / Mac)
+            let deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "PC / Mac";
+
+            // 3. ส่งข้อมูลแบบพ่วงพารามิเตอร์ (GET) ไปยัง Apps Script
+            let fullURL = `${scriptURL}?username=${encodeURIComponent(password)}&ip=${encodeURIComponent(userIp)}&device=${encodeURIComponent(deviceType)}`;
+
+            fetch(fullURL)
             .then(response => response.text())
-            .then(result => {
+            .then(textResult => {
                 document.getElementById('loading').style.display = "none";
                 
-                // ตรวจสอบผลลัพธ์ที่ส่งกลับมาจาก Apps Script
-                if (result.startsWith("Success")) {
-                    let parts = result.split("|");
-                    let expireDate = parts[1] || "ไม่ระบุ";
-                    
-                    // 🌟 บันทึกวันหมดอายุจริงที่ดึงมาจากชีต
-                    localStorage.setItem("expireDate", expireDate);
+                // แปลงผลลัพธ์เป็น JSON (รองรับโครงสร้างใหม่)
+                let result;
+                try {
+                    result = JSON.parse(textResult);
+                } catch (e) {
+                    result = { status: "success", message: textResult };
+                }
+
+                if (result.status === "success") {
+                    // กำหนดวันหมดอายุ (สามารถปรับเปลี่ยนหรือดึงเพิ่มได้ตามต้องการ)
+                    localStorage.setItem("expireDate", "17/10/2026");
                     window.location.href = "hub.html";
-                } else if (result === "Invalid_User") {
-                    alert("⚠️ รหัสผ่านไม่ถูกต้อง หรืออาจหมดอายุแล้ว");
                 } else {
-                    // เผื่อกรณีโค้ดหลังบ้านยังเป็นเวอร์ชันเก่า ให้กำหนดค่าสำรองไว้
-                    localStorage.setItem("expireDate", "VIP Access");
-                    window.location.href = "hub.html";
+                    alert(result.message || "⚠️ เกิดข้อผิดพลาด");
                 }
             })
             .catch(error => {
                 document.getElementById('loading').style.display = "none";
-                // กรณีติด CORS ให้พาข้ามไปหน้า Hub พร้อมกำหนดค่าสำรอง
-                localStorage.setItem("expireDate", "VIP Access");
+                // กรณีเกิดปัญหาการเชื่อมต่อ ให้สำรองเข้าหน้า Hub ได้ปกติ
+                localStorage.setItem("expireDate", "17/10/2026");
                 window.location.href = "hub.html";
             });
         }
