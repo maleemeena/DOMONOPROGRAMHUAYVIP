@@ -3,310 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ DOMINOPROGRAM - VIP  ✨</title>
+    <title>✨ DOMINOPROGRAMVIP ✨</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: linear-gradient(135deg, #111111, #1a1a1a, #2c1622);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 15px;
-            color: #f3f3f3;
-        }
-        .login-card {
-            background: rgba(20, 20, 20, 0.95);
-            padding: 28px;
-            border-radius: 20px;
-            box-shadow: 0 10px 35px rgba(212, 175, 55, 0.25), 0 0 20px rgba(255, 105, 180, 0.15);
-            width: 100%;
-            max-width: 390px;
-            text-align: center;
-            border: 2px solid #d4af37;
-            position: relative;
-            overflow: hidden;
-        }
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 105, 180, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        h2 {
-            color: #d4af37;
-            margin-bottom: 12px;
-            font-size: 1.3rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .notice {
-            font-size: 0.78rem;
-            color: #ffb6c1;
-            margin-bottom: 12px;
-            text-align: left;
-            background: rgba(255, 20, 147, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 4px solid #ff69b4;
-            line-height: 1.4;
-        }
-        .bank-box {
-            background: rgba(30, 30, 30, 0.9);
-            border: 2px dashed #d4af37;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-            font-size: 0.85rem;
-            color: #ddd;
-            text-align: center;
-        }
-        .bank-box b {
-            color: #ff69b4;
-            font-size: 1.05rem;
-            text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
-        }
-        .price-tag {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(255, 105, 180, 0.15));
-            color: #d4af37;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            font-size: 1rem;
-            border: 1px solid #d4af37;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-        .input-group {
-            text-align: left;
-            font-size: 0.82rem;
-            color: #ffc0cb;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 11px;
-            margin-bottom: 12px;
-            border: 2px solid #444;
-            border-radius: 10px;
-            box-sizing: border-box;
-            text-align: center;
-            font-size: 0.95rem;
-            outline: none;
-            background: #111;
-            color: #fff;
-            transition: 0.3s;
-        }
-        input:focus, select:focus {
-            border-color: #d4af37;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-        }
-        .file-upload {
-            border: 2px dashed #ff69b4;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            background: rgba(255, 105, 180, 0.05);
-            font-size: 0.85rem;
-            color: #ffb6c1;
-            text-align: center;
-        }
-        button {
-            width: 100%;
-            background: linear-gradient(135deg, #d4af37, #aa7c11);
-            color: #111;
-            border: none;
-            padding: 13px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1.05rem;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            transition: 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        button:hover {
-            opacity: 0.95;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-        }
-        #loading {
-            display: none;
-            color: #ff69b4;
-            margin-top: 12px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
-        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #fff; }
+        .card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 2px solid #d4af37; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 5px 20px rgba(212,175,55,0.2); }
+        h2 { color: #d4af37; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 1rem; }
+        input:focus { border-color: #d4af37; outline: none; }
+        button { width: 100%; padding: 12px; background: #d4af37; color: #111; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 1rem; text-transform: uppercase; }
+        button:hover { background: #b89728; }
+        #loading { display: none; color: #ff69b4; margin-top: 10px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-
-    <div class="login-card">
-        <h2>✨ 👑 DOMINO VIP 👑 ✨</h2>
-        
-        <div class="notice">
-            <b>⚠️ คำเตือนสุดพิเศษ:</b> ห้ามนำยูสไปแชร์ให้ผู้อื่นเด็ดขาด! <u>หากตรวจพบระบบจะบล็อกถาวรทันทีโดยไม่มีการคืนเงิน</u> 🚫
-        </div>
-
-        <div class="bank-box">
-            💳 โอนผ่านบัญชีธนาคารเท่านั้น<br>
-            <b>🏦 ธนาคารกรุงไทย: 8150330437</b><br>
-            ✨ ชื่อบัญชี: เปรมวดี ฉ่ำทวี ✨
-        </div>
-
-        <div class="input-group">📦 เลือกแพ็กเกจความคุ้มค่า:</div>
-        <select id="packageSelect" onchange="playSoundClick(); updatePriceDisplay();">
-            <option value="1" data-price="50">🌟 1 วัน - 50 บาท</option>
-            <option value="3" data-price="90">💎 3 วัน - 90 บาท</option>
-            <option value="7" data-price="120">👑 7 วัน - 120 บาท</option>
-            <option value="30" data-price="290">🔥 30 วัน - 290 บาท (คุ้มสุด!)</option>
-        </select>
-
-        <div class="price-tag" id="priceDisplay">💰 ยอดที่ต้องโอนเป๊ะๆ: 50.xx บาท</div>
-        
-        <div class="input-group">📸 แนบสลิปหลักฐานการโอนเงิน:</div>
-        <input type="file" id="slipFile" class="file-upload" accept="image/*">
-
-        <div class="input-group">👤 ชื่อผู้ใช้ (Username):</div>
-        <input type="text" id="username" placeholder="✍️ ตั้งชื่อผู้ใช้ของคุณ">
-        
-        <div class="input-group">🔑 รหัสผ่าน (Password):</div>
-        <input type="password" id="password" placeholder="🔒 ตั้งรหัสผ่านของคุณ">
-        
-        <button onclick="playSoundSuccess(); submitSlipLogin();">✨ ยืนยันสลิปและเข้าใช้งาน ✨</button>
-        
-        <div id="loading">💫 กำลังอัปโหลดสลิปและตรวจสอบข้อมูลออโต้...</div>
+    <div class="card">
+        <h2>✨ DOMINO VIP ✨</h2>
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้ (Username)">
+        <input type="password" id="password" placeholder="รหัสผ่าน (Password)">
+        <button onclick="submitLogin()">เข้าสู่ระบบ</button>
+        <div id="loading">กำลังตรวจสอบข้อมูล...</div>
     </div>
 
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playSoundClick() {
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            let freq = 600;
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
-        }
-
-        function playSoundSuccess() {
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            let now = audioCtx.currentTime;
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(440, now);
-            osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
-            gain.gain.setValueAtTime(0.08, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.3);
-        }
-
-        let currentExactPrice = 50;
-
-        function updatePriceDisplay() {
-            let select = document.getElementById('packageSelect');
-            let basePrice = parseFloat(select.options[select.selectedIndex].getAttribute('data-price'));
-            let randomCents = (Math.floor(Math.random() * 98) + 1) / 100;
-            currentExactPrice = (basePrice + randomCents).toFixed(2);
-            document.getElementById('priceDisplay').innerText = `💰 ยอดที่ต้องโอนเป๊ะๆ: ${currentExactPrice} บาท`;
-        }
-
-        window.onload = updatePriceDisplay;
-
-        async function submitSlipLogin() {
+        async function submitLogin() {
             let username = document.getElementById('username').value.trim();
             let password = document.getElementById('password').value.trim();
-            let select = document.getElementById('packageSelect');
-            let packageDays = select.value;
-            let basePrice = select.options[select.selectedIndex].getAttribute('data-price');
-            let slipFile = document.getElementById('slipFile').files[0];
 
             if (!username || !password) {
-                alert("⚠️ กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วนก่อนนะครับ!");
-                return;
-            }
-
-            if (!slipFile) {
-                alert("⚠️ กรุณาแนบรูปสลิปหลักฐานการโอนเงินด้วยครับ!");
+                alert("⚠️ กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วนครับ!");
                 return;
             }
 
             document.getElementById('loading').style.display = "block";
 
-            let scriptURL = "https://script.google.com/macros/s/AKfycbySxWoTdL4hGbGAbimSQbr45gwFWDfdivcjswirPybsp0nW2nOLLgLSGeZPzkfmCoBK/exec";
+            let scriptURL = "https://script.google.com/macros/s/AKfycbyTV_553bIJo-V8HLTPyiByCMgX-8ygPV5rBgM1FaWK8akcGc8d_CHKJMPzNnkPLyE/exec"; // <-- 📌 นำลิงก์ Apps Script (/exec) มาวางตรงนี้
 
-            let userIp = "Unknown";
-            try {
-                let ipRes = await fetch('https://api.ipify.org?format=json');
-                let ipData = await ipRes.json();
-                userIp = ipData.ip;
-            } catch (e) {}
-
-            let deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "PC / Mac";
-
-            let reader = new FileReader();
-            reader.readAsDataURL(slipFile);
-            reader.onload = async function () {
-                let base64Image = reader.result;
-
-                let postData = {
-                    username: username,
-                    password: password,
-                    packageDays: packageDays,
-                    basePrice: basePrice,
-                    exactAmount: currentExactPrice,
-                    slipImage: base64Image,
-                    ip: userIp,
-                    device: deviceType
-                };
-
-                try {
-                    let response = await fetch(scriptURL, {
-                        method: "POST",
-                        body: JSON.stringify(postData)
-                    });
-                    
-                    let textResult = await response.text();
-                    document.getElementById('loading').style.display = "none";
-                    
-                    let result;
-                    try {
-                        result = JSON.parse(textResult);
-                    } catch (e) {
-                        result = { status: "success", message: textResult };
-                    }
-
-                    if (result.status === "success") {
-                        localStorage.setItem("expireDate", result.expire || "24 ชั่วโมง");
-                        alert(`🎉 ยอดเยี่ยม! ทำรายการสำเร็จ\n💡 กรุณาโอนเงินยอดเป๊ะ: ${currentExactPrice} บาท\n✨ ระบบกำลังพาเข้าสู่ระบบ VIP ครับ ✨`);
-                        window.location.href = "hub.html";
-                    } else {
-                        alert(result.message || "⚠️ เกิดข้อผิดพลาดบางประการ");
-                    }
-                } catch (error) {
-                    document.getElementById('loading').style.display = "none";
-                    alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง");
-                }
+            let postData = {
+                username: username,
+                password: password,
+                packageDays: "1",
+                basePrice: "0",
+                exactAmount: "0"
             };
+
+            try {
+                let response = await fetch(scriptURL, {
+                    method: "POST",
+                    body: JSON.stringify(postData)
+                });
+                let textResult = await response.text();
+                document.getElementById('loading').style.display = "none";
+                
+                let result;
+                try {
+                    result = JSON.parse(textResult);
+                } catch (e) {
+                    result = { status: "success", message: textResult };
+                }
+
+                if (result.status === "success") {
+                    alert("🎉 เข้าสู่ระบบสำเร็จ!");
+                    window.location.href = "hub.html"; // หรือหน้าที่ต้องการให้เด้งไป
+                } else {
+                    alert(result.message || "⚠️ เกิดข้อผิดพลาด");
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = "none";
+                alert("⚠️ เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ");
+            }
         }
     </script>
 </body>
