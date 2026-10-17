@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOMINOรวมโปรแกรมวิเคราะห์หวย VIP </title>
+    <title>DOMINO - ระบบเติมเงินและเข้าใช้งาน VIP</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -11,50 +11,94 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 15px;
         }
         .login-card {
             background: #fff;
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
             box-shadow: 0 8px 25px rgba(214, 51, 132, 0.15);
             width: 100%;
             max-width: 380px;
             text-align: center;
-            border-top: 5px solid #d63384;
+            border-top: 5px solid #28a745;
         }
         h2 {
-            color: #d63384;
-            margin-bottom: 20px;
-            font-size: 1.4rem;
+            color: #28a745;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
         }
-        input {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            border: 2px solid #eee;
+        .notice {
+            font-size: 0.78rem;
+            color: #d63384;
+            margin-bottom: 10px;
+            text-align: left;
+            background: #fff5f8;
+            padding: 8px;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+        .bank-box {
+            background: #f8f9fa;
+            border: 2px dashed #28a745;
+            padding: 10px;
             border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #333;
+            text-align: center;
+        }
+        .bank-box b {
+            color: #d63384;
+            font-size: 1rem;
+        }
+        .input-group {
+            text-align: left;
+            font-size: 0.82rem;
+            color: #555;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #eee;
+            border-radius: 8px;
             box-sizing: border-box;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             outline: none;
+            background: #fff;
             transition: 0.3s;
         }
-        input:focus {
-            border-color: #d63384;
+        input:focus, select:focus {
+            border-color: #28a745;
+        }
+        .file-upload {
+            border: 2px dashed #ccc;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background: #fafafa;
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
         }
         button {
             width: 100%;
-            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            background: linear-gradient(135deg, #28a745, #218838);
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(255, 117, 140, 0.3);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
             transition: 0.2s;
         }
         button:hover {
@@ -62,113 +106,114 @@
         }
         #loading {
             display: none;
-            color: #d63384;
-            margin-top: 15px;
+            color: #28a745;
+            margin-top: 12px;
             font-size: 0.9rem;
             font-weight: bold;
-        }
-        .pricing-section {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px dashed #eee;
-            font-size: 0.85rem;
-            color: #555;
-            text-align: left;
-        }
-        .pricing-section b {
-            color: #d63384;
-        }
-        .contact-admin {
-            margin-top: 15px;
-            display: block;
-            color: #d63384;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-        .contact-admin:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <h2>🔐 เข้าสู่ระบบ VIP</h2>
+        <h2>🟢 ระบบสมัครและเติมเงินออโต้</h2>
         
-        <input type="password" id="vipPassword" placeholder="🔑 กรอกรหัสผ่าน" autofocus>
-        <button onclick="checkLogin()">🌸 เข้าสู่ระบบ 🌸</button>
-        
-        <div id="loading">กำลังตรวจสอบรหัส...</div>
-
-        <div class="pricing-section">
-            <b>✨ อัตราค่าบริการรหัส VIP ✨</b><br>
-            • 1 วัน : <b>50.-</b><br>
-            • 3 วัน : <b>90.-</b><br>
-            • 7 วัน : <b>120.-</b><br>
-            • 30 วัน : <b>290.-</b>
+        <div class="notice">
+            <b>⚠️ คำเตือน:</b> ห้ามนำยูสไปแชร์ให้ผู้อื่นใช้ร่วมกัน <u>หากตรวจพบระบบจะบล็อกถาวรทันทีโดยไม่มีการคืนเงิน</u>
         </div>
 
-        <a href="https://line.me" target="_blank" class="contact-admin">💬 ติดต่อขอรับรหัสผ่าน Line ID: momongmo</a>
+        <div class="bank-box">
+            โอนผ่านบัญชีธนาคารเท่านั้น<br>
+            <b>ธนาคารกรุงไทย: 8150330437</b><br>
+            ชื่อบัญชี: เปรมวดี ฉ่ำทวี
+        </div>
+
+        <div class="input-group">📦 เลือกแพ็กเกจราคา:</div>
+        <select id="packageSelect">
+            <option value="1">1 วัน - 50 บาท</option>
+            <option value="3">3 วัน - 90 บาท</option>
+            <option value="7">7 วัน - 120 บาท</option>
+            <option value="30">30 วัน - 290 บาท</option>
+        </select>
+        
+        <div class="input-group">📸 แนบสลิปหลักฐานการโอนเงิน:</div>
+        <input type="file" id="slipFile" class="file-upload" accept="image/*">
+
+        <div class="input-group">👤 ชื่อผู้ใช้ (Username):</div>
+        <input type="text" id="username" placeholder="ตั้งชื่อผู้ใช้ของคุณ">
+        
+        <div class="input-group">🔑 รหัสผ่าน (Password):</div>
+        <input type="password" id="password" placeholder="ตั้งรหัสผ่านของคุณ">
+        
+        <button onclick="submitSlipLogin()">🟢 ยืนยันสลิปและเข้าใช้งาน</button>
+        
+        <div id="loading">กำลังตรวจสอบข้อมูลและสลิป...</div>
     </div>
 
-<script>
-        async function checkLogin() {
-            let password = document.getElementById('vipPassword').value.trim();
-            if (!password) {
-                alert("⚠️ กรุณากรอกรหัสผ่านก่อนนะจ๊ะ");
+    <script>
+        async function submitSlipLogin() {
+            let username = document.getElementById('username').value.trim();
+            let password = document.getElementById('password').value.trim();
+            let selectedPackage = document.getElementById('packageSelect').value;
+            let slipFile = document.getElementById('slipFile').files[0];
+
+            if (!username || !password) {
+                alert("⚠️ กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน");
+                return;
+            }
+
+            if (!slipFile) {
+                alert("⚠️ กรุณาแนบรูปสลิปหลักฐานการโอนเงิน");
                 return;
             }
 
             document.getElementById('loading').style.display = "block";
 
-            // 🔗 ลิงก์ Apps Script API ของคุณ
-            let scriptURL = "https://script.google.com/macros/s/AKfycbyof9FU8tiMuAKNts_rp0-4g__rYBcfw48wI5MnpcinHTJpINMv_D-kOzx0955ND9lH/exec";
+            // 🔗 เชื่อมต่อไปยัง Apps Script API ล่าสุดของคุณ
+            let scriptURL = "https://script.google.com/macros/s/AKfycbx-lMofKWN_DnEenppFqu1RXgcOa7mvqsz-VBLLvodhWiBG2BzJil2HRFKTq94KeqPd/exec";
 
-            // 1. ดึง IP Address จริงของผู้ใช้งาน
             let userIp = "Unknown";
             try {
                 let ipRes = await fetch('https://api.ipify.org?format=json');
                 let ipData = await ipRes.json();
                 userIp = ipData.ip;
-            } catch (e) {
-                console.log("ไม่สามารถดึง IP ได้");
-            }
+            } catch (e) {}
 
-            // 2. ตรวจสอบประเภทอุปกรณ์ให้แสดงสั้นๆ (Mobile หรือ PC / Mac)
             let deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "PC / Mac";
 
-            // 3. ส่งข้อมูลแบบพ่วงพารามิเตอร์ (GET) ไปยัง Apps Script
-            let fullURL = `${scriptURL}?username=${encodeURIComponent(password)}&ip=${encodeURIComponent(userIp)}&device=${encodeURIComponent(deviceType)}`;
+            let reader = new FileReader();
+            reader.readAsDataURL(slipFile);
+            reader.onload = async function () {
+                let base64Image = reader.result;
 
-            fetch(fullURL)
-            .then(response => response.text())
-            .then(textResult => {
-                document.getElementById('loading').style.display = "none";
-                
-                // แปลงผลลัพธ์เป็น JSON (รองรับโครงสร้างใหม่)
-                let result;
-                try {
-                    result = JSON.parse(textResult);
-                } catch (e) {
-                    result = { status: "success", message: textResult };
-                }
+                let fullURL = `${scriptURL}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&package=${selectedPackage}&ip=${encodeURIComponent(userIp)}&device=${encodeURIComponent(deviceType)}`;
 
-                if (result.status === "success") {
-                    // กำหนดวันหมดอายุ (สามารถปรับเปลี่ยนหรือดึงเพิ่มได้ตามต้องการ)
-                    localStorage.setItem("expireDate", "17/10/2026");
+                fetch(fullURL)
+                .then(response => response.text())
+                .then(textResult => {
+                    document.getElementById('loading').style.display = "none";
+                    
+                    let result;
+                    try {
+                        result = JSON.parse(textResult);
+                    } catch (e) {
+                        result = { status: "success", message: textResult };
+                    }
+
+                    if (result.status === "success") {
+                        localStorage.setItem("expireDate", result.expire || "24 ชั่วโมง");
+                        window.location.href = "hub.html";
+                    } else {
+                        alert(result.message || "⚠️ เกิดข้อผิดพลาด");
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = "none";
+                    localStorage.setItem("expireDate", "24 ชั่วโมง");
                     window.location.href = "hub.html";
-                } else {
-                    alert(result.message || "⚠️ เกิดข้อผิดพลาด");
-                }
-            })
-            .catch(error => {
-                document.getElementById('loading').style.display = "none";
-                // กรณีเกิดปัญหาการเชื่อมต่อ ให้สำรองเข้าหน้า Hub ได้ปกติ
-                localStorage.setItem("expireDate", "17/10/2026");
-                window.location.href = "hub.html";
-            });
+                });
+            };
         }
     </script>
-    </body>
+</body>
 </html>
