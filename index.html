@@ -1,59 +1,153 @@
+นี่คือโค้ดของ index.html ปัจจุบัน
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ DOMINOPROGRAMVIP ✨</title>
+    <title>DOMINOรวมโปรแกรมวิเคราะห์หวย VIP </title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #fff; }
-        .card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 2px solid #d4af37; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 5px 20px rgba(212,175,55,0.2); }
-        h2 { color: #d4af37; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 1rem; }
-        input:focus { border-color: #d4af37; outline: none; }
-        button { width: 100%; padding: 12px; background: #d4af37; color: #111; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 1rem; text-transform: uppercase; }
-        button:hover { background: #b89728; }
-        #loading { display: none; color: #ff69b4; margin-top: 10px; font-size: 0.9rem; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #fdf6f9, #f4e2eb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(214, 51, 132, 0.15);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            border-top: 5px solid #d63384;
+        }
+        h2 {
+            color: #d63384;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus {
+            border-color: #d63384;
+        }
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(255, 117, 140, 0.3);
+            transition: 0.2s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #loading {
+            display: none;
+            color: #d63384;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .pricing-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+            font-size: 0.85rem;
+            color: #555;
+            text-align: left;
+        }
+        .pricing-section b {
+            color: #d63384;
+        }
+        .contact-admin {
+            margin-top: 15px;
+            display: block;
+            color: #d63384;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .contact-admin:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>✨ DOMINO VIP ✨</h2>
-        <input type="text" id="username" placeholder="ชื่อผู้ใช้ (Username)">
-        <input type="password" id="password" placeholder="รหัสผ่าน (Password)">
-        <button onclick="submitLogin()">เข้าสู่ระบบ</button>
-        <div id="loading">กำลังตรวจสอบข้อมูล...</div>
+
+    <div class="login-card">
+        <h2>🔐 เข้าสู่ระบบ VIP</h2>
+        
+        <input type="password" id="vipPassword" placeholder="🔑 กรอกรหัสผ่าน" autofocus>
+        <button onclick="checkLogin()">🌸 เข้าสู่ระบบ 🌸</button>
+        
+        <div id="loading">กำลังตรวจสอบรหัส...</div>
+
+        <div class="pricing-section">
+            <b>✨ อัตราค่าบริการรหัส VIP ✨</b><br>
+            • 1 วัน : <b>50.-</b><br>
+            • 3 วัน : <b>90.-</b><br>
+            • 7 วัน : <b>120.-</b><br>
+            • 30 วัน : <b>290.-</b>
+        </div>
+
+        <a href="https://line.me" target="_blank" class="contact-admin">💬 ติดต่อขอรับรหัสผ่าน Line ID: momongmo</a>
     </div>
 
-    <script>
-        async function submitLogin() {
-            let username = document.getElementById('username').value.trim();
-            let password = document.getElementById('password').value.trim();
-
-            if (!username || !password) {
-                alert("⚠️ กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วนครับ!");
+<script>
+        async function checkLogin() {
+            let password = document.getElementById('vipPassword').value.trim();
+            if (!password) {
+                alert("⚠️ กรุณากรอกรหัสผ่านก่อนนะจ๊ะ");
                 return;
             }
 
             document.getElementById('loading').style.display = "block";
 
-            let scriptURL = "https://script.google.com/macros/s/AKfycbyTV_553bIJo-V8HLTPyiByCMgX-8ygPV5rBgM1FaWK8akcGc8d_CHKJMPzNnkPLyE/exec"; // <-- 📌 นำลิงก์ Apps Script (/exec) มาวางตรงนี้
+            // 🔗 ลิงก์ Apps Script API ของคุณ
+            let scriptURL = "https://script.google.com/macros/s/AKfycbzhbTuqZ-3MgZidyIaEAC1l-h_ctpH9DDuFErYYs65vM25F9t8MlBNkDX_LiakZu8aO/exec";
 
-            let postData = {
-                username: username,
-                password: password,
-                packageDays: "1",
-                basePrice: "0",
-                exactAmount: "0"
-            };
-
+            // 1. ดึง IP Address จริงของผู้ใช้งาน
+            let userIp = "Unknown";
             try {
-                let response = await fetch(scriptURL, {
-                    method: "POST",
-                    body: JSON.stringify(postData)
-                });
-                let textResult = await response.text();
+                let ipRes = await fetch('https://api.ipify.org?format=json');
+                let ipData = await ipRes.json();
+                userIp = ipData.ip;
+            } catch (e) {
+                console.log("ไม่สามารถดึง IP ได้");
+            }
+
+            // 2. ตรวจสอบประเภทอุปกรณ์ให้แสดงสั้นๆ (Mobile หรือ PC / Mac)
+            let deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "PC / Mac";
+
+            // 3. ส่งข้อมูลแบบพ่วงพารามิเตอร์ (GET) ไปยัง Apps Script
+            let fullURL = `${scriptURL}?username=${encodeURIComponent(password)}&ip=${encodeURIComponent(userIp)}&device=${encodeURIComponent(deviceType)}`;
+
+            fetch(fullURL)
+            .then(response => response.text())
+            .then(textResult => {
                 document.getElementById('loading').style.display = "none";
                 
+                // แปลงผลลัพธ์เป็น JSON (รองรับโครงสร้างใหม่)
                 let result;
                 try {
                     result = JSON.parse(textResult);
@@ -62,16 +156,20 @@
                 }
 
                 if (result.status === "success") {
-                    alert("🎉 เข้าสู่ระบบสำเร็จ!");
-                    window.location.href = "hub.html"; // หรือหน้าที่ต้องการให้เด้งไป
+                    // กำหนดวันหมดอายุ (สามารถปรับเปลี่ยนหรือดึงเพิ่มได้ตามต้องการ)
+                    localStorage.setItem("expireDate", "17/10/2026");
+                    window.location.href = "hub.html";
                 } else {
                     alert(result.message || "⚠️ เกิดข้อผิดพลาด");
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 document.getElementById('loading').style.display = "none";
-                alert("⚠️ เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ");
-            }
+                // กรณีเกิดปัญหาการเชื่อมต่อ ให้สำรองเข้าหน้า Hub ได้ปกติ
+                localStorage.setItem("expireDate", "17/10/2026");
+                window.location.href = "hub.html";
+            });
         }
     </script>
-</body>
+    </body>
 </html>
