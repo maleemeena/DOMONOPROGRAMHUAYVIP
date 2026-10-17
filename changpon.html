@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMINOเครื่องมือจัดรูปแบบหวย</title>
+    <style>
+        body { font-family: 'Tahoma', sans-serif; padding: 20px; background-color: #f4f7f6; }
+        .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; }
+        textarea { width: 100%; height: 150px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-bottom: 15px; }
+        select { width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ccc; font-size: 14px; }
+        .btn-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 15px; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .btn-convert { background-color: #3498db; color: white; }
+        .btn-copy { background-color: #27ae60; color: white; display: none; }
+        #output { background: #2c3e50; color: #fff; padding: 15px; border-radius: 8px; margin-top: 15px; white-space: pre-wrap; font-family: monospace; min-height: 50px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📊 DOMINOจัดรูปแบบหวย </h2>
+    <textarea id="inputData" placeholder="วางข้อมูลสถิติที่นี่..."></textarea>
+    
+    <label>เลือกสไตล์การจัดวาง:</label>
+    <select id="formatStyle">
+        <optgroup label="-- สไตล์จากต้นฉบับ (v9) --">
+            <option value="name-score">ชื่อหวย เลข5ตัว (นิคเคอิบ่าย 28748)</option>
+            <option value="score-name">เลข5ตัว ชื่อหวย (28748 นิคเคอิบ่าย)</option>
+            <option value="score-only">เอาเฉพาะตัวเลข (28748)</option>
+        </optgroup>
+        
+        <optgroup label="-- แบบ บน-ล่าง (ขีดกลาง) --">
+            <option value="name-dash">ชื่อหวย บน-ล่าง (ลาวพัฒนา 123-45)</option>
+            <option value="dash-name">บน-ล่าง ชื่อหวย (123-45 ลาวพัฒนา)</option>
+        </optgroup>
+
+        <optgroup label="-- แบบมีเครื่องหมายสัญลักษณ์ --">
+            <option value="plus-name">++ชื่อหวย เลข5ตัว (++นิคเคอิVIP 58397)</option>
+            <option value="plus-dash">++ชื่อหวย บน-ล่าง (++นิคเคอิVIP 583-97)</option>
+            <option value="minus-name">--ชื่อหวย เลข5ตัว (--นิคเคอิVIP 58397)</option>
+            <option value="minus-dash">--ชื่อหวย บน-ล่าง (--นิคเคอิVIP 583-97)</option>
+            <option value="hash-name">#ชื่อหวย เลข5ตัว (#นิคเคอิVIP 58397)</option>
+            <option value="hash-dash">#ชื่อหวย บน-ล่าง (#นิคเคอิVIP 583-97)</option>
+            <option value="star-name">*ชื่อหวย เลข5ตัว (*นิคเคอิVIP 58397)</option>
+            <option value="star-dash">*ชื่อหวย บน-ล่าง (*นิคเคอิVIP 583-97)</option>
+        </optgroup>
+    </select>
+
+    <div class="btn-group">
+        <button class="btn-convert" onclick="processData()">🚀 แปลงข้อมูล</button>
+        <button id="copyBtn" class="btn-copy" onclick="copyResult()">📋 คัดลอก</button>
+    </div>
+    <div id="output"></div>
+</div>
+
+<script>
+    function processData() {
+        const input = document.getElementById('inputData').value;
+        const style = document.getElementById('formatStyle').value;
+        const lines = input.split('\n');
+        let currentHeader = ""; 
+        let finalResults = [];
+
+        const scoreRegex = /(\d{3})[-\s|]*(\d{2})/;
+        const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+        const symbolRegex = /[|➡️➔•🟢💚⭐✨🔴🔥📍\-]/g;
+        const dateRegex = /\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+\d{2,4}/g;
+
+        lines.forEach(line => {
+            let text = line.trim();
+            if (!text || text.includes("➖➖")) return;
+
+            if ((text.includes("สถิติ") || text.includes("ยี่กี")) && !scoreRegex.test(text)) {
+                currentHeader = text.replace(/สถิติย้อนหลัง/g, '').replace(emojiRegex, '').replace(symbolRegex, '').replace(/\s+/g, '').trim();
+                return;
+            }
+
+            const match = text.match(scoreRegex);
+            if (match) {
+                let nameInLine = text.replace(dateRegex, '').replace(scoreRegex, '').replace(emojiRegex, '').replace(symbolRegex, '').replace(/\s+/g, '').trim();
+                let finalName = nameInLine || currentHeader;
+
+                let top3 = match[1];
+                let down2 = match[2];
+                let fullScore = top3 + down2;
+                let dashScore = top3 + "-" + down2;
+                
+                let formatted = "";
+                switch(style) {
+                    case 'name-score': formatted = `${finalName} ${fullScore}`; break;
+                    case 'score-name': formatted = `${fullScore} ${finalName}`; break;
+                    case 'score-only': formatted = fullScore; break;
+                    case 'name-dash': formatted = `${finalName} ${dashScore}`; break;
+                    case 'dash-name': formatted = `${dashScore} ${finalName}`; break;
+                    case 'plus-name': formatted = `++${finalName} ${fullScore}`; break;
+                    case 'plus-dash': formatted = `++${finalName} ${dashScore}`; break;
+                    case 'minus-name': formatted = `--${finalName} ${fullScore}`; break;
+                    case 'minus-dash': formatted = `--${finalName} ${dashScore}`; break;
+                    case 'hash-name': formatted = `#${finalName} ${fullScore}`; break;
+                    case 'hash-dash': formatted = `#${finalName} ${dashScore}`; break;
+                    case 'star-name': formatted = `*${finalName} ${fullScore}`; break;
+                    case 'star-dash': formatted = `*${finalName} ${dashScore}`; break;
+                }
+                finalResults.push(formatted);
+            }
+        });
+
+        document.getElementById('output').innerText = finalResults.join('\n');
+        document.getElementById('copyBtn').style.display = finalResults.length ? 'block' : 'none';
+    }
+
+    function copyResult() {
+        const text = document.getElementById('output').innerText;
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => { alert("คัดลอกแล้ว!"); }).catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        try { document.execCommand('copy'); alert("คัดลอกแล้ว!"); } catch (err) { alert("กรุณาคัดลอกด้วยตนเอง"); }
+        document.body.removeChild(textArea);
+    }
+</script>
+</body>
+</html>

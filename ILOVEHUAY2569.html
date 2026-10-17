@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องมือคำนวณตัวเลขเชิงสถิติ - iLikeHUAY</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #0d5c3a;
+            color: #ffcc00;
+            text-align: center;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .section-title-purple {
+            background-color: #a25cc4;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            margin: -15px -15px 15px -15px;
+        }
+        .section-title-brown {
+            background-color: #a0522d;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            margin: -15px -15px 15px -15px;
+        }
+        .section-title-green {
+            background-color: #14a384;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            margin: -15px -15px 15px -15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 16px;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        .col {
+            flex: 1;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .btn-num {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-action {
+            background-color: #880e4f;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-calc {
+            background-color: #424242;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin: 15px auto 0 auto;
+            font-size: 16px;
+        }
+        .result-box {
+            padding: 10px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .result-table th, .result-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        .result-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .result-table td:first-child {
+            text-align: left;
+            font-weight: bold;
+            background-color: #fafafa;
+        }
+        .btn-copy {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin: 15px auto 0 auto;
+        }
+        .win-box-1 {
+            background-color: #e8f4fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border: 1px dashed #1e88e5;
+            font-size: 14px;
+            text-align: left;
+        }
+        .win-box-2 {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border: 1px dashed #14a384;
+            font-size: 14px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">I LIKE HUAY</div>
+    
+    <div class="section">
+        <label>🏷️ ระบุชื่อหวย / รอบที่คำนวณ</label>
+        <input type="text" id="huayName" placeholder="เช่น หวยลาว VIP, ฮานอยปกติ รอบ 18.30 น.">
+    </div>
+
+    <div class="section">
+        <div class="section-title-purple">➜ กรอกผลรอบล่าสุด (VIP)</div>
+        <div class="row">
+            <div class="col">
+                <label>3 ตัวบน</label>
+                <input type="text" id="top3" placeholder="กรอกเลข" maxlength="3">
+                <div class="keyboard">
+                    <button class="btn-num" onclick="appendNum('top3', '0')">0</button>
+                    <button class="btn-num" onclick="appendNum('top3', '1')">1</button>
+                    <button class="btn-num" onclick="appendNum('top3', '2')">2</button>
+                    <button class="btn-num" onclick="appendNum('top3', '3')">3</button>
+                    <button class="btn-num" onclick="appendNum('top3', '4')">4</button>
+                    <button class="btn-num" onclick="appendNum('top3', '5')">5</button>
+                    <button class="btn-num" onclick="appendNum('top3', '6')">6</button>
+                    <button class="btn-num" onclick="appendNum('top3', '7')">7</button>
+                    <button class="btn-num" onclick="appendNum('top3', '8')">8</button>
+                    <button class="btn-num" onclick="appendNum('top3', '9')">9</button>
+                    <button class="btn-action" onclick="backspace('top3')">&lt;</button>
+                    <button class="btn-action" onclick="clearInput('top3')">«</button>
+                </div>
+            </div>
+            <div class="col">
+                <label>2 ตัวล่าง</label>
+                <input type="text" id="bottom2" placeholder="กรอกเลข" maxlength="2">
+                <div class="keyboard">
+                    <button class="btn-num" onclick="appendNum('bottom2', '0')">0</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '1')">1</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '2')">2</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '3')">3</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '4')">4</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '5')">5</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '6')">6</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '7')">7</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '8')">8</button>
+                    <button class="btn-num" onclick="appendNum('bottom2', '9')">9</button>
+                    <button class="btn-action" onclick="backspace('bottom2')">&lt;</button>
+                    <button class="btn-action" onclick="clearInput('bottom2')">«</button>
+                </div>
+            </div>
+        </div>
+        <button class="btn-calc" onclick="calDejan()">คำนวณสูตรเด่น</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title-brown">➜ วินเลข</div>
+        <label>กรอกตัวเลขที่ต้องการวิน</label>
+        <input type="text" id="winInput" placeholder="กรอกตัวเลขชุด">
+        <div class="keyboard">
+            <button class="btn-num" onclick="appendNum('winInput', '0')">0</button>
+            <button class="btn-num" onclick="appendNum('winInput', '1')">1</button>
+            <button class="btn-num" onclick="appendNum('winInput', '2')">2</button>
+            <button class="btn-num" onclick="appendNum('winInput', '3')">3</button>
+            <button class="btn-num" onclick="appendNum('winInput', '4')">4</button>
+            <button class="btn-num" onclick="appendNum('winInput', '5')">5</button>
+            <button class="btn-num" onclick="appendNum('winInput', '6')">6</button>
+            <button class="btn-num" onclick="appendNum('winInput', '7')">7</button>
+            <button class="btn-num" onclick="appendNum('winInput', '8')">8</button>
+            <button class="btn-num" onclick="appendNum('winInput', '9')">9</button>
+            <button class="btn-action" onclick="backspace('winInput')">&lt;</button>
+            <button class="btn-action" onclick="clearInput('winInput')">«</button>
+        </div>
+        <button class="btn-calc" onclick="calWin()">คำนวณวินเลข</button>
+        <div id="win-result-section"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title-green">➜ ผลการคำนวณเด่นจากสูตร</div>
+        <div class="result-box" id="result-section">
+            ยังไม่มีข้อมูลการคำนวณสูตร (กรุณากดคำนวณด้านบนก่อน)
+        </div>
+    </div>
+</div>
+
+<script>
+    function appendNum(inputId, num) {
+        let inputEl = document.getElementById(inputId);
+        if (!inputEl.hasAttribute('maxlength') || inputEl.value.length < inputEl.maxLength) {
+            inputEl.value += num;
+        }
+    }
+
+    function backspace(inputId) {
+        let inputEl = document.getElementById(inputId);
+        inputEl.value = inputEl.value.slice(0, -1);
+    }
+
+    function clearInput(inputId) {
+        document.getElementById(inputId).value = '';
+    }
+
+    function calDejan() {
+        let top3 = document.getElementById('top3').value;
+        let bottom2 = document.getElementById('bottom2').value;
+        let hName = document.getElementById('huayName').value || "ทั่วไป";
+        
+        if (top3.length < 3 || bottom2.length < 2) {
+            alert('กรุณากรอกผลรางวัลให้ครบก่อนครับ');
+            return;
+        }
+
+        let uTop = parseInt(top3.charAt(2));
+        let tBottom = parseInt(bottom2.charAt(0));
+        let uBottom = parseInt(bottom2.charAt(1));
+
+        let s1 = (uTop + 5) % 10; 
+        let s2 = (uBottom + 6) % 10; 
+
+        let r2_1 = `${(s1 + 6) % 10}, ${(s1 + 7) % 10}`;
+        let r2_2 = `${(s2 + 7) % 10}, ${(s2 + 8) % 10}`;
+
+        let rt1 = (uTop + 4) % 10;
+        let rt2 = (uTop + 4) % 10;
+
+        let pu1 = `${(uTop + 5) % 10}, ${(uTop + 6) % 10}, ${(uTop + 7) % 10}, ${(uTop + 8) % 10}`;
+        let pu2 = `${(uTop + 2) % 10}, ${(uTop + 3) % 10}, ${(uTop + 4) % 10}, ${(uTop + 5) % 10}`;
+
+        let pt1 = `${(tBottom) % 10}, ${(tBottom + 1) % 10}, ${(tBottom + 2) % 10}, ${(tBottom + 3) % 10}`;
+        let pt2 = `${(tBottom + 4) % 10}, ${(tBottom + 5) % 10}, ${(tBottom + 6) % 10}, ${(tBottom + 7) % 10}`;
+
+        // คำนวณพิกัด
+        let pt_a = (uTop + 1) % 10; let pt_b = (uTop + 2) % 10; let pt_c = (uTop + 3) % 10;
+        let pikadTopStr = `${pt_a}, ${pt_b}, ${pt_c}`;
+
+        let pb_a = uBottom; let pb_b = (uBottom + 1) % 10; let pb_c = (uBottom + 2) % 10;
+        let pikadBottomStr = `${pb_a}, ${pb_b}, ${pb_c}`;
+
+        let resultHTML = `
+            <div style="text-align: left; margin-bottom: 8px; font-size: 15px;"><strong>ผลล่าสุดที่ใช้คำนวณ:</strong> บน <span style="color:red; font-weight:bold;">${top3}</span> | ล่าง <span style="color:red; font-weight:bold;">${bottom2}</span></div>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>ประเภทสูตร</th>
+                        <th>สูตร 1</th>
+                        <th>สูตร 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>เสียว บน + ล่าง</td>
+                        <td style="color:#14a384; font-weight:bold;">${s1}</td>
+                        <td style="color:#14a384; font-weight:bold;">${s2}</td>
+                    </tr>
+                    <tr>
+                        <td>รูด 2 ตัวบน+ล่าง</td>
+                        <td style="color:#1e88e5; font-weight:bold;">${r2_1}</td>
+                        <td style="color:#1e88e5; font-weight:bold;">${r2_2}</td>
+                    </tr>
+                    <tr>
+                        <td>รูดบน</td>
+                        <td style="color:#9c27b0; font-weight:bold;">${rt1}</td>
+                        <td style="color:#9c27b0; font-weight:bold;">${rt2}</td>
+                    </tr>
+                    <tr>
+                        <td>ปักหลักหน่วยบน</td>
+                        <td style="color:#e67e22; font-weight:bold;">${pu1}</td>
+                        <td style="color:#e67e22; font-weight:bold;">${pu2}</td>
+                    </tr>
+                    <tr>
+                        <td>ปักหลักสิบบน</td>
+                        <td style="color:#e67e22; font-weight:bold;">${pt1}</td>
+                        <td style="color:#e67e22; font-weight:bold;">${pt2}</td>
+                    </tr>
+                    <tr>
+                        <td>พิกัดบน 3 ตัว</td>
+                        <td colspan="2" style="font-weight:bold; color:#14a384;">${pikadTopStr}</td>
+                    </tr>
+                    <tr>
+                        <td>พิกัดล่าง 3 ตัว</td>
+                        <td colspan="2" style="font-weight:bold; color:#880e4f;">${pikadBottomStr}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn-copy" onclick="copyTextResult('${hName}', '${top3}', '${bottom2}', '${s1}', '${s2}', '${r2_1}', '${r2_2}', '${rt1}', '${rt2}', '${pu1}', '${pu2}', '${pt1}', '${pt2}', '${pikadTopStr}', '${pikadBottomStr}')">📋 คัดลอกผลการคำนวณสูตร</button>
+        `;
+        
+        document.getElementById('result-section').innerHTML = resultHTML;
+    }
+
+    // ฟังก์ชันคัดลอกแบบปรับปรุง: แยกชื่อหวย ชื่อโปรแกรม วันที่ และแยกสูตรชัดเจนสวยงาม
+    function copyTextResult(hName, t3, b2, s1, s2, r2_1, r2_2, rt1, rt2, pu1, pu2, pt1, pt2, pTop, pBottom) {
+        let now = new Date();
+        let dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+        let timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+
+        let str = `📱 โปรแกรมคำนวณ: I LIKE HUAY\n` +
+                  `🎯 หวยที่คำนวณ: ${hName}\n` +
+                  `📅 วันที่: ${dateStr} | เวลา: ${timeStr}\n` +
+                  `------------------------------\n` +
+                  `📊 ผลล่าสุดที่ใช้คำนวณ\n` +
+                  `👉 บน: ${t3} | ล่าง: ${b2}\n` +
+                  `------------------------------\n\n` +
+                  `🟢 [สูตรที่ 1]\n` +
+                  `• เสียว บน+ล่าง: ${s1}\n` +
+                  `• รูด 2 ตัวบน+ล่าง: ${r2_1}\n` +
+                  `• รูดบน: ${rt1}\n` +
+                  `• ปักหลักหน่วยบน: ${pu1}\n` +
+                  `• ปักหลักสิบบน: ${pt1}\n\n` +
+                  `🔵 [สูตรที่ 2]\n` +
+                  `• เสียว บน+ล่าง: ${s2}\n` +
+                  `• รูด 2 ตัวบน+ล่าง: ${r2_2}\n` +
+                  `• รูดบน: ${rt2}\n` +
+                  `• ปักหลักหน่วยบน: ${pu2}\n` +
+                  `• ปักหลักสิบบน: ${pt2}\n\n` +
+                  `📌 [พิกัดคำนวณรวม]\n` +
+                  `• พิกัดบน 3 ตัว: ${pTop}\n` +
+                  `• พิกัดล่าง 3 ตัว: ${pBottom}\n` +
+                  `------------------------------`;
+
+        navigator.clipboard.writeText(str).then(() => {
+            alert('คัดลอกรูปแบบข้อความสวยงามลงคลิปบอร์ดแล้วครับ!');
+        });
+    }
+
+    function calWin() {
+        let winInput = document.getElementById('winInput').value;
+        if (winInput.length < 2) {
+            alert('กรุณากรอกตัวเลขอย่างน้อย 2 ตัวเพื่อวินเลขครับ');
+            return;
+        }
+        let arr = winInput.split('');
+        let r2 = [];
+        for (let i = 0; i < arr.length; i++) {
+            for (let j = i + 1; j < arr.length; j++) {
+                r2.push(arr[i] + arr[j]);
+            }
+        }
+        let r3 = [];
+        for (let i = 0; i < arr.length; i++) {
+            for (let j = i + 1; j < arr.length; j++) {
+                for (let k = j + 1; k < arr.length; k++) {
+                    r3.push(arr[i] + arr[j] + arr[k]);
+                }
+            }
+        }
+
+        document.getElementById('win-result-section').innerHTML = `
+            <div class="win-box-1">
+                <strong>⭐ ผลวิน 2 ตัว (${r2.length} ชุด)</strong><br>${r2.join(', ')}
+            </div>
+            <div class="win-box-2">
+                <strong>⭐ ผลวิน 3 ตัว (${r3.length} ชุด)</strong><br>${r3.join(', ')}
+            </div>
+            <button class="btn-copy" onclick="copyWinText('${r2.join(', ')}', '${r3.join(', ')}')">📋 คัดลอกผลวินเลข</button>
+        `;
+    }
+
+    function copyWinText(w2, w3) {
+        let str = `⭐ ผลวิน 2 ตัว\n${w2}\n\n⭐ ผลวิน 3 ตัว\n${w3}`;
+        navigator.clipboard.writeText(str).then(() => {
+            alert('คัดลอกผลวินเลขเรียบร้อยแล้ว!');
+        });
+    }
+</script>
+
+</body>
+</html>
