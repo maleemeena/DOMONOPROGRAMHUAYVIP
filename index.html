@@ -122,10 +122,9 @@
 
             document.getElementById('loading').style.display = "block";
 
-            // 🔗 ลิงก์ Apps Script API ของคุณ
-            let scriptURL = "https://script.google.com/macros/s/AKfycbwslbLhs6QrAqh3jqWREEm2AYQFSS_DeNv9qNTSSZrrinB1H6wlyP76gEFnmTb4aD8r/exec";
+            // 🔗 ใส่ลิงก์ Apps Script ใหม่ตรงนี้
+            let scriptURL = "https://script.google.com/macros/s/AKfycbwCsabrotlppBJeQSUSMu_hla-OqZViyT0Sna2J5i1cGm4u6PMpfWk_KP5ZmGVB2_Os/exec";
 
-            // 1. ดึง IP Address จริงของผู้ใช้งาน
             let userIp = "Unknown";
             try {
                 let ipRes = await fetch('https://api.ipify.org?format=json');
@@ -135,10 +134,7 @@
                 console.log("ไม่สามารถดึง IP ได้");
             }
 
-            // 2. ตรวจสอบประเภทอุปกรณ์ให้แสดงสั้นๆ (Mobile หรือ PC / Mac)
             let deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "PC / Mac";
-
-            // 3. ส่งข้อมูลแบบพ่วงพารามิเตอร์ (GET) ไปยัง Apps Script
             let fullURL = `${scriptURL}?username=${encodeURIComponent(password)}&ip=${encodeURIComponent(userIp)}&device=${encodeURIComponent(deviceType)}`;
 
             fetch(fullURL)
@@ -146,7 +142,6 @@
             .then(textResult => {
                 document.getElementById('loading').style.display = "none";
                 
-                // แปลงผลลัพธ์เป็น JSON (รองรับโครงสร้างใหม่)
                 let result;
                 try {
                     result = JSON.parse(textResult);
@@ -155,8 +150,8 @@
                 }
 
                 if (result.status === "success") {
-                    // กำหนดวันหมดอายุ (สามารถปรับเปลี่ยนหรือดึงเพิ่มได้ตามต้องการ)
-                    localStorage.setItem("expireDate", "17/10/2026");
+                    // บันทึกวันหมดอายุที่ได้จากหลังบ้านจริงๆ ลงเครื่อง
+                    localStorage.setItem("expireDate", result.expire || "-");
                     window.location.href = "hub.html";
                 } else {
                     alert(result.message || "⚠️ เกิดข้อผิดพลาด");
@@ -164,9 +159,8 @@
             })
             .catch(error => {
                 document.getElementById('loading').style.display = "none";
-                // กรณีเกิดปัญหาการเชื่อมต่อ ให้สำรองเข้าหน้า Hub ได้ปกติ
-                localStorage.setItem("expireDate", "17/10/2026");
-                window.location.href = "hub.html";
+                // ❌ แก้ตรงนี้: ถ้าเชื่อมต่อไม่ได้ ห้ามปล่อยเข้าหน้า Hub เด็ดขาด ให้แจ้งเตือนแทน
+                alert("⚠️ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง");
             });
         }
     </script>
