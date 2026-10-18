@@ -143,59 +143,57 @@
 
     <iframe id="mainFrame" class="iframe-container" src="changpon.html"></iframe>
 
-        <script>
-        function loadProgram(pageUrl, btnElement) {
-            document.getElementById('mainFrame').src = pageUrl;
-            let buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(b => b.classList.remove('active'));
-            if(btnElement) btnElement.classList.add('active');
+<script>
+    function loadProgram(pageUrl, btnElement) {
+        document.getElementById('mainFrame').src = pageUrl;
+        let buttons = document.querySelectorAll('.nav-btn');
+        buttons.forEach(b => b.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+    }
+
+    // ฟังก์ชันออกจากระบบ
+    function logout() {
+        if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+            localStorage.removeItem("expireDate");
+            window.location.href = "index.html";
+        }
+    }
+
+    // ตรวจสอบวันหมดอายุและแสดงผลทันทีที่เปิดหน้าเว็บ
+    window.onload = function() {
+        let expireDateStr = localStorage.getItem("expireDate");
+        
+        if (!expireDateStr || expireDateStr === "-") {
+            alert("⚠️ กรุณาเข้าสู่ระบบก่อนใช้งาน");
+            window.location.href = "index.html";
+            return;
         }
 
-        // ฟังก์ชันออกจากระบบ
-        function logout() {
-            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                localStorage.removeItem("expireDate");
-                window.location.href = "index.html";
-            }
-        }
-
-        // ดึงวันหมดอายุมาแสดงผล
-       // ดึงวันหมดอายุมาแสดงผล และ "บล็อกทันที" ถ้าหมดอายุแล้ว
-        window.onload = function() {
-            let expireDateStr = localStorage.getItem("expireDate");
+        // แปลงวันที่จาก localStorage (รูปแบบ dd/MM/yyyy) มาเทียบกับวันปัจจุบัน
+        let parts = expireDateStr.split('/');
+        if (parts.length === 3) {
+            let day = parseInt(parts[0], 10);
+            let month = parseInt(parts[1], 10) - 1; // เดือนใน JS เริ่มจาก 0
+            let year = parseInt(parts[2], 10);
             
-            if (!expireDateStr || expireDateStr === "-") {
-                alert("⚠️ กรุณาเข้าสู่ระบบก่อนใช้งาน");
+            let expireDate = new Date(year, month, day);
+            let today = new Date();
+            
+            // ตัดเวลาให้เหลือ 00:00:00 เท่ากัน เพื่อเทียบวันต่อวัน
+            expireDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            if (expireDate < today) {
+                alert("❌ บัญชีของคุณหมดอายุแล้ว! กรุณาต่ออายุการใช้งาน");
+                localStorage.removeItem("expireDate");
                 window.location.href = "index.html";
                 return;
             }
-
-            // แปลงวันที่จาก localStorage (รูปแบบ dd/MM/yyyy) มาเทียบกับวันปัจจุบัน
-            let parts = expireDateStr.split('/');
-            if (parts.length === 3) {
-                let day = parseInt(parts[0], 10);
-                let month = parseInt(parts[1], 10) - 1; // เดือนใน JS เริ่มจาก 0
-                let year = parseInt(parts[2], 10);
-                
-                let expireDate = new Date(year, month, day);
-                let today = new Date();
-                
-                // ตัดเวลาให้เหลือ 00:00:00 เท่ากัน เพื่อเทียบวันต่อวัน
-                expireDate.setHours(0, 0, 0, 0);
-                today.setHours(0, 0, 0, 0);
-
-                if (expireDate < today) {
-                    alert("❌ บัญชีของคุณหมดอายุแล้ว! กรุณาต่ออายุการใช้งาน");
-                    localStorage.removeItem("expireDate");
-                    window.location.href = "index.html";
-                    return;
-                }
-            }
-
-            document.getElementById('expireDisplay').innerHTML = "📅 หมดอายุ: " + expireDateStr;
         }
-}
-    </script>
+
+        document.getElementById('expireDisplay').innerHTML = "📅 หมดอายุ: " + expireDateStr;
+    }
+</script>
 </body>
 </html>
 
