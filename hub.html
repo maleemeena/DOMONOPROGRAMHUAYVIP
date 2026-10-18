@@ -160,21 +160,40 @@
         }
 
         // ดึงวันหมดอายุมาแสดงผล
-       window.onload = function() {
-    let expireDate = localStorage.getItem("expireDate");
-    if(expireDate) {
-        // ถ้าเป็นรูปแบบวันที่ยาวๆ ให้แปลงเป็นรูปแบบสั้น (dd/MM/yyyy)
-        let d = new Date(expireDate);
-        if (!isNaN(d.getTime())) {
-            let day = String(d.getDate()).padStart(2, '0');
-            let month = String(d.getMonth() + 1).padStart(2, '0');
-            let year = d.getFullYear();
-            expireDate = `${day}/${month}/${year}`;
+       // ดึงวันหมดอายุมาแสดงผล และ "บล็อกทันที" ถ้าหมดอายุแล้ว
+        window.onload = function() {
+            let expireDateStr = localStorage.getItem("expireDate");
+            
+            if (!expireDateStr || expireDateStr === "-") {
+                alert("⚠️ กรุณาเข้าสู่ระบบก่อนใช้งาน");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // แปลงวันที่จาก localStorage (รูปแบบ dd/MM/yyyy) มาเทียบกับวันปัจจุบัน
+            let parts = expireDateStr.split('/');
+            if (parts.length === 3) {
+                let day = parseInt(parts[0], 10);
+                let month = parseInt(parts[1], 10) - 1; // เดือนใน JS เริ่มจาก 0
+                let year = parseInt(parts[2], 10);
+                
+                let expireDate = new Date(year, month, day);
+                let today = new Date();
+                
+                // ตัดเวลาให้เหลือ 00:00:00 เท่ากัน เพื่อเทียบวันต่อวัน
+                expireDate.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0);
+
+                if (expireDate < today) {
+                    alert("❌ บัญชีของคุณหมดอายุแล้ว! กรุณาต่ออายุการใช้งาน");
+                    localStorage.removeItem("expireDate");
+                    window.location.href = "index.html";
+                    return;
+                }
+            }
+
+            document.getElementById('expireDisplay').innerHTML = "📅 หมดอายุ: " + expireDateStr;
         }
-        document.getElementById('expireDisplay').innerHTML = "📅 หมดอายุ: " + expireDate;
-    } else {
-        document.getElementById('expireDisplay').innerHTML = "📅 สถานะ: VIP";
-    }
 }
     </script>
 </body>
