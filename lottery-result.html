@@ -50,27 +50,28 @@
                     return;
                 }
 
-                // แปลงข้อมูลให้รองรับทุกรูปแบบคอลัมน์ (ป้องกันค่า undefined)
-                const formattedData = data.map(row => ({
-                    date: row.date || row[0] || "ไม่ระบุวันที่",
-                    name: row.name || row[2] || "📌 สรุปผลรางวัล",
-                    history: row.history || row[3] || row[1] || ""
-                }));
-
-                // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน
-                let rawSummaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติ")));
-                
-                let uniqueSummariesMap = new Map();
-                rawSummaries.forEach(row => {
-                    let cleanText = row.history.trim();
-                    if (!uniqueSummariesMap.has(cleanText)) {
-                        uniqueSummariesMap.set(cleanText, row);
+                // แปลงแถวข้อมูลจากชีตให้เป็นรูปแบบมาตรฐาน (รองรับทั้งแบบ Object และ Array)
+                const formattedData = data.map(row => {
+                    if (Array.isArray(row)) {
+                        return {
+                            date: row[0] || "ไม่ระบุวันที่",
+                            name: row[2] || "📌 สรุปผลรางวัล",
+                            history: row[3] || row[1] || ""
+                        };
+                    } else {
+                        return {
+                            date: row.date || row.time || "ไม่ระบุวันที่",
+                            name: row.name || row.category || "📌 สรุปผลรางวัล",
+                            history: row.history || row.text || ""
+                        };
                     }
                 });
-                let summaries = Array.from(uniqueSummariesMap.values()).reverse();
+
+                // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน (แสดงทุกข้อความที่มีคำว่า สรุปผล หรือ สถิติ)
+                let summaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติ")));
 
                 if (summaries.length > 0) {
-                    summaries.forEach(row => {
+                    summaries.reverse().forEach(row => {
                         let card = document.createElement("div");
                         card.className = "card";
                         card.innerHTML = `
@@ -87,16 +88,7 @@
                 }
 
                 // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้
-                let rawSingles = formattedData.filter(row => row.history && (row.history.includes("🏆") || row.history.includes("บน :")));
-                let uniqueSinglesMap = new Map();
-                rawSingles.forEach(row => {
-                    let dateKey = row.date.split(" ")[0];
-                    let uniqueKey = dateKey + "_" + row.history.replace(/\s+/g, "");
-                    if (!uniqueSinglesMap.has(uniqueKey)) {
-                        uniqueSinglesMap.set(uniqueKey, row);
-                    }
-                });
-                let singles = Array.from(uniqueSinglesMap.values());
+                let singles = formattedData.filter(row => row.history && (row.history.includes("🏆") || row.history.includes("บน :")));
 
                 if (singles.length > 0) {
                     let groupedByDate = {};
@@ -168,7 +160,7 @@
             })
             .catch(error => {
                 console.error("Error fetching data:", error);
-                document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้</div>`;
+                document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้ (ตรวจสอบการเชื่อมต่อ Web App)</div>`;
             });
     </script>
 </body>
