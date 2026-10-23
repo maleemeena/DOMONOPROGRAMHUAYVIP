@@ -2,26 +2,27 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>📊 ผลรางวัลและสถิติบอท</title>
+    <title>📊 สรุปผลรางวัลและสถิติบอท</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #fdf6f9; padding: 20px; }
         h2 { color: #d63384; text-align: center; margin-bottom: 20px; }
         .result-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
-        .card { background: white; border-radius: 12px; padding: 15px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-left: 5px solid #d63384; }
-        .card-time { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
-        .card-content { font-size: 1rem; color: #333; white-space: pre-line; line-height: 1.6; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 6px solid #d63384; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 12px; }
+        .card-category { font-weight: bold; font-size: 1.1rem; color: #d63384; }
+        .card-time { font-size: 0.85rem; color: #888; }
+        .card-content { font-size: 0.95rem; color: #333; white-space: pre-line; line-height: 1.7; font-family: monospace; background: #fafafa; padding: 12px; border-radius: 8px; }
         .loading, .error, .empty { text-align: center; padding: 20px; color: #666; font-size: 1rem; background: white; border-radius: 10px; }
         .error { color: red; }
     </style>
 </head>
 <body>
-    <h2>📊 ผลรางวัลจากบอทอัตโนมัติ</h2>
+    <h2>📊 สรุปผลรางวัลประจำวัน</h2>
     <div id="resultContainer" class="result-container">
-        <div class="loading">กำลังโหลดข้อมูล...</div>
+        <div class="loading">กำลังโหลดข้อมูลสรุปผล...</div>
     </div>
 
     <script>
-        // Web App URL ของคุณ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzL7gGvbVtvAnENlymGsjyo_rZrK8BxO9V8RMTItEzWAbFr943joo1Cwh45bngcPE8Ueg/exec";
 
         fetch(WEB_APP_URL)
@@ -30,11 +31,11 @@
                 const container = document.querySelector("#resultContainer");
                 container.innerHTML = "";
                 
-                // กรองเฉพาะข้อความที่มี 🏆
-                const filteredData = data.filter(row => row.history && row.history.includes("🏆"));
+                // กรองเฉพาะข้อมูลที่เป็นข้อความสรุปผล (มีคำว่า สรุปผลหวย)
+                const filteredData = data.filter(row => row.history && row.history.includes("สรุปผลหวย"));
 
                 if (filteredData.length === 0) {
-                    container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลผลรางวัลในระบบ</div>`;
+                    container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลสรุปผลรางวัลในระบบ</div>`;
                     return;
                 }
 
@@ -43,9 +44,11 @@
                     let card = document.createElement("div");
                     card.className = "card";
                     
-                    // จัดรูปแบบการแสดงผล (ซ่อนชื่อผู้ใช้งาน แสดงเฉพาะเวลาและรายละเอียดผล)
                     card.innerHTML = `
-                        <div class="card-time">📅 ${row.date}</div>
+                        <div class="card-header">
+                            <span class="card-category">${row.name || '📌 สรุปผลรางวัล'}</span>
+                            <span class="card-time">📅 ${row.date}</span>
+                        </div>
                         <div class="card-content">${row.history}</div>
                     `;
                     container.appendChild(card);
