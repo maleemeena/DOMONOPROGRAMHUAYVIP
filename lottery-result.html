@@ -5,60 +5,55 @@
     <title>📊 ผลรางวัลและสถิติบอท</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #fdf6f9; padding: 20px; }
-        h2 { color: #d63384; text-align: center; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.95rem; }
-        th { background: #d63384; color: white; }
-        tr:hover { background: #f1f1f1; }
+        h2 { color: #d63384; text-align: center; margin-bottom: 20px; }
+        .result-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: white; border-radius: 12px; padding: 15px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-left: 5px solid #d63384; }
+        .card-time { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
+        .card-content { font-size: 1rem; color: #333; white-space: pre-line; line-height: 1.6; }
+        .loading, .error, .empty { text-align: center; padding: 20px; color: #666; font-size: 1rem; background: white; border-radius: 10px; }
+        .error { color: red; }
     </style>
 </head>
 <body>
     <h2>📊 ผลรางวัลจากบอทอัตโนมัติ</h2>
-    <table id="resultTable">
-        <thead>
-            <tr>
-                <th>เวลา</th>
-                <th>ผู้ใช้งาน / บอท</th>
-                <th>รายละเอียดผลรางวัล (🏆)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td colspan="3" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
-        </tbody>
-    </table>
+    <div id="resultContainer" class="result-container">
+        <div class="loading">กำลังโหลดข้อมูล...</div>
+    </div>
 
     <script>
-        // แทนที่ด้วย Web App URL ที่ได้จากการ Deploy ใน Google Apps Script
+        // Web App URL ของคุณ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzL7gGvbVtvAnENlymGsjyo_rZrK8BxO9V8RMTItEzWAbFr943joo1Cwh45bngcPE8Ueg/exec";
 
         fetch(WEB_APP_URL)
             .then(response => response.json())
             .then(data => {
-                const tbody = document.querySelector("#resultTable tbody");
-                tbody.innerHTML = "";
+                const container = document.querySelector("#resultContainer");
+                container.innerHTML = "";
                 
-                // กรองเฉพาะแถวที่มีสัญลักษณ์ 🏆 หรือข้อมูลที่ต้องการมาแสดง
+                // กรองเฉพาะข้อความที่มี 🏆
                 const filteredData = data.filter(row => row.history && row.history.includes("🏆"));
 
                 if (filteredData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">ยังไม่มีข้อมูลผลรางวัลในระบบ</td></tr>`;
+                    container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลผลรางวัลในระบบ</div>`;
                     return;
                 }
 
                 // เรียงลำดับจากใหม่ไปเก่า
                 filteredData.reverse().forEach(row => {
-                    let tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td>${row.date}</td>
-                        <td>${row.name}</td>
-                        <td><b>${row.history}</b></td>
+                    let card = document.createElement("div");
+                    card.className = "card";
+                    
+                    // จัดรูปแบบการแสดงผล (ซ่อนชื่อผู้ใช้งาน แสดงเฉพาะเวลาและรายละเอียดผล)
+                    card.innerHTML = `
+                        <div class="card-time">📅 ${row.date}</div>
+                        <div class="card-content">${row.history}</div>
                     `;
-                    tbody.appendChild(tr);
+                    container.appendChild(card);
                 });
             })
             .catch(error => {
                 console.error("Error fetching data:", error);
-                document.querySelector("#resultTable tbody").innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">ไม่สามารถโหลดข้อมูลได้</td></tr>`;
+                document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้</div>`;
             });
     </script>
 </body>
