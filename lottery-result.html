@@ -7,19 +7,33 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #fdf6f9; padding: 20px; }
         h2 { color: #d63384; text-align: center; margin-bottom: 20px; }
         .result-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* สไตล์การ์ดสรุปประจำวัน */
         .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 6px solid #d63384; }
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 12px; }
         .card-category { font-weight: bold; font-size: 1.1rem; color: #d63384; }
         .card-time { font-size: 0.85rem; color: #888; }
         .card-content { font-size: 0.95rem; color: #333; white-space: pre-line; line-height: 1.7; font-family: monospace; background: #fafafa; padding: 12px; border-radius: 8px; }
+
+        /* สไตล์ตารางแบบพับเก็บได้ (Accordion) สำหรับผลรายตัว */
+        .accordion { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 6px solid #3b82f6; overflow: hidden; margin-bottom: 5px; }
+        .accordion-header { background: #f8fafc; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; color: #1e293b; user-select: none; transition: background 0.2s; }
+        .accordion-header:hover { background: #f1f5f9; }
+        .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px; background: white; }
+        .accordion.active .accordion-body { max-height: 500px; padding: 15px 20px; border-top: 1px solid #f1f5f9; }
+        
+        table.lottery-table { width: 100%; border-collapse: collapse; }
+        table.lottery-table th, table.lottery-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        table.lottery-table th { background: #eff6ff; color: #1d4ed8; }
+
         .loading, .error, .empty { text-align: center; padding: 20px; color: #666; font-size: 1rem; background: white; border-radius: 10px; }
         .error { color: red; }
     </style>
 </head>
 <body>
-    <h2>📊 สรุปผลรางวัลประจำวัน</h2>
+    <h2>📊 สรุปผลรางวัลและผลรายตัว</h2>
     <div id="resultContainer" class="result-container">
-        <div class="loading">กำลังโหลดข้อมูลสรุปผล...</div>
+        <div class="loading">กำลังโหลดข้อมูล...</div>
     </div>
 
     <script>
@@ -30,20 +44,17 @@
             .then(data => {
                 const container = document.querySelector("#resultContainer");
                 container.innerHTML = "";
-                
-                // กรองเฉพาะข้อมูลที่เป็นข้อความสรุปผล (มีคำว่า สรุปผลหวย)
-                const filteredData = data.filter(row => row.history && row.history.includes("สรุปผลหวย"));
 
-                if (filteredData.length === 0) {
-                    container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลสรุปผลรางวัลในระบบ</div>`;
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลผลรางวัลในระบบ</div>`;
                     return;
                 }
 
-                // เรียงลำดับจากใหม่ไปเก่า
-                filteredData.reverse().forEach(row => {
+                // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน
+                const summaries = data.filter(row => row.history && row.history.includes("สรุปผลหวย")).reverse();
+                summaries.forEach(row => {
                     let card = document.createElement("div");
                     card.className = "card";
-                    
                     card.innerHTML = `
                         <div class="card-header">
                             <span class="card-category">${row.name || '📌 สรุปผลรางวัล'}</span>
@@ -53,6 +64,85 @@
                     `;
                     container.appendChild(card);
                 });
+
+                // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้ (จัดกลุ่มตามวันที่)
+                const singles = data.filter(row => row.history && row.history.includes("🏆"));
+                
+                if (singles.length > 0) {
+                    // จัดกลุ่มข้อมูลตามวันที่
+                    let groupedByDate = {};
+                    singles.forEach(row => {
+                        let dateKey = row.date.split(" ")[0]; // เอาเฉพาะวัน/เดือน/ปี
+                        if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
+                        groupedByDate[dateKey].push(row);
+                    });
+
+                    // สร้าง Accordion แยกตามแต่ละวัน
+                    Object.keys(groupedByDate).reverse().forEach(dateKey => {
+                        let items = groupedByDate[dateKey];
+                        
+                        let accordion = document.createElement("div");
+                        accordion.className = "accordion";
+
+                        let rowsHtml = "";
+                        items.forEach(item => {
+                            // แกะข้อมูลจากข้อความ เช่น "🇻🇳 ฮานอยดึก 🇻🇳 ... เลขที่ออก : 18634 ... บน : 634 ... ล่าง : 56"
+                            let text = item.history;
+                            let lottoName = "ผลหวย";
+                            let matchTitle = text.match(/🇻🇳|🇱🇦|🇯🇵|🇨🇳|🇭🇰|🇹🇼|🇰🇷|🇸🇬|🇬🇧|🇩🇪|🇷🇺|🇪🇺|🇺🇸|🇮🇳/); // หาไอคอนธงหรือชื่อหวย
+                            
+                            // ดึงบรรทัดชื่อหวยคร่าวๆ
+                            let lines = text.split("\n");
+                            for(let l of lines) {
+                                if (l.includes("🇻🇳") || l.includes("🇱🇦") || l.includes("🇯🇵") || l.includes("🇨🇳") || l.includes("🇬🇧") || l.includes("🇩🇪") || l.includes("🇷🇺") || l.includes("🇸🇬")) {
+                                    lottoName = l.replace(/[🏆➖]/g, "").trim();
+                                    break;
+                                }
+                            }
+
+                            // ดึงเลขที่ออก บน ล่าง
+                            let numOut = text.match(/เลขที่ออก\s*:\s*([^\s]+)/);
+                            let topNum = text.match(/บน\s*:\s*([^\s]+)/);
+                            let botNum = text.match(/ล่าง\s*:\s*([^\s]+)/);
+
+                            let numberFull = numOut ? numOut[1] : "-";
+                            let top = topNum ? topNum[1] : "-";
+                            let bot = botNum ? botNum[1] : "-";
+
+                            rowsHtml += `
+                                <tr>
+                                    <td><b>${lottoName}</b></td>
+                                    <td style="color: #d63384; font-weight: bold;">${numberFull}</td>
+                                    <td style="color: #059669; font-weight: bold;">${top}</td>
+                                    <td style="color: #d97706; font-weight: bold;">${bot}</td>
+                                </tr>
+                            `;
+                        });
+
+                        accordion.innerHTML = `
+                            <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
+                                <span>📂 ผลรางวัลรายตัวประจำวันที่ ${dateKey} (${items.length} รายการ)</span>
+                                <span>▼ คลิกเพื่อดู/พับเก็บ</span>
+                            </div>
+                            <div class="accordion-body">
+                                <table class="lottery-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ชื่อหวย</th>
+                                            <th>เลขที่ออก</th>
+                                            <th>บน</th>
+                                            <th>ล่าง</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rowsHtml}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        container.appendChild(accordion);
+                    });
+                }
             })
             .catch(error => {
                 console.error("Error fetching data:", error);
