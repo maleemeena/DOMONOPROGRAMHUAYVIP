@@ -50,15 +50,18 @@
                     return;
                 }
 
-                // ----------------------------------------------------
-                // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน (กรองข้อความซ้ำ)
-                // ----------------------------------------------------
-                let rawSummaries = data.filter(row => row.history && row.history.includes("สรุปผลหวย"));
+                // แปลงข้อมูลให้รองรับทุกรูปแบบคอลัมน์ (ป้องกันค่า undefined)
+                const formattedData = data.map(row => ({
+                    date: row.date || row[0] || "ไม่ระบุวันที่",
+                    name: row.name || row[2] || "📌 สรุปผลรางวัล",
+                    history: row.history || row[3] || row[1] || ""
+                }));
+
+                // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน
+                let rawSummaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติ")));
                 
-                // กรองข้อความสรุปที่ซ้ำกันออก (ใช้เนื้อหา history เป็นตัวเช็คความซ้ำ)
                 let uniqueSummariesMap = new Map();
                 rawSummaries.forEach(row => {
-                    // ตัดช่องว่างส่วนเกินเพื่อให้เช็คความซ้ำได้แม่นยำขึ้น
                     let cleanText = row.history.trim();
                     if (!uniqueSummariesMap.has(cleanText)) {
                         uniqueSummariesMap.set(cleanText, row);
@@ -66,32 +69,29 @@
                 });
                 let summaries = Array.from(uniqueSummariesMap.values()).reverse();
 
-                summaries.forEach(row => {
-                    let card = document.createElement("div");
-                    card.className = "card";
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <span class="card-category">${row.name || '📌 สรุปผลรางวัล'}</span>
-                            <span class="card-time">📅 ${row.date}</span>
-                        </div>
-                        <div class="card-content">${row.history}</div>
-                    `;
-                    container.appendChild(card);
-                });
+                if (summaries.length > 0) {
+                    summaries.forEach(row => {
+                        let card = document.createElement("div");
+                        card.className = "card";
+                        card.innerHTML = `
+                            <div class="card-header">
+                                <span class="card-category">${row.name}</span>
+                                <span class="card-time">📅 ${row.date}</span>
+                            </div>
+                            <div class="card-content">${row.history}</div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML += `<div class="empty">ยังไม่พบข้อมูลสรุปผลประจำวัน</div>`;
+                }
 
-                // ----------------------------------------------------
-                // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้ (กรองรายการซ้ำ)
-                // ----------------------------------------------------
-                let rawSingles = data.filter(row => row.history && row.history.includes("🏆"));
-
-                // กรองผลรายตัวที่ซ้ำกันออก (ถ้าชื่อหวยและผลออกเหมือนกันในวันเดียวกัน)
+                // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้
+                let rawSingles = formattedData.filter(row => row.history && (row.history.includes("🏆") || row.history.includes("บน :")));
                 let uniqueSinglesMap = new Map();
                 rawSingles.forEach(row => {
                     let dateKey = row.date.split(" ")[0];
-                    let text = row.history;
-                    // สร้างคีย์เอกลักษณ์ เช่น "23/10/2569_ฮานอยดึก_18634"
-                    let uniqueKey = dateKey + "_" + text.replace(/\s+/g, "");
-                    
+                    let uniqueKey = dateKey + "_" + row.history.replace(/\s+/g, "");
                     if (!uniqueSinglesMap.has(uniqueKey)) {
                         uniqueSinglesMap.set(uniqueKey, row);
                     }
@@ -108,7 +108,6 @@
 
                     Object.keys(groupedByDate).reverse().forEach(dateKey => {
                         let items = groupedByDate[dateKey];
-                        
                         let accordion = document.createElement("div");
                         accordion.className = "accordion";
 
