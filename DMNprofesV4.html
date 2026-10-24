@@ -380,7 +380,15 @@ function calc() {
     if (!txt) { document.getElementById('out').innerHTML = ''; return; }
     
     let [tName, mode, lenStr, type] = document.getElementById('sel').value.split('|');
-    document.getElementById('h').textContent = `✨ 💖 💰 สถิติแนวทาง ${tName} (แสดงครบทุกหลักในหน้าเดียว) 💰 💖 ✨`;
+    
+    // ตั้งชื่อหัวข้อตามหมวดหมู่ที่เลือกให้ครอบคลุม
+    let headerTitle = tName;
+    if (type === "odd_even") {
+        headerTitle = "คู่ / คี่ (แสดงครบทั้ง 10 หลัก: คู่ 5 หลัก + คี่ 5 หลัก)";
+    } else if (type === "high_low") {
+        headerTitle = "สูง / ต่ำ (แสดงครบทั้ง 10 หลัก: สูง 5 หลัก + ต่ำ 5 หลัก)";
+    }
+    document.getElementById('h').textContent = `✨ 💖 💰 สถิติแนวทาง ${headerTitle} 💰 💖 ✨`;
     
     let userLottery = document.getElementById('lotteryName') ? document.getElementById('lotteryName').value.trim() : '';
     let permanentLine = "momongmo";
@@ -420,19 +428,38 @@ function calc() {
     let g = document.getElementById('out'); 
     g.innerHTML = '';
 
-    // ถ้ารู้สึกว่าเป็นโหมด คู่/คี่ หรือ สูง/ต่ำ ให้แสดงครบทั้ง 5 หลัก (ร้อย, สิบบน, หน่วยบน, สิบล่าง, หน่วยล่าง) ในหน้าเดียว
+    // สร้างรายการเป้าหมาย (Targets)
     let targets = [];
-    if (type === "odd_even" || type === "high_low") {
-        let prefix = tName.includes("คู่") ? "คู่" : (tName.includes("คี่") ? "คี่" : (tName.includes("สูง") ? "สูง" : "ต่ำ"));
+    if (type === "odd_even") {
+        // แสดง คู่ 5 หลัก (การ์ด 1-5) และ คี่ 5 หลัก (การ์ด 6-10) รวมเป็น 10 การ์ด
         targets = [
-            { name: `${prefix} ร้อย`, mode: "roi", type: type },
-            { name: `${prefix} สิบบน`, mode: "sib_top", type: type },
-            { name: `${prefix} หน่วยบน`, mode: "noi_top", type: type },
-            { name: `${prefix} สิบล่าง`, mode: "sib_bot", type: type },
-            { name: `${prefix} หน่วยล่าง`, mode: "noi_bot", type: type }
+            { name: "คู่ ร้อย", mode: "roi", type: type, isEven: true },
+            { name: "คู่ สิบบน", mode: "sib_top", type: type, isEven: true },
+            { name: "คู่ หน่วยบน", mode: "noi_top", type: type, isEven: true },
+            { name: "คู่ สิบล่าง", mode: "sib_bot", type: type, isEven: true },
+            { name: "คู่ หน่วยล่าง", mode: "noi_bot", type: type, isEven: true },
+            { name: "คี่ ร้อย", mode: "roi", type: type, isEven: false },
+            { name: "คี่ สิบบน", mode: "sib_top", type: type, isEven: false },
+            { name: "คี่ หน่วยบน", mode: "noi_top", type: type, isEven: false },
+            { name: "คี่ สิบล่าง", mode: "sib_bot", type: type, isEven: false },
+            { name: "คี่ หน่วยล่าง", mode: "noi_bot", type: type, isEven: false }
+        ];
+    } else if (type === "high_low") {
+        // แสดง สูง 5 หลัก (การ์ด 1-5) และ ต่ำ 5 หลัก (การ์ด 6-10) รวมเป็น 10 การ์ด
+        targets = [
+            { name: "สูง ร้อย", mode: "roi", type: type, isHigh: true },
+            { name: "สูง สิบบน", mode: "sib_top", type: type, isHigh: true },
+            { name: "สูง หน่วยบน", mode: "noi_top", type: type, isHigh: true },
+            { name: "สูง สิบล่าง", mode: "sib_bot", type: type, isHigh: true },
+            { name: "สูง หน่วยล่าง", mode: "noi_bot", type: type, isHigh: true },
+            { name: "ต่ำ ร้อย", mode: "roi", type: type, isHigh: false },
+            { name: "ต่ำ สิบบน", mode: "sib_top", type: type, isHigh: false },
+            { name: "ต่ำ หน่วยบน", mode: "noi_top", type: type, isHigh: false },
+            { name: "ต่ำ สิบล่าง", mode: "sib_bot", type: type, isHigh: false },
+            { name: "ต่ำ หน่วยล่าง", mode: "noi_bot", type: type, isHigh: false }
         ];
     } else {
-        // ถ้าเป็นโหมดปกติ แสดงตามเมนูที่เลือกปกติ
+        // โหมดปกติ แสดงตามเมนูที่เลือกเดี่ยวๆ
         targets = [{ name: tName, mode: mode, type: type }];
     }
 
@@ -457,24 +484,21 @@ function calc() {
 
             if (target.type === "odd_even") {
                 let isEven = (nVal % 2 === 0);
-                let isTargetEven = target.name.includes("คู่");
-                groupStr = isTargetEven ? "[0,2,4,6,8]" : "[1,3,5,7,9]";
-                let isMatch = (isEven === isTargetEven);
+                groupStr = target.isEven ? "[0,2,4,6,8]" : "[1,3,5,7,9]";
+                let isMatch = (isEven === target.isEven);
                 
                 if (isMatch) { win++; html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; }
                 else { html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; }
             } 
             else if (target.type === "high_low") {
                 let isHigh = (nVal >= 5);
-                let isTargetHigh = target.name.includes("สูง");
-                groupStr = isTargetHigh ? "[5,6,7,8,9]" : "[0,1,2,3,4]";
-                let isMatch = (isHigh === isTargetHigh);
+                groupStr = target.isHigh ? "[5,6,7,8,9]" : "[0,1,2,3,4]";
+                let isMatch = (isHigh === target.isHigh);
 
                 if (isMatch) { win++; html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; }
                 else { html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; }
             } 
             else {
-                // โหมดคำนวณสูตรปกติ
                 let currentFormulaDigits = [];
                 let specificDegree = rootFactorOffset + (targetIdx * 3.7);
                 let length = parseInt(lenStr) || 4;
@@ -526,7 +550,7 @@ function calc() {
         g.appendChild(d);
     });
 }
-
+    
 function cp(id) {
     let ta = document.getElementById(`raw-${id}`);
     ta.style.display = "block"; 
