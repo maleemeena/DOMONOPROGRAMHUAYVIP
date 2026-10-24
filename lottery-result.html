@@ -36,132 +36,134 @@
         <div class="loading">กำลังโหลดข้อมูล...</div>
     </div>
 
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzL7gGvbVtvAnENlymGsjyo_rZrK8BxO9V8RMTItEzWAbFr943joo1Cwh45bngcPE8Ueg/exec";
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzL7gGvbVtvAnENlymGsjyo_rZrK8BxO9V8RMTItEzWAbFr943joo1Cwh45bngcPE8Ueg/exec";
 
-        fetch(WEB_APP_URL)
-            .then(response => response.json())
-            .then(data => {
-                const container = document.querySelector("#resultContainer");
-                container.innerHTML = "";
+    fetch(WEB_APP_URL)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.querySelector("#resultContainer");
+            container.innerHTML = "";
 
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลผลรางวัลในระบบ</div>`;
-                    return;
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="empty">ยังไม่มีข้อมูลผลรางวัลในระบบ</div>`;
+                return;
+            }
+
+            const formattedData = data.map(row => {
+                if (Array.isArray(row)) {
+                    return {
+                        date: row[0] || "ไม่ระบุวันที่",
+                        name: row[2] || "📌 สรุปผลรางวัล",
+                        history: row[3] || row[1] || ""
+                    };
+                } else {
+                    return {
+                        date: row.date || row.time || "ไม่ระบุวันที่",
+                        name: row.name || row.category || "📌 สรุปผลรางวัล",
+                        history: row.history || row.text || ""
+                    };
                 }
+            });
 
-                // แปลงแถวข้อมูลจากชีตให้เป็นรูปแบบมาตรฐาน (รองรับทั้งแบบ Object และ Array)
-                const formattedData = data.map(row => {
-                    if (Array.isArray(row)) {
-                        return {
-                            date: row[0] || "ไม่ระบุวันที่",
-                            name: row[2] || "📌 สรุปผลรางวัล",
-                            history: row[3] || row[1] || ""
-                        };
-                    } else {
-                        return {
-                            date: row.date || row.time || "ไม่ระบุวันที่",
-                            name: row.name || row.category || "📌 สรุปผลรางวัล",
-                            history: row.history || row.text || ""
-                        };
-                    }
+            // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน
+            let summaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติ")));
+
+            if (summaries.length > 0) {
+                summaries.reverse().forEach(row => {
+                    let card = document.createElement("div");
+                    card.className = "card";
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="card-category">${row.name}</span>
+                            <span class="card-time">📅 ${row.date}</span>
+                        </div>
+                        <div class="card-content">${row.history}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้
+            let singles = formattedData.filter(row => row.history && (row.history.includes("🏆") || row.history.includes("บน :")));
+
+            if (singles.length > 0) {
+                let groupedByDate = {};
+                singles.forEach(row => {
+                    let dateKey = row.date.split(" ")[0];
+                    if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
+                    groupedByDate[dateKey].push(row);
                 });
 
-                // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน (แสดงทุกข้อความที่มีคำว่า สรุปผล หรือ สถิติ)
-                let summaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติ")));
+                Object.keys(groupedByDate).reverse().forEach(dateKey => {
+                    let items = groupedByDate[dateKey];
+                    let accordion = document.createElement("div");
+                    accordion.className = "accordion";
 
-                if (summaries.length > 0) {
-                    summaries.reverse().forEach(row => {
-                        let card = document.createElement("div");
-                        card.className = "card";
-                        card.innerHTML = `
-                            <div class="card-header">
-                                <span class="card-category">${row.name}</span>
-                                <span class="card-time">📅 ${row.date}</span>
-                            </div>
-                            <div class="card-content">${row.history}</div>
-                        `;
-                        container.appendChild(card);
-                    });
-                } else {
-                    container.innerHTML += `<div class="empty">ยังไม่พบข้อมูลสรุปผลประจำวัน</div>`;
-                }
+                    let rowsHtml = "";
+                    items.forEach(item => {
+                        let text = item.history;
+                        let lottoName = "";
+                        let lines = text.split("\n");
 
-                // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้
-                let singles = formattedData.filter(row => row.history && (row.history.includes("🏆") || row.history.includes("บน :")));
-
-                if (singles.length > 0) {
-                    let groupedByDate = {};
-                    singles.forEach(row => {
-                        let dateKey = row.date.split(" ")[0];
-                        if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
-                        groupedByDate[dateKey].push(row);
-                    });
-
-                    Object.keys(groupedByDate).reverse().forEach(dateKey => {
-                        let items = groupedByDate[dateKey];
-                        let accordion = document.createElement("div");
-                        accordion.className = "accordion";
-
-                        let rowsHtml = "";
-                        items.forEach(item => {
-                            let text = item.history;
-                            let lottoName = "ผลหวย";
-                            let lines = text.split("\n");
-                            for(let l of lines) {
-                                if (l.includes("🇻🇳") || l.includes("🇱🇦") || l.includes("🇯🇵") || l.includes("🇨🇳") || l.includes("🇬🇧") || l.includes("🇩🇪") || l.includes("🇷🇺") || l.includes("🇸🇬")) {
-                                    lottoName = l.replace(/[🏆➖]/g, "").trim();
-                                    break;
-                                }
+                        // วนลูปหาบรรทัดที่มีชื่อหวย (เลือกบรรทัดที่ไม่ใช่ตัวเลขรางวัลและไม่ใช่คำว่า บน/ล่าง)
+                        for (let l of lines) {
+                            let cleanLine = l.replace(/[🏆➖]/g, "").trim();
+                            if (cleanLine && !cleanLine.includes("เลขที่ออก") && !cleanLine.includes("บน :") && !cleanLine.includes("ล่าง :") && !cleanLine.includes("งวดวันที่")) {
+                                lottoName = cleanLine;
+                                break;
                             }
+                        }
+                        if (!lottoName) lottoName = "ผลหวยทั่วไป";
 
-                            let numOut = text.match(/เลขที่ออก\s*:\s*([^\s]+)/);
-                            let topNum = text.match(/บน\s*:\s*([^\s]+)/);
-                            let botNum = text.match(/ล่าง\s*:\s*([^\s]+)/);
+                        let numOut = text.match(/เลขที่ออก\s*[:]\s*([^\s]+)/);
+                        let topNum = text.match(/บน\s*[:]\s*([^\s]+)/);
+                        let botNum = text.match(/ล่าง\s*[:]\s*([^\s]+)/);
 
-                            let numberFull = numOut ? numOut[1] : "-";
-                            let top = topNum ? topNum[1] : "-";
-                            let bot = botNum ? botNum[1] : "-";
+                        let numberFull = numOut ? numOut[1] : "-";
+                        let top = topNum ? topNum[1] : "-";
+                        let bot = botNum ? botNum[1] : "-";
 
-                            rowsHtml += `
-                                <tr>
-                                    <td><b>${lottoName}</b></td>
-                                    <td style="color: #d63384; font-weight: bold;">${numberFull}</td>
-                                    <td style="color: #059669; font-weight: bold;">${top}</td>
-                                    <td style="color: #d97706; font-weight: bold;">${bot}</td>
-                                </tr>
-                            `;
-                        });
-
-                        accordion.innerHTML = `
-                            <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
-                                <span>📂 ผลรางวัลรายตัวประจำวันที่ ${dateKey} (${items.length} รายการ)</span>
-                                <span>▼ คลิกเพื่อดู/พับเก็บ</span>
-                            </div>
-                            <div class="accordion-body">
-                                <table class="lottery-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ชื่อหวย</th>
-                                            <th>เลขที่ออก</th>
-                                            <th>บน</th>
-                                            <th>ล่าง</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${rowsHtml}
-                                    </tbody>
-                                </table>
-                            </div>
+                        rowsHtml += `
+                            <tr>
+                                <td><b>${lottoName}</b></td>
+                                <td style="color: #d63384; font-weight: bold;">${numberFull}</td>
+                                <td style="color: #059669; font-weight: bold;">${top}</td>
+                                <td style="color: #d97706; font-weight: bold;">${bot}</td>
+                            </tr>
                         `;
-                        container.appendChild(accordion);
                     });
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-                document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้ (ตรวจสอบการเชื่อมต่อ Web App)</div>`;
-            });
-    </script>
-</body>
+
+                    accordion.innerHTML = `
+                        <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
+                            <span>📂 ผลรางวัลรายตัวประจำวันที่ ${dateKey} (${items.length} รายการ)</span>
+                            <span>▼ คลิกเพื่อดู/พับเก็บ</span>
+                        </div>
+                        <div class="accordion-body">
+                            <table class="lottery-table">
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อหวย</th>
+                                        <th>เลขที่ออก</th>
+                                        <th>บน</th>
+                                        <th>ล่าง</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    container.appendChild(accordion);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+            document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้</div>`;
+        });
+</script>
+
+    </body>
 </html>
