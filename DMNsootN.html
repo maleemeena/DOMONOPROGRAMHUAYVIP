@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>สูตรวิเคราะห์ AI ต่อรอบ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #09090c;
+      --neon-white: #ffffff;
+      --glow-white: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+      --gold-color: #ffd700;
+      --glow-gold: 0 0 12px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
+      --red-color: #ff2a2a;
+      --glow-red: 0 0 12px rgba(255, 42, 42, 0.8), 0 0 25px rgba(255, 42, 42, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Kanit', sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--neon-white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 650px;
+      background: radial-gradient(circle at top, #14141c 0%, #07070a 100%);
+      border: 2px solid var(--gold-color);
+      border-radius: 20px;
+      padding: 20px 15px;
+      box-shadow: var(--glow-gold), inset 0 0 20px rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+
+    /* Form Section */
+    .input-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--gold-color);
+      margin-bottom: 4px;
+      text-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+    }
+
+    .form-control {
+      width: 100%;
+      background: #040406;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: var(--neon-white);
+      padding: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--gold-color);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    textarea.form-control {
+      height: 90px;
+      resize: vertical;
+      font-family: monospace;
+      line-height: 1.4;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-calc {
+      background: linear-gradient(135deg, #cc0000, #ff2a2a);
+      color: #fff;
+      border: 1px solid var(--gold-color);
+      box-shadow: var(--glow-red);
+    }
+
+    .btn-clear {
+      background: #140808;
+      color: #ff5577;
+      border: 1px solid #ff5577;
+    }
+
+    .btn-copy {
+      background: #10151c;
+      color: #00e5ff;
+      border: 1px solid #00e5ff;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Title UI Header */
+    .header-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header-title h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--neon-white);
+      text-shadow: var(--glow-white);
+      letter-spacing: 1px;
+    }
+
+    .header-title .ai-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #cc0000, #ff2a2a);
+      color: #fff;
+      border: 1px solid var(--gold-color);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 15px;
+      margin-right: 5px;
+      vertical-align: middle;
+      box-shadow: var(--glow-red);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #d1c7a2;
+      margin-top: 4px;
+    }
+
+    /* Top 4 Numbers + Glowing/Blinking Animation */
+    .top-4-container {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      gap: 8px;
+    }
+
+    .top-4-card {
+      background: rgba(10, 10, 15, 0.95);
+      border-radius: 50%;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      border: 2.5px solid var(--gold-color);
+      box-shadow: var(--glow-gold);
+    }
+
+    /* ไฟกระพริบวิบวับวงกลมเลขเด่น (โทน ขาวนีออน / ทอง / แดง) */
+    .top-4-card.c1 { border-color: var(--gold-color); animation: circleGlowGold 1.2s infinite alternate; }
+    .top-4-card.c2 { border-color: var(--neon-white); animation: circleGlowWhite 1.2s 0.3s infinite alternate; }
+    .top-4-card.c3 { border-color: var(--red-color); animation: circleGlowRed 1.2s 0.6s infinite alternate; }
+    .top-4-card.c4 { border-color: var(--gold-color); animation: circleGlowGold 1.2s 0.9s infinite alternate; }
+
+    @keyframes circleGlowGold {
+      0% { box-shadow: 0 0 6px #ffd700, inset 0 0 6px #ffd700; }
+      100% { box-shadow: 0 0 22px #ffd700, 0 0 35px #ffea80, inset 0 0 12px #ffea80; border-color: #fff; }
+    }
+
+    @keyframes circleGlowWhite {
+      0% { box-shadow: 0 0 6px #ffffff, inset 0 0 6px #ffffff; }
+      100% { box-shadow: 0 0 25px #ffffff, 0 0 40px rgba(255,215,0,0.8), inset 0 0 15px #ffffff; border-color: var(--gold-color); }
+    }
+
+    @keyframes circleGlowRed {
+      0% { box-shadow: 0 0 6px #ff2a2a, inset 0 0 6px #ff2a2a; }
+      100% { box-shadow: 0 0 22px #ff2a2a, 0 0 35px #ff6666, inset 0 0 12px #ff6666; border-color: var(--gold-color); }
+    }
+
+    .top-4-num {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--neon-white);
+      text-shadow: var(--glow-white);
+    }
+
+    .top-4-percent {
+      font-size: 10px;
+      color: var(--gold-color);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    /* Summary Bar + Animation Blink/Glow */
+    .summary-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .summary-box {
+      flex: 1;
+      background: #07070a;
+      border-radius: 12px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-box.highlight { 
+      border: 2px solid var(--gold-color); 
+      animation: glowGoldBox 1.5s infinite alternate;
+    }
+    .summary-box.sub { 
+      border: 2px solid var(--red-color); 
+      animation: glowRedBox 1.5s infinite alternate;
+    }
+
+    @keyframes glowGoldBox {
+      0% { box-shadow: 0 0 6px rgba(255,215,0,0.4); }
+      100% { box-shadow: 0 0 18px rgba(255,215,0,0.8); border-color: #fff; }
+    }
+
+    @keyframes glowRedBox {
+      0% { box-shadow: 0 0 6px rgba(255,42,42,0.4); }
+      100% { box-shadow: 0 0 18px rgba(255,42,42,0.8); border-color: var(--gold-color); }
+    }
+
+    .summary-label { color: var(--gold-color); font-size: 13px; font-weight: 600; }
+    
+    .summary-val { 
+      font-weight: 800; 
+      letter-spacing: 2px; 
+      font-size: 20px;
+      color: var(--neon-white);
+      text-shadow: var(--glow-white);
+      animation: pulseText 1s infinite alternate;
+    }
+
+    @keyframes pulseText {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    /* Tables Grid */
+    .grid-tables {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .table-card {
+      background: rgba(12, 12, 18, 0.8);
+      border: 1.5px solid rgba(255, 215, 0, 0.4);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.05);
+    }
+
+    .table-title {
+      font-size: 15px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--gold-color);
+      text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+    }
+
+    .red-title { color: var(--red-color); text-shadow: 0 0 6px rgba(255, 42, 42, 0.5); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 5px 2px;
+      text-align: center;
+    }
+
+    th {
+      color: #b5a882;
+      font-weight: 400;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    /* ตัวเลขชุดเจาะ ขาวนีออนคมชัด */
+    .num-focus {
+      font-size: 18px !important;
+      font-weight: 800 !important;
+      color: var(--neon-white);
+      letter-spacing: 1px;
+      text-shadow: var(--glow-white);
+    }
+
+    .progress-bar-bg {
+      background: #12121a;
+      height: 7px;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700, #ffffff);
+      border-radius: 4px;
+      box-shadow: 0 0 8px #ffd700;
+    }
+
+    .red-fill {
+      background: linear-gradient(90deg, #cc0000, #ff2a2a);
+      box-shadow: var(--glow-red);
+    }
+
+    /* Lower Groups (เน้น / รอง / กัน) */
+    .lower-group {
+      margin-top: 10px;
+      background: #050508;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 11px;
+    }
+
+    .lower-row {
+      display: flex;
+      margin-bottom: 4px;
+      align-items: center;
+    }
+
+    .lower-label {
+      width: 32px;
+      color: var(--gold-color);
+      font-weight: 600;
+    }
+
+    .lower-val {
+      flex: 1;
+      color: var(--neon-white);
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      font-size: 12px;
+      text-shadow: 0 0 3px rgba(255,255,255,0.4);
+    }
+
+    /* Responsive Mobile Layout optimization */
+    @media (max-width: 550px) {
+      body { padding: 8px; }
+      .card { padding: 15px 10px; }
+      .grid-tables { grid-template-columns: 1fr; }
+      .top-4-card { width: 62px; height: 62px; }
+      .top-4-num { font-size: 26px; }
+      .num-focus { font-size: 19px !important; }
+      .summary-val { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="captureArea">
+  <!-- Input Header Control -->
+  <div class="input-section">
+    <div class="form-group">
+      <label for="lottoName">📌 ชื่อหวย / ชนิดหุ้น:</label>
+      <input type="text" id="lottoName" class="form-control" placeholder="เช่น ฮานอย VIP / หุ้นนิเคอิ">
+    </div>
+    <div class="form-group">
+      <label for="rawInput">📥 กรอกผลย้อนหลัง 20 รอบ (รองรับทุกรูปแบบที่มีเลข 5 หลัก):</label>
+      <textarea id="rawInput" class="form-control" placeholder="วางผลที่นี่...&#10;73912&#10;423-73&#10;🇻🇳 ฮานอย 554-69"></textarea>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-calc" onclick="calculate()">⚡ คำนวณสูตร AI</button>
+      <button class="btn btn-clear" onclick="clearData()">🧹 ล้างข้อมูล</button>
+      <button class="btn btn-copy" onclick="copyResult()">📋 คัดลอกผล</button>
+    </div>
+  </div>
+
+  <!-- Header Design -->
+  <div class="header-title">
+    <h1><span class="ai-badge">AI</span>สูตรวิเคราะห์ ต่อรอบ LINE ID:by560</h1>
+    <div class="subtitle">วิเคราะห์จากข้อมูล 20 รอบล่าสุด | <span id="displayLottoName" style="color: #ffd700; text-shadow: 0 0 5px rgba(255,215,0,0.6);">-</span></div>
+  </div>
+
+  <!-- Top 4 Display -->
+  <div style="text-align:center; font-size: 13px; color: var(--gold-color); margin-bottom: 8px; text-shadow: 0 0 4px rgba(255,215,0,0.4);">เด่น 4 ตัว</div>
+  <div class="top-4-container">
+    <div class="top-4-card c1"><div class="top-4-num" id="d1">-</div><div class="top-4-percent" id="p1">-%</div></div>
+    <div class="top-4-card c2"><div class="top-4-num" id="d2">-</div><div class="top-4-percent" id="p2">-%</div></div>
+    <div class="top-4-card c3"><div class="top-4-num" id="d3">-</div><div class="top-4-percent" id="p3">-%</div></div>
+    <div class="top-4-card c4"><div class="top-4-num" id="d4">-</div><div class="top-4-percent" id="p4">-%</div></div>
+  </div>
+
+  <!-- Main Focus Summary Bar -->
+  <div class="summary-bar">
+    <div class="summary-box highlight">
+      <span class="summary-label">เน้น</span>
+      <span class="summary-val" id="summaryFocus">- • -</span>
+    </div>
+    <div class="summary-box sub">
+      <span class="summary-label">รอง</span>
+      <span class="summary-val" id="summarySub">- • -</span>
+    </div>
+  </div>
+
+  <!-- Results 2D and 3D Tables -->
+  <div class="grid-tables">
+    <!-- 2 Digits Section -->
+    <div class="table-card">
+      <div class="table-title">เจาะ 2 ตัว 15 ชุด</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ชุด</th>
+            <th>%</th>
+            <th style="width:38%">กราฟ</th>
+          </tr>
+        </thead>
+        <tbody id="tbody2D"></tbody>
+      </table>
+
+      <div class="lower-group">
+        <div class="lower-row"><span class="lower-label">เน้น</span><span class="lower-val" id="subFocus2D">-</span></div>
+        <div class="lower-row"><span class="lower-label" style="color:#ff2a2a;">รอง</span><span class="lower-val" id="subรอง2D">-</span></div>
+        <div class="lower-row"><span class="lower-label" style="color:#ffffff;">กัน</span><span class="lower-val" id="subกัน2D">-</span></div>
+      </div>
+    </div>
+
+    <!-- 3 Digits Section -->
+    <div class="table-card">
+      <div class="table-title red-title">เจาะ 3 ตัว 15 ชุด</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ชุด</th>
+            <th>%</th>
+            <th style="width:38%">กราฟ</th>
+          </tr>
+        </thead>
+        <tbody id="tbody3D"></tbody>
+      </table>
+
+      <div class="lower-group">
+        <div class="lower-row"><span class="lower-label">เน้น</span><span class="lower-val" id="subFocus3D">-</span></div>
+        <div class="lower-row"><span class="lower-label" style="color:#ff2a2a;">รอง</span><span class="lower-val" id="subรอง3D">-</span></div>
+        <div class="lower-row"><span class="lower-label" style="color:#ffffff;">กัน</span><span class="lower-val" id="subกัน3D">-</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.onload = function() {
+    if(localStorage.getItem('lottoName')) {
+      document.getElementById('lottoName').value = localStorage.getItem('lottoName');
+    }
+    if(localStorage.getItem('rawInput')) {
+      document.getElementById('rawInput').value = localStorage.getItem('rawInput');
+      calculate();
+    }
+  };
+
+  function saveStorage() {
+    localStorage.setItem('lottoName', document.getElementById('lottoName').value);
+    localStorage.setItem('rawInput', document.getElementById('rawInput').value);
+  }
+
+  function clearData() {
+    document.getElementById('lottoName').value = '';
+    document.getElementById('rawInput').value = '';
+    localStorage.removeItem('lottoName');
+    localStorage.removeItem('rawInput');
+    location.reload();
+  }
+
+  function parseInput(text) {
+    const lines = text.split('\n');
+    const results = [];
+    for (let line of lines) {
+      const match = line.match(/(\d{3})-?(\d{2})/);
+      if (match) {
+        results.push({
+          first3: parseInt(match[1]),
+          last2: parseInt(match[2])
+        });
+      }
+      if (results.length === 20) break;
+    }
+    return results;
+  }
+
+  function calculate() {
+    saveStorage();
+    const lotName = document.getElementById('lottoName').value || 'หวยทั่วไป';
+    document.getElementById('displayLottoName').innerText = lotName;
+
+    const rawText = document.getElementById('rawInput').value;
+    const rounds = parseInput(rawText);
+
+    if (rounds.length === 0) {
+      alert('กรุณากรอกผลหวยย้อนหลังอย่างน้อย 1 รอบ');
+      return;
+    }
+
+    let overallFreq = {};
+    for (let i = 0; i <= 9; i++) overallFreq[i] = 0;
+
+    rounds.forEach(r => {
+      let product = r.first3 * r.last2;
+      let sqrtVal = Math.sqrt(product);
+      let percentVal = sqrtVal * 0.01;
+      let finalResult = Math.pow(percentVal, 1.2);
+      let cleanDigits = finalResult.toString().replace(/[^0-9]/g, '');
+
+      let roundFreq = {};
+      for (let i = 0; i <= 9; i++) roundFreq[i] = 0;
+      for (let char of cleanDigits) {
+        roundFreq[parseInt(char)]++;
+      }
+
+      let sortedRound = Object.keys(roundFreq).map(Number).sort((a, b) => roundFreq[b] - roundFreq[a]);
+      let top5Round = sortedRound.slice(0, 5);
+
+      top5Round.forEach(num => {
+        overallFreq[num]++;
+      });
+    });
+
+    let sortedOverall = Object.keys(overallFreq).map(Number).sort((a, b) => {
+      if (overallFreq[b] === overallFreq[a]) return b - a;
+      return overallFreq[b] - overallFreq[a];
+    });
+
+    let d1 = sortedOverall[0], d2 = sortedOverall[1], d3 = sortedOverall[2], d4 = sortedOverall[3];
+    document.getElementById('d1').innerText = d1;
+    document.getElementById('d2').innerText = d2;
+    document.getElementById('d3').innerText = d3;
+    document.getElementById('d4').innerText = d4;
+
+    document.getElementById('p1').innerText = Math.min(85, Math.round((overallFreq[d1] / 20) * 100 + 35)) + '%';
+    document.getElementById('p2').innerText = Math.min(80, Math.round((overallFreq[d2] / 20) * 100 + 30)) + '%';
+    document.getElementById('p3').innerText = Math.min(75, Math.round((overallFreq[d3] / 20) * 100 + 25)) + '%';
+    document.getElementById('p4').innerText = Math.min(70, Math.round((overallFreq[d4] / 20) * 100 + 20)) + '%';
+
+    document.getElementById('summaryFocus').innerText = `${d1} • ${d2}`;
+    document.getElementById('summarySub').innerText = `${d3} • ${d4}`;
+
+    let set2D = generate15Sets2D(sortedOverall, overallFreq);
+    renderTable('tbody2D', set2D, false);
+    document.getElementById('subFocus2D').innerText = set2D.slice(0, 5).map(x => x.item).join(' • ');
+    document.getElementById('subรอง2D').innerText = set2D.slice(5, 10).map(x => x.item).join(' • ');
+    document.getElementById('subกัน2D').innerText = set2D.slice(10, 15).map(x => x.item).join(' • ');
+
+    let set3D = generate15Sets3D(sortedOverall, overallFreq);
+    renderTable('tbody3D', set3D, true);
+    document.getElementById('subFocus3D').innerText = set3D.slice(0, 5).map(x => x.item).join(' • ');
+    document.getElementById('subรอง3D').innerText = set3D.slice(5, 10).map(x => x.item).join(' • ');
+    document.getElementById('subกัน3D').innerText = set3D.slice(10, 15).map(x => x.item).join(' • ');
+  }
+
+  function generate15Sets2D(rank, freqMap) {
+    let rawList = [];
+    for(let i=0; i<rank.length; i++) {
+      for(let j=i+1; j<rank.length; j++) {
+        let pair = `${rank[i]}${rank[j]}`;
+        let score = freqMap[rank[i]] + freqMap[rank[j]];
+        rawList.push({ item: pair, score: score });
+      }
+    }
+    rawList.sort((a, b) => b.score - a.score);
+    let top15 = rawList.slice(0, 15);
+    let maxScore = top15[0].score || 1;
+    let minScore = top15[top15.length - 1].score || 1;
+
+    return top15.map(x => {
+      let ratio = maxScore === minScore ? 1 : (x.score - minScore) / (maxScore - minScore);
+      let perc = Math.round(42 + ratio * 43);
+      return { item: x.item, perc: perc };
+    });
+  }
+
+  function generate15Sets3D(rank, freqMap) {
+    let rawList = [];
+    for(let i=0; i<rank.length; i++) {
+      for(let j=i+1; j<rank.length; j++) {
+        for(let k=j+1; k<rank.length; k++) {
+          let trio = `${rank[i]}${rank[j]}${rank[k]}`;
+          let score = freqMap[rank[i]] + freqMap[rank[j]] + freqMap[rank[k]];
+          rawList.push({ item: trio, score: score });
+        }
+      }
+    }
+    rawList.sort((a, b) => b.score - a.score);
+    let top15 = rawList.slice(0, 15);
+    let maxScore = top15[0].score || 1;
+    let minScore = top15[top15.length - 1].score || 1;
+
+    return top15.map(x => {
+      let ratio = maxScore === minScore ? 1 : (x.score - minScore) / (maxScore - minScore);
+      let perc = Math.round(42 + ratio * 43);
+      return { item: x.item, perc: perc };
+    });
+  }
+
+  function renderTable(elementId, dataset, isRed) {
+    let tbody = document.getElementById(elementId);
+    tbody.innerHTML = '';
+
+    dataset.forEach((data, index) => {
+      let numIdx = (index + 1).toString().padStart(2, '0');
+      let fillClass = isRed ? 'red-fill' : '';
+
+      let tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${numIdx}</td>
+        <td class="num-focus">${data.item}</td>
+        <td style="color: #ffd700; font-weight:700; text-shadow: 0 0 4px rgba(255,215,0,0.4);">${data.perc}%</td>
+        <td>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${fillClass}" style="width: ${data.perc}%"></div>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function copyResult() {
+    const lotName = document.getElementById('lottoName').value || 'หวยทั่วไป';
+    const d1 = document.getElementById('d1').innerText;
+    const d2 = document.getElementById('d2').innerText;
+    const d3 = document.getElementById('d3').innerText;
+    const d4 = document.getElementById('d4').innerText;
+
+    if(d1 === '-') {
+      alert('กรุณากดคำนวณก่อนคัดลอกข้อความ');
+      return;
+    }
+
+    const focus2D = document.getElementById('subFocus2D').innerText;
+    const sub2D = document.getElementById('subรอง2D').innerText;
+    const gun2D = document.getElementById('subกัน2D').innerText;
+
+    const focus3D = document.getElementById('subFocus3D').innerText;
+    const sub3D = document.getElementById('subรอง3D').innerText;
+    const gun3D = document.getElementById('subกัน3D').innerText;
+
+    let text = `📊 ผลวิเคราะห์สูตร AI: ${lotName}\n`;
+    text += `🔹 เด่น 4 ตัว: ${d1} - ${d2} - ${d3} - ${d4}\n`;
+    text += `🔥 เน้น: ${d1} • ${d2} | รอง: ${d3} • ${d4}\n\n`;
+    text += `🎯 เจาะ 2 ตัว (เน้น): ${focus2D}\n`;
+    text += `🎯 เจาะ 2 ตัว (รอง): ${sub2D}\n`;
+    text += `🎯 เจาะ 2 ตัว (กัน): ${gun2D}\n\n`;
+    text += `💥 เจาะ 3 ตัว (เน้น): ${focus3D}\n`;
+    text += `💥 เจาะ 3 ตัว (รอง): ${sub3D}\n`;
+    text += `💥 เจาะ 3 ตัว (กัน): ${gun3D}`;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('คัดลอกสรุปผลเรียบร้อยแล้ว!');
+      }).catch(() => {
+        fallbackCopyText(text);
+      });
+    } else {
+      fallbackCopyText(text);
+    }
+  }
+
+  function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      alert('คัดลอกสรุปผลเรียบร้อยแล้ว!');
+    } catch (err) {
+      alert('ไม่สามารถคัดลอกข้อความได้ กรุณาครอบดำและคัดลอกเอง');
+    }
+    document.body.removeChild(textArea);
+  }
+</script>
+
+</body>
+</html>
