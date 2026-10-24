@@ -381,12 +381,11 @@ function calc() {
     
     let [tName, mode, lenStr, type] = document.getElementById('sel').value.split('|');
     
-    // ตั้งชื่อหัวข้อตามหมวดหมู่ที่เลือกให้ครอบคลุม
     let headerTitle = tName;
     if (type === "odd_even") {
-        headerTitle = "คู่ / คี่ (แสดงครบทั้ง 10 หลัก: คู่ 5 หลัก + คี่ 5 หลัก)";
+        headerTitle = "คู่ / คี่ (เรียงตามความแม่นยำสูงสุด)";
     } else if (type === "high_low") {
-        headerTitle = "สูง / ต่ำ (แสดงครบทั้ง 10 หลัก: สูง 5 หลัก + ต่ำ 5 หลัก)";
+        headerTitle = "สูง / ต่ำ (เรียงตามความแม่นยำสูงสุด)";
     }
     document.getElementById('h').textContent = `✨ 💖 💰 สถิติแนวทาง ${headerTitle} 💰 💖 ✨`;
     
@@ -428,10 +427,8 @@ function calc() {
     let g = document.getElementById('out'); 
     g.innerHTML = '';
 
-    // สร้างรายการเป้าหมาย (Targets)
     let targets = [];
     if (type === "odd_even") {
-        // แสดง คู่ 5 หลัก (การ์ด 1-5) และ คี่ 5 หลัก (การ์ด 6-10) รวมเป็น 10 การ์ด
         targets = [
             { name: "คู่ ร้อย", mode: "roi", type: type, isEven: true },
             { name: "คู่ สิบบน", mode: "sib_top", type: type, isEven: true },
@@ -445,7 +442,6 @@ function calc() {
             { name: "คี่ หน่วยล่าง", mode: "noi_bot", type: type, isEven: false }
         ];
     } else if (type === "high_low") {
-        // แสดง สูง 5 หลัก (การ์ด 1-5) และ ต่ำ 5 หลัก (การ์ด 6-10) รวมเป็น 10 การ์ด
         targets = [
             { name: "สูง ร้อย", mode: "roi", type: type, isHigh: true },
             { name: "สูง สิบบน", mode: "sib_top", type: type, isHigh: true },
@@ -459,9 +455,11 @@ function calc() {
             { name: "ต่ำ หน่วยล่าง", mode: "noi_bot", type: type, isHigh: false }
         ];
     } else {
-        // โหมดปกติ แสดงตามเมนูที่เลือกเดี่ยวๆ
         targets = [{ name: tName, mode: mode, type: type }];
     }
+
+    // เก็บผลลัพธ์การคำนวณทั้งหมดเข้า Array เพื่อนำไปเรียงลำดับ
+    let resultsArray = [];
 
     targets.forEach((target, targetIdx) => {
         let win = 0, html = '', raw = '', last = '';
@@ -531,21 +529,38 @@ function calc() {
         });
 
         let rate = dLines.length > 0 ? parseFloat(((win / dLines.length) * 100).toFixed(1)) : 0;
-        let cardId = `target_${targetIdx}`;
+        
+        resultsArray.push({
+            name: target.name,
+            win: win,
+            total: dLines.length,
+            rate: rate,
+            html: html,
+            raw: `${customHeader}${title}\nแนวทาง: ${target.name}\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${raw}`,
+            groupStr: groupStr,
+            targetIdx: targetIdx
+        });
+    });
 
+    // ✨ เรียงลำดับจากเปอร์เซ็นต์ (rate) มากไปหาน้อยที่สุด
+    resultsArray.sort((a, b) => b.rate - a.rate);
+
+    // นำมาแสดงผลเป็นการ์ดเรียงตามลำดับความแม่นยำ
+    resultsArray.forEach((item, index) => {
+        let cardId = `target_${index}`;
         let d = document.createElement('div'); 
         d.className = 'card';
         d.innerHTML = `
             <div class="c-head">
-                <div>✨ 💰 ${target.name}</div>
-                <div>ถูก/ผิด=${win}/${dLines.length-win}=${rate}%</div>
+                <div>✨ 💰 ${item.name}</div>
+                <div>ถูก/ผิด=${item.win}/${item.total-item.win}=${item.rate}%</div>
             </div>
             <div class="box">
                 <button class="btn-copy" onclick="cp('${cardId}')">คัดลอก</button>
-                <div class="list">${html}</div>
-                <textarea id="raw-${cardId}" style="display:none">${customHeader}${title}\nแนวทาง: ${target.name}\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${raw}</textarea>
+                <div class="list">${item.html}</div>
+                <textarea id="raw-${cardId}" style="display:none">${item.raw}</textarea>
             </div>
-            <div class="next">💰 แนวทาง = ${groupStr} 💸</div>
+            <div class="next">💰 แนวทาง = ${item.groupStr} 💸</div>
         `;
         g.appendChild(d);
     });
