@@ -103,18 +103,24 @@
                     let rowsHtml = "";
                     items.forEach(item => {
                         let text = item.history;
-                        let lottoName = "";
+                        let lottoName = "ผลหวย";
                         let lines = text.split("\n");
 
-                        // วนลูปหาบรรทัดที่มีชื่อหวย (เลือกบรรทัดที่ไม่ใช่ตัวเลขรางวัลและไม่ใช่คำว่า บน/ล่าง)
+                        // วนหาบรรทัดที่มีชื่อหวยจริงๆ (มีชื่อธงชาติ หรือบรรทัดที่สองที่เป็นชื่อหวย)
                         for (let l of lines) {
                             let cleanLine = l.replace(/[🏆➖]/g, "").trim();
-                            if (cleanLine && !cleanLine.includes("เลขที่ออก") && !cleanLine.includes("บน :") && !cleanLine.includes("ล่าง :") && !cleanLine.includes("งวดวันที่")) {
+                            if (cleanLine && 
+                                !cleanLine.includes("เลขที่ออก") && 
+                                !cleanLine.includes("บน :") && 
+                                !cleanLine.includes("ล่าง :") && 
+                                !cleanLine.includes("งวดวันที่") &&
+                                !cleanLine.includes("สถิติตัวเลข") &&
+                                !cleanLine.includes("DOMINOPROGRAMHUAY") &&
+                                !cleanLine.includes("GMT")) {
                                 lottoName = cleanLine;
                                 break;
                             }
                         }
-                        if (!lottoName) lottoName = "ผลหวยทั่วไป";
 
                         let numOut = text.match(/เลขที่ออก\s*[:]\s*([^\s]+)/);
                         let topNum = text.match(/บน\s*[:]\s*([^\s]+)/);
@@ -164,6 +170,5 @@
             document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้</div>`;
         });
 </script>
-
     </body>
 </html>
