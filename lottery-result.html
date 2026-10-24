@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>📊 สรุปผลรางวัลและสถิติบอท</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #fdf6f9; padding: 20px; }
@@ -20,7 +21,7 @@
         .accordion-header { background: #f8fafc; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; color: #1e293b; user-select: none; transition: background 0.2s; }
         .accordion-header:hover { background: #f1f5f9; }
         .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px; background: white; }
-        .accordion.active .accordion-body { max-height: 1000px; padding: 15px 20px; border-top: 1px solid #f1f5f9; }
+        .accordion.active .accordion-body { max-height: 2000px; padding: 15px 20px; border-top: 1px solid #f1f5f9; }
         
         table.lottery-table { width: 100%; border-collapse: collapse; }
         table.lottery-table th, table.lottery-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.95rem; }
@@ -67,7 +68,7 @@
             });
 
             // 1. ส่วนแสดงการ์ดสรุปผลประจำวัน
-            let summaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติ")));
+            let summaries = formattedData.filter(row => row.history && (row.history.includes("สรุปผล") || row.history.includes("สถิติประจำวัน")));
 
             if (summaries.length > 0) {
                 summaries.reverse().forEach(row => {
@@ -84,8 +85,8 @@
                 });
             }
 
-            // 2. ส่วนแสดงผลรายตัวแบบพับเก็บได้
-            let singles = formattedData.filter(row => row.history && (row.history.includes("🏆") || row.history.includes("บน :")));
+            // 2. ส่วนแสดงผลรายตัว (รองรับทุกรายการและทุกความยาวตัวเลข)
+            let singles = formattedData.filter(row => row.history && (row.history.includes("บน") || row.history.includes("ล่าง") || row.history.includes("เลขที่ออก")));
 
             if (singles.length > 0) {
                 let groupedByDate = {};
@@ -106,25 +107,23 @@
                         let lottoName = "ผลหวย";
                         let lines = text.split("\n");
 
-                        // วนหาบรรทัดที่มีชื่อหวยจริงๆ (มีชื่อธงชาติ หรือบรรทัดที่สองที่เป็นชื่อหวย)
                         for (let l of lines) {
-                            let cleanLine = l.replace(/[🏆➖]/g, "").trim();
+                            let cleanLine = l.replace(/[🏆➖📌🇻🇳🇱🇦📈💎🇪🇺🇲🇾]/g, "").trim();
                             if (cleanLine && 
                                 !cleanLine.includes("เลขที่ออก") && 
-                                !cleanLine.includes("บน :") && 
-                                !cleanLine.includes("ล่าง :") && 
+                                !cleanLine.includes("บน") && 
+                                !cleanLine.includes("ล่าง") && 
                                 !cleanLine.includes("งวดวันที่") &&
                                 !cleanLine.includes("สถิติตัวเลข") &&
-                                !cleanLine.includes("DOMINOPROGRAMHUAY") &&
-                                !cleanLine.includes("GMT")) {
+                                /\D/.test(cleanLine)) {
                                 lottoName = cleanLine;
                                 break;
                             }
                         }
 
-                        let numOut = text.match(/เลขที่ออก\s*[:]\s*([^\s]+)/);
-                        let topNum = text.match(/บน\s*[:]\s*([^\s]+)/);
-                        let botNum = text.match(/ล่าง\s*[:]\s*([^\s]+)/);
+                        let numOut = text.match(/เลขที่ออก\s*[:]?\s*([0-9]+)/);
+                        let topNum = text.match(/บน\s*[:]?\s*([0-9]+)/);
+                        let botNum = text.match(/ล่าง\s*[:]?\s*([0-9]+)/);
 
                         let numberFull = numOut ? numOut[1] : "-";
                         let top = topNum ? topNum[1] : "-";
@@ -169,6 +168,11 @@
             console.error("Error fetching data:", error);
             document.querySelector("#resultContainer").innerHTML = `<div class="error">ไม่สามารถโหลดข้อมูลได้</div>`;
         });
+
+    // รีเฟรชข้อมูลอัตโนมัติทุกๆ 30 วินาที
+    setInterval(function() {
+        location.reload();
+    }, 30000);
 </script>
-    </body>
+</body>
 </html>
