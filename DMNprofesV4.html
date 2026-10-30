@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ 💖 💰 โปรแกรมสูตรสถิติหวยอัจฉริยะ V7.2 💰 💖 ✨</title>
+    <title>✨ 💖 💰 โปรแกรมสูตรสถิติหวยอัจฉริยะ V8.4  💰 💖 ✨</title>
     <style>
         @keyframes glowBlink {
             0% { filter: drop-shadow(0 0 2px #ff80ab) drop-shadow(0 0 10px #ff4081); transform: scale(1); }
@@ -207,7 +207,7 @@
 </head>
 <body>
 
-<div class="header" id="h">✨ 💖 💰 โปรแกรมสูตรสถิติหวยอัจฉริยะ V7.2 💰 💖 ✨</div>
+<div class="header" id="h">✨ 💖 💰 โปรแกรมสูตรสถิติหวยอัจฉริยะ V8.4 💰 💖 ✨</div>
 <div class="user-info-box">
     <label style="margin: 0; font-weight: bold; color: #ff4081;">
         🌸 📌 ชื่อหวย: 
@@ -229,7 +229,7 @@
     </div>
     
     <div class="f-row">
-        <button class="btn-ai" onclick="aiSmartScan()">🤖✨ AI สแกนสูตร 💰🎉</button>
+        <button class="btn-ai" onclick="aiSmartScan()">🤖✨ AI สแกนสูตร  💰🎉</button>
     </div>
 
     <div class="f-row">
@@ -245,7 +245,8 @@
 
 <script>
 let lim = 0;
-let rootFactorOffset = 1.23;
+// ค่ารากเริ่มต้น 10 ชุดตามที่สั่งตายตัว (ชุดที่ 1-10: 1.2, 1.3, 1.4, 1.5, 1.7, 2, 3, 3.9, 2.9, 5.4)
+let customRootDegrees = [1.2, 1.3, 1.4, 1.5, 1.7, 2, 3, 3.9, 2.9, 5.4];
 
 function initMenu() {
     const s = document.getElementById('sel');
@@ -280,11 +281,31 @@ function initMenu() {
         ["วินบนล่าง 5 ตัว","win_both_2d",5], ["วินบนล่าง 6 ตัว","win_both_2d",6], ["วินบนล่าง 7 ตัว","win_both_2d",7], ["วินบนล่าง 8 ตัว","win_both_2d",8], ["วินบนล่าง 9 ตัว","win_both_2d",9]
     ]);
 
-    makeGroup("—— 🎯 คู่ / คี่ / สูง / ต่ำ แยกรายหลัก (ตามต้องการ) 🎯 ——", [
-        ["คู่ ร้อย", "roi", 5, "odd_even"], ["คู่ สิบบน", "sib_top", 5, "odd_even"], ["คู่ หน่วยบน", "noi_top", 5, "odd_even"], ["คู่ สิบล่าง", "sib_bot", 5, "odd_even"], ["คู่ หน่วยล่าง", "noi_bot", 5, "odd_even"],
-        ["คี่ร้อย", "roi", 5, "odd_even"], ["คี่ สิบบน", "sib_top", 5, "odd_even"], ["คี่หน่วยบน", "noi_top", 5, "odd_even"], ["คี่สิบล่าง", "sib_bot", 5, "odd_even"], ["คี่หน่วยล่าง", "noi_bot", 5, "odd_even"],
-        ["สูงร้อย", "roi", 5, "high_low"], ["สูงสิบบน", "sib_top", 5, "high_low"], ["สูงหน่วยบน", "noi_top", 5, "high_low"], ["สูงสิบล่าง", "sib_bot", 5, "high_low"], ["สูงหน่วยล่าง", "noi_bot", 5, "high_low"],
-        ["ต่ำร้อย", "roi", 5, "high_low"], ["ต่ำ สิบบน", "sib_top", 5, "high_low"], ["ต่ำหน่วยบน", "noi_top", 5, "high_low"], ["ต่ำสิบล่าง", "sib_bot", 5, "high_low"], ["ต่ำหน่วยล่าง", "noi_bot", 5, "high_low"]
+    // จัดกลุ่ม คู่/คี่ และ สูง/ต่ำ ให้ครอบคลุมทุกหลัก เพื่อให้แสดงครบ 10 การ์ด
+    makeGroup("—— 🎯 คู่ / คี่ แยกรายหลัก (แสดง 10 การ์ดครบทุกหลัก) 🎯 ——", [
+        ["คู่ ร้อย", "roi", 5, "odd_even"], 
+        ["คู่ สิบบน", "sib_top", 5, "odd_even"], 
+        ["คู่ หน่วยบน", "noi_top", 5, "odd_even"], 
+        ["คู่ สิบล่าง", "sib_bot", 5, "odd_even"], 
+        ["คู่ หน่วยล่าง", "noi_bot", 5, "odd_even"],
+        ["คี่ ร้อย", "roi", 5, "odd_even"], 
+        ["คี่ สิบบน", "sib_top", 5, "odd_even"], 
+        ["คี่ หน่วยบน", "noi_top", 5, "odd_even"], 
+        ["คี่ สิบล่าง", "sib_bot", 5, "odd_even"], 
+        ["คี่ หน่วยล่าง", "noi_bot", 5, "odd_even"]
+    ]);
+
+    makeGroup("—— 🎯 สูง / ต่ำ แยกรายหลัก (แสดง 10 การ์ดครบทุกหลัก) 🎯 ——", [
+        ["สูง ร้อย", "roi", 5, "high_low"], 
+        ["สูง สิบบน", "sib_top", 5, "high_low"], 
+        ["สูง หน่วยบน", "noi_top", 5, "high_low"], 
+        ["สูง สิบล่าง", "sib_bot", 5, "high_low"], 
+        ["สูง หน่วยล่าง", "noi_bot", 5, "high_low"],
+        ["ต่ำ ร้อย", "roi", 5, "high_low"], 
+        ["ต่ำ สิบบน", "sib_top", 5, "high_low"], 
+        ["ต่ำ หน่วยบน", "noi_top", 5, "high_low"], 
+        ["ต่ำ สิบล่าง", "sib_bot", 5, "high_low"], 
+        ["ต่ำ หน่วยล่าง", "noi_bot", 5, "high_low"]
     ]);
 
     let p = [];
@@ -310,9 +331,14 @@ function aiSmartScan() {
         alert("💖 กรุณาวางผลสถิติก่อนใช้งาน AI สแกนสูตรจ้า! 💰");
         return;
     }
-    rootFactorOffset = parseFloat((Math.random() * 999.89 + 0.1).toFixed(2));
+    // สุ่มหาค่ารากใหม่ในช่วง 0.1 ถึง 999.99 ให้ทั้ง 10 การ์ด
+    customRootDegrees = [];
+    for(let i=0; i<10; i++) {
+        let randVal = Math.random() * (999.99 - 0.1) + 0.1;
+        customRootDegrees.push(parseFloat(randVal.toFixed(2)));
+    }
     calc();
-    alert(`✨🎉 AI สแกนสำเร็จปังปุริเย่! 💰 (สูตรที่: ${rootFactorOffset}) เฮงๆ รวยๆ รับทรัพย์จ้า! 🌸`);
+    alert(`✨🎉 AI สแกนหาสูตร  สำเร็จปังปุริเย่! 💰 เฮงๆ รวยๆ รับทรัพย์จ้า! 🌸`);
 }
 
 function saveAndCalc() {
@@ -382,13 +408,8 @@ function calc() {
     let [tName, mode, lenStr, type] = document.getElementById('sel').value.split('|');
     let length = parseInt(lenStr) || 4;
     
-    let headerTitle = tName;
-    if (type === "odd_even") {
-        headerTitle = "คู่ / คี่ (เรียงตามความแม่นยำสูงสุด)";
-    } else if (type === "high_low") {
-        headerTitle = "สูง / ต่ำ (เรียงตามความแม่นยำสูงสุด)";
-    }
-    document.getElementById('h').textContent = `✨ 💖 💰 ${headerTitle} - (เรียงตามความถี่จริง) 💰 💖 ✨`;
+    let headerTitle = `${tName} - (แสดงผล 10 การ์ด)`;
+    document.getElementById('h').textContent = `✨ 💖 💰 ${headerTitle} 💰 💖 ✨`;
     
     let userLottery = document.getElementById('lotteryName') ? document.getElementById('lotteryName').value.trim() : '';
     let permanentLine = "momongmo";
@@ -428,221 +449,202 @@ function calc() {
     let g = document.getElementById('out'); 
     g.innerHTML = '';
 
-    let targets = [];
-    if (type === "odd_even") {
-        targets = [
-            { name: "คู่ ร้อย", mode: "roi", type: type, isEven: true },
-            { name: "คู่ สิบบน", mode: "sib_top", type: type, isEven: true },
-            { name: "คู่ หน่วยบน", mode: "noi_top", type: type, isEven: true },
-            { name: "คู่ สิบล่าง", mode: "sib_bot", type: type, isEven: true },
-            { name: "คู่ หน่วยล่าง", mode: "noi_bot", type: type, isEven: true },
-            { name: "คี่ ร้อย", mode: "roi", type: type, isEven: false },
-            { name: "คี่ สิบบน", mode: "sib_top", type: type, isEven: false },
-            { name: "คี่ หน่วยบน", mode: "noi_top", type: type, isEven: false },
-            { name: "คี่ สิบล่าง", mode: "sib_bot", type: type, isEven: false },
-            { name: "คี่ หน่วยล่าง", mode: "noi_bot", type: type, isEven: false }
-        ];
-    } else if (type === "high_low") {
-        targets = [
-            { name: "สูง ร้อย", mode: "roi", type: type, isHigh: true },
-            { name: "สูง สิบบน", mode: "sib_top", type: type, isHigh: true },
-            { name: "สูง หน่วยบน", mode: "noi_top", type: type, isHigh: true },
-            { name: "สูง สิบล่าง", mode: "sib_bot", type: type, isHigh: true },
-            { name: "สูง หน่วยล่าง", mode: "noi_bot", type: type, isHigh: true },
-            { name: "ต่ำ ร้อย", mode: "roi", type: type, isHigh: false },
-            { name: "ต่ำ สิบบน", mode: "sib_top", type: type, isHigh: false },
-            { name: "ต่ำ หน่วยบน", mode: "noi_top", type: type, isHigh: false },
-            { name: "ต่ำ สิบล่าง", mode: "sib_bot", type: type, isHigh: false },
-            { name: "ต่ำ หน่วยล่าง", mode: "noi_bot", type: type, isHigh: false }
-        ];
-    } else {
-        targets = [{ name: tName, mode: mode, type: type }];
-    }
-
     let resultsArray = [];
 
-    targets.forEach((target, targetIdx) => {
-        let win = 0, html = '', raw = '', last = '';
-        let groupStr = "";
+    // ถ้าเป็นโหมด คู่/คี่ หรือ สูง/ต่ำ ให้สร้าง 10 การ์ด ครอบคลุมทั้ง 10 หลัก (ร้อย, สิบบน, หน่วยบน, สิบล่าง, หน่วยล่าง ทั้งคู่/คี่ หรือ สูง/ต่ำ)
+    if (type === "odd_even" || type === "high_low") {
+        let isEvenTarget = tName.includes("คู่");
+        let isHighTarget = tName.includes("สูง");
+        let prefixText = isEvenTarget ? "คู่" : (tName.includes("คี่") ? "คี่" : (isHighTarget ? "สูง" : "ต่ำ"));
+        
+        // 10 รายการหลักสำหรับแสดงครบ 10 การ์ด
+        let subTargets = [
+            { name: `${prefixText} ร้อย`, mode: "roi" },
+            { name: `${prefixText} สิบบน`, mode: "sib_top" },
+            { name: `${prefixText} หน่วยบน`, mode: "noi_top" },
+            { name: `${prefixText} สิบล่าง`, mode: "sib_bot" },
+            { name: `${prefixText} หน่วยล่าง`, mode: "noi_bot" },
+            { name: `${prefixText} ร้อย (เสริมที่ 2)`, mode: "roi" },
+            { name: `${prefixText} สิบบน (เสริมที่ 2)`, mode: "sib_top" },
+            { name: `${prefixText} หน่วยบน (เสริมที่ 2)`, mode: "noi_top" },
+            { name: `${prefixText} สิบล่าง (เสริมที่ 2)`, mode: "sib_bot" },
+            { name: `${prefixText} หน่วยล่าง (เสริมที่ 2)`, mode: "noi_bot" }
+        ];
 
-        dLines.forEach((item, index) => {
-            last = item.r; 
-            let top3d = item.top; 
-            let top2d = item.top.slice(-2); 
-            let bot2d = item.bot; 
+        subTargets.forEach((subT, sId) => {
+            let win = 0, html = '', raw = '', subLast = '';
+            let groupStr = (prefixText === "คู่" || prefixText === "คี่") ? (prefixText === "คู่" ? "[0,2,4,6,8]" : "[1,3,5,7,9]") : (prefixText === "สูง" ? "[5,6,7,8,9]" : "[0,1,2,3,4]");
 
-            let targetVal = "";
-            if (target.mode === "roi") targetVal = top3d.charAt(0);
-            else if (target.mode === "sib_top") targetVal = top2d.charAt(0);
-            else if (target.mode === "noi_top") targetVal = top2d.charAt(1);
-            else if (target.mode === "sib_bot") targetVal = bot2d.charAt(0);
-            else if (target.mode === "noi_bot") targetVal = bot2d.charAt(1);
-            else if (mode === "top_2d" && length === 1) targetVal = top2d.charAt(1);
-            else if (mode === "bot_2d" && length === 1) targetVal = bot2d.charAt(1);
-            else targetVal = top2d;
+            dLines.forEach((item) => {
+                subLast = item.r;
+                let top3d = item.top;
+                let top2d = item.top.slice(-2);
+                let bot2d = item.bot;
 
-            let nVal = parseInt(targetVal) || 0;
+                let targetVal = "";
+                if (subT.mode === "roi") targetVal = top3d.charAt(0);
+                else if (subT.mode === "sib_top") targetVal = top2d.charAt(0);
+                else if (subT.mode === "noi_top") targetVal = top2d.charAt(1);
+                else if (subT.mode === "sib_bot") targetVal = bot2d.charAt(0);
+                else if (subT.mode === "noi_bot") targetVal = bot2d.charAt(1);
 
-            if (target.type === "odd_even") {
-                let isEven = (nVal % 2 === 0);
-                groupStr = target.isEven ? "[0,2,4,6,8]" : "[1,3,5,7,9]";
-                let isMatch = (isEven === target.isEven);
-                
-                if (isMatch) { win++; html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; }
-                else { html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; }
-            } 
-            else if (target.type === "high_low") {
-                let isHigh = (nVal >= 5);
-                groupStr = target.isHigh ? "[5,6,7,8,9]" : "[0,1,2,3,4]";
-                let isMatch = (isHigh === target.isHigh);
+                let nVal = parseInt(targetVal) || 0;
+                let isMatch = false;
 
-                if (isMatch) { win++; html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; }
-                else { html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; }
-            } 
-            else {
-                // สำหรับฟังก์ชันสูตรดั้งเดิมอื่นๆ ทั้งหมด
-                let fms = [];
-                for (let sId = 1; sId <= 10; sId++) {
-                    fms.push({ id: sId, name: `ชุดที่ ${sId}` });
+                if (type === "odd_even") {
+                    let isEven = (nVal % 2 === 0);
+                    isMatch = (isEven === isEvenTarget);
+                } else {
+                    let isHigh = (nVal >= 5);
+                    isMatch = (isHigh === isHighTarget);
                 }
 
-                // กรณีรันปกติแบบหลายชุดสูตร (10 ชุด)
-                fms.forEach(fm => {
-                    let subWin = 0, subHtml = '', subRaw = '', subLast = '';
-                    
-                    dLines.forEach((subItem, subIdx) => {
-                        subLast = subItem.r;
-                        let currentFormulaDigits = [];
-                        let specificDegree = rootFactorOffset + (fm.id * 3.7);
+                if (isMatch) { 
+                    win++; 
+                    html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; 
+                    raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; 
+                } else { 
+                    html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; 
+                    raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; 
+                }
+            });
 
-                        if (subIdx === 0) {
-                            let baseVal = parseFloat(subItem.top + "." + subItem.bot) * fm.id;
-                            currentFormulaDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
-                        } else {
-                            let prevTop = dLines[subIdx - 1].top;
-                            let prevBot = dLines[subIdx - 1].bot;
-                            let baseVal = parseFloat(prevTop + "." + prevBot) * (fm.id * 7);
-                            currentFormulaDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
-                        }
-
-                        let formulaStr = currentFormulaDigits.join('');
-                        groupStr = `[${formulaStr}]`;
-                        let checkDigits = [...new Set(currentFormulaDigits)];
-                        let isWin = false, matchCount = 0, is3dWin = false;
-
-                        let top2dSub = subItem.top.slice(-2);
-                        let bot2dSub = subItem.bot;
-                        let top3dSub = subItem.top;
-
-                        if (tName.includes("วินบนล่าง")) {
-                            let topMatch = checkDigits.includes(top2dSub.charAt(0)) && checkDigits.includes(top2dSub.charAt(1));
-                            let botMatch = checkDigits.includes(bot2dSub.charAt(0)) && checkDigits.includes(bot2dSub.charAt(1));
-                            let d3_1 = checkDigits.includes(top3dSub.charAt(0));
-                            let d3_2 = checkDigits.includes(top3dSub.charAt(1));
-                            let d3_3 = checkDigits.includes(top3dSub.charAt(2));
-                            if (d3_1 && d3_2 && d3_3) is3dWin = true;
-                            if (topMatch || botMatch) isWin = true;
-                        } else if (tName.includes("วิน")) {
-                            let targetNum = mode.includes("bot") ? bot2dSub : top2dSub;
-                            let c1 = checkDigits.includes(targetNum.charAt(0)); 
-                            let c2 = checkDigits.includes(targetNum.charAt(1)); 
-                            let d3_1 = checkDigits.includes(top3dSub.charAt(0));
-                            let d3_2 = checkDigits.includes(top3dSub.charAt(1));
-                            let d3_3 = checkDigits.includes(top3dSub.charAt(2));
-                            if (d3_1 && d3_2 && d3_3) is3dWin = true;
-                            if (c1 && c2) { isWin = true; matchCount = 2; }
-                        } else {
-                            let targetNumStr = "";
-                            let isBottomFormula = tName.includes("ล่าง") || mode.includes("bot");
-                            if (tName.includes("ปักสิบ")) {
-                                targetNumStr = isBottomFormula ? bot2dSub.charAt(0) : top2dSub.charAt(0);
-                            } else if (tName.includes("ปักหน่วย")) {
-                                targetNumStr = isBottomFormula ? bot2dSub.charAt(1) : subItem.top.slice(-1);
-                            } else if (tName.includes("หลักร้อย")) {
-                                targetNumStr = subItem.top.charAt(0);
-                            } else {
-                                targetNumStr = isBottomFormula ? bot2dSub : top2dSub;
-                            }
-
-                            for(let ch of targetNumStr) {
-                                if(checkDigits.includes(ch)) matchCount++;
-                            }
-                            if(matchCount > 0) isWin = true;
-                        }
-
-                        let sign = '❌';
-                        if (isWin || is3dWin) {
-                            isWin = true;
-                            subWin++;
-                            if (tName.includes("วินบนล่าง")) {
-                                let topMatch = checkDigits.includes(top2dSub.charAt(0)) && checkDigits.includes(top2dSub.charAt(1));
-                                let botMatch = checkDigits.includes(bot2dSub.charAt(0)) && checkDigits.includes(bot2dSub.charAt(1));
-                                if (topMatch && botMatch && is3dWin) sign = `✅✅❤️`; 
-                                else if (is3dWin) sign = `✅❤️`;     
-                                else if (topMatch && botMatch) sign = `✅✅`;     
-                                else sign = `✅`;       
-                            } else {
-                                if (is3dWin) sign = `✅❤️`;
-                                else sign = matchCount > 1 ? `✅(${matchCount})` : `✅`;
-                            }
-                        }
-
-                        subHtml += `${subItem.r} = [${formulaStr}] = ${subItem.top} - ${subItem.bot} = ${sign}\n`;
-                        subRaw += `${subItem.r} = [${formulaStr}] = ${subItem.top} - ${subItem.bot} = ${sign}\n`;
-                    });
-
-                    let subRate = dLines.length > 0 ? parseFloat(((subWin / dLines.length) * 100).toFixed(1)) : 0;
-                    let lastFormula = "";
-                    if (dLines.length > 0) {
-                        let lastIdx = dLines.length - 1;
-                        let prevTop = dLines[lastIdx].top;
-                        let prevBot = dLines[lastIdx].bot;
-                        let specificDegree = rootFactorOffset + (fm.id * 3.7);
-                        let baseVal = parseFloat(prevTop + "." + prevBot) * (fm.id * 7);
-                        let lastDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
-                        lastFormula = lastDigits.join('');
-                    }
-                    let next = subLast !== '' ? `💰 รอบถัดไปเด่น = ${lastFormula} 💸` : '';
-
-                    resultsArray.push({
-                        id: fm.id,
-                        name: `${fm.name}`,
-                        win: subWin,
-                        total: dLines.length,
-                        rate: subRate,
-                        html: subHtml,
-                        raw: `${customHeader}${title}\nแนวทาง: ${tName} (เรียงความถี่จริง)\n${fm.name} [${lastFormula}]\nถูก/ผิด = ${subWin}/${dLines.length - subWin} (${subRate}%)\n\n${subRaw}\n${next}`,
-                        groupStr: `[${lastFormula}]`,
-                        isFormulaGroup: true
-                    });
-                });
-                return; // ออกจาก loop targets สำหรับเคสปกติ เพื่อให้ resultsArray ถูกจัดการโดยชุดสูตร 10 ชุด
-            }
-        });
-
-        if (target.type === "odd_even" || target.type === "high_low") {
             let rate = dLines.length > 0 ? parseFloat(((win / dLines.length) * 100).toFixed(1)) : 0;
+            let next = subLast !== '' ? `💰 แนวทาง = ${groupStr} 💸` : '';
+
             resultsArray.push({
-                name: target.name,
+                id: sId + 1,
+                name: `${subT.name}`,
                 win: win,
                 total: dLines.length,
                 rate: rate,
                 html: html,
-                raw: `${customHeader}${title}\nแนวทาง: ${target.name}\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${raw}`,
+                raw: `${customHeader}${title}\nแนวทาง: ${subT.name}\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${html}\n${next}`,
                 groupStr: groupStr,
                 isFormulaGroup: false
             });
-        }
-    });
+        });
 
+    } else {
+        // โหมดปกติทั่วไป: แสดงผล 10 การ์ด ด้วยค่ารากที่ฟิกไว้
+        for (let sId = 0; sId < 10; sId++) {
+            let subWin = 0, subHtml = '', subRaw = '', subLast = '';
+            let specificDegree = customRootDegrees[sId];
+
+            dLines.forEach((subItem, subIdx) => {
+                subLast = subItem.r;
+                let currentFormulaDigits = [];
+
+                if (subIdx === 0) {
+                    let baseVal = parseFloat(subItem.top + "." + subItem.bot) * (sId + 1.15);
+                    currentFormulaDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
+                } else {
+                    let prevTop = dLines[subIdx - 1].top;
+                    let prevBot = dLines[subIdx - 1].bot;
+                    let baseVal = parseFloat(prevTop + "." + prevBot) * ((sId + 1) * 2.2);
+                    currentFormulaDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
+                }
+
+                let formulaStr = currentFormulaDigits.join('');
+                let checkDigits = [...new Set(currentFormulaDigits)];
+                let isWin = false, matchCount = 0, is3dWin = false;
+
+                let top2dSub = subItem.top.slice(-2);
+                let bot2dSub = subItem.bot;
+                let top3dSub = subItem.top;
+
+                if (tName.includes("วินบนล่าง")) {
+                    let topMatch = checkDigits.includes(top2dSub.charAt(0)) && checkDigits.includes(top2dSub.charAt(1));
+                    let botMatch = checkDigits.includes(bot2dSub.charAt(0)) && checkDigits.includes(bot2dSub.charAt(1));
+                    let d3_1 = checkDigits.includes(top3dSub.charAt(0));
+                    let d3_2 = checkDigits.includes(top3dSub.charAt(1));
+                    let d3_3 = checkDigits.includes(top3dSub.charAt(2));
+                    if (d3_1 && d3_2 && d3_3) is3dWin = true;
+                    if (topMatch || botMatch) isWin = true;
+                } else if (tName.includes("วิน")) {
+                    let targetNum = mode.includes("bot") ? bot2dSub : top2dSub;
+                    let c1 = checkDigits.includes(targetNum.charAt(0)); 
+                    let c2 = checkDigits.includes(targetNum.charAt(1)); 
+                    let d3_1 = checkDigits.includes(top3dSub.charAt(0));
+                    let d3_2 = checkDigits.includes(top3dSub.charAt(1));
+                    let d3_3 = checkDigits.includes(top3dSub.charAt(2));
+                    if (d3_1 && d3_2 && d3_3) is3dWin = true;
+                    if (c1 && c2) { isWin = true; matchCount = 2; }
+                } else {
+                    let targetNumStr = "";
+                    let isBottomFormula = tName.includes("ล่าง") || mode.includes("bot");
+                    if (tName.includes("ปักสิบ")) {
+                        targetNumStr = isBottomFormula ? bot2dSub.charAt(0) : top2dSub.charAt(0);
+                    } else if (tName.includes("ปักหน่วย")) {
+                        targetNumStr = isBottomFormula ? bot2dSub.charAt(1) : subItem.top.slice(-1);
+                    } else if (tName.includes("หลักร้อย")) {
+                        targetNumStr = subItem.top.charAt(0);
+                    } else {
+                        targetNumStr = isBottomFormula ? bot2dSub : top2dSub;
+                    }
+
+                    for(let ch of targetNumStr) {
+                        if(checkDigits.includes(ch)) matchCount++;
+                    }
+                    if(matchCount > 0) isWin = true;
+                }
+
+                let sign = '❌';
+                if (isWin || is3dWin) {
+                    isWin = true;
+                    subWin++;
+                    if (tName.includes("วินบนล่าง")) {
+                        let topMatch = checkDigits.includes(top2dSub.charAt(0)) && checkDigits.includes(top2dSub.charAt(1));
+                        let botMatch = checkDigits.includes(bot2dSub.charAt(0)) && checkDigits.includes(bot2dSub.charAt(1));
+                        if (topMatch && botMatch && is3dWin) sign = `✅✅❤️`; 
+                        else if (is3dWin) sign = `✅❤️`;     
+                        else if (topMatch && botMatch) sign = `✅✅`;     
+                        else sign = `✅`;       
+                    } else {
+                        if (is3dWin) sign = `✅❤️`;
+                        else sign = matchCount > 1 ? `✅(${matchCount})` : `✅`;
+                    }
+                }
+
+                subHtml += `${subItem.r} = [${formulaStr}] = ${subItem.top} - ${subItem.bot} = ${sign}\n`;
+                subRaw += `${subItem.r} = [${formulaStr}] = ${subItem.top} - ${subItem.bot} = ${sign}\n`;
+            });
+
+            let subRate = dLines.length > 0 ? parseFloat(((subWin / dLines.length) * 100).toFixed(1)) : 0;
+            let lastFormula = "";
+            if (dLines.length > 0) {
+                let lastIdx = dLines.length - 1;
+                let prevTop = dLines[lastIdx].top;
+                let prevBot = dLines[lastIdx].bot;
+                let baseVal = parseFloat(prevTop + "." + prevBot) * ((sId + 1) * 2.2);
+                let lastDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
+                lastFormula = lastDigits.join('');
+            }
+            let next = subLast !== '' ? `💰 รอบถัดไปเด่น = ${lastFormula} 💸` : '';
+
+            resultsArray.push({
+                id: sId + 1,
+                name: `ชุดที่ ${sId + 1} (สูตรที่ ${specificDegree})`,
+                win: subWin,
+                total: dLines.length,
+                rate: subRate,
+                html: subHtml,
+                raw: `${customHeader}${title}\nแนวทาง: ${tName} (สูตรที่ ${specificDegree})\nสูตรชุดที่ ${sId + 1} [${lastFormula}]\nถูก/ผิด = ${subWin}/${dLines.length - subWin} (${subRate}%)\n\n${subHtml}\n${next}`,
+                groupStr: `[${lastFormula}]`,
+                isFormulaGroup: true
+            });
+        }
+    }
+
+    // เรียงลำดับการ์ดตามความแม่นยำ (%) จากมากไปน้อย
     resultsArray.sort((a, b) => b.rate - a.rate || (a.id || 0) - (b.id || 0));
 
     resultsArray.forEach((item, index) => {
-        let cardId = item.isFormulaGroup ? item.id : `target_${index}`;
+        let cardId = item.id ? item.id : `target_${index}`;
         let d = document.createElement('div'); 
         d.className = 'card';
-        let headTitle = item.isFormulaGroup ? `✨ 💰 [${item.groupStr.replace(/[\[\]]/g, '')}] - ${item.name}` : `✨ 💰 ${item.name}`;
-        let nextText = item.isFormulaGroup ? `💰 รอบถัดไปเด่น = ${item.groupStr} 💸` : `💰 แนวทาง = ${item.groupStr} 💸`;
+        let headTitle = `✨ 💰 [${item.groupStr.replace(/[\[\]]/g, '')}] - ${item.name}`;
+        let nextText = `💰 รอบถัดไป/แนวทาง = ${item.groupStr} 💸`;
 
         d.innerHTML = `
             <div class="c-head">
