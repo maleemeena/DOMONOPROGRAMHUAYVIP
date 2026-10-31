@@ -11,6 +11,13 @@
             100% { filter: drop-shadow(0 0 2px #ffab40) drop-shadow(0 0 10px #ff9100); transform: scale(1); }
         }
 
+        /* เอฟเฟกต์วิบวับสำหรับ 3 อันดับแรกสุด */
+        @keyframes superGlow {
+            0% { transform: scale(1); box-shadow: 0 0 5px #ff4081, inset 0 0 3px #fff; background: #ffebee; }
+            50% { transform: scale(1.08); box-shadow: 0 0 15px #00b0ff, inset 0 0 8px #ffeb3b; background: #e0f7fa; }
+            100% { transform: scale(1); box-shadow: 0 0 5px #ff9100, inset 0 0 3px #fff; background: #fff3e0; }
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: linear-gradient(135deg, #fff0f5, #e0f7fa, #fff3e0); 
@@ -78,6 +85,84 @@
         }
         .btn-clear:hover { background: #ffcdd2; }
         
+        /* สไตล์กล่องสรุปผลรวม (พับเก็บได้) */
+        .summary-box {
+            background: #ffffff;
+            border: 2.5px solid #ff9100;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(255, 145, 0, 0.2);
+        }
+        .summary-title {
+            font-weight: bold;
+            color: #d84315;
+            font-size: 15px;
+            margin-bottom: 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .summary-title-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .summary-content {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #3e2723;
+            margin-top: 10px;
+            border-top: 2px dashed #ffe0b2;
+            padding-top: 8px;
+            transition: all 0.3s ease;
+        }
+        .badge-num {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #e65100;
+            display: inline-block;
+            margin: 3px;
+        }
+        /* เลขวิบวับ 3 อันดับแรก */
+        .badge-glow {
+            animation: superGlow 1.5s infinite alternate;
+            border: 2px solid #ff4081;
+            color: #ad1457;
+            font-weight: 900;
+            font-size: 14px;
+        }
+        .btn-action-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-copy-sm {
+            background: #e0f7fa; 
+            border: 1px solid #80d8ff; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            color: #0277bd; 
+            cursor: pointer;
+        }
+        .btn-copy-sm:hover { background: #b2ebf2; }
+        .btn-collapse {
+            background: #fff3e0;
+            border: 1px solid #ff9100;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #e65100;
+            cursor: pointer;
+        }
+        .btn-collapse:hover { background: #ffe0b2; }
+
         .filter-bar { 
             background: #ffffff; 
             padding: 14px; 
@@ -203,6 +288,13 @@
             border: 1.5px solid #f8bbd0;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
+        /* สไตล์ป้ายรอบถัดไปวิบวับในการ์ด 3 อันดับแรก */
+        .next-glow {
+            animation: superGlow 1.5s infinite alternate;
+            background: #ffebee !important;
+            border: 2px solid #ff4081 !important;
+            color: #ad1457 !important;
+        }
     </style>
 </head>
 <body>
@@ -220,6 +312,23 @@
 <div class="input-container">
     <textarea id="inp" oninput="saveAndCalc()" placeholder="💖 วางผลสถิติหวยลาว ยี่กี ฯลฯ ได้ทุกรูปแบบ... 💰"></textarea>
     <button class="btn-clear" onclick="clearData()">ล้างข้อมูล 🧹</button> 
+</div>
+
+<!-- กล่องสรุปผลรวม (พับเก็บได้ + เลขวิบวับ 3 อันดับแรก) -->
+<div class="summary-box" id="summaryBoxContainer" style="display:none;">
+    <div class="summary-title" onclick="toggleSummaryBox()">
+        <div class="summary-title-left">
+            <span>🔥 📊 สรุปความถี่และเปอร์เซ็นต์เลขเด่นจากทั้ง 10 ชุด (รอบถัดไป)</span>
+        </div>
+        <div class="btn-action-group" onclick="event.stopPropagation()">
+            <button class="btn-copy-sm" onclick="copyAllSummary()">คัดลอกทั้งหมด 📋</button>
+            <button class="btn-collapse" id="collapseBtn" onclick="toggleSummaryBox()">พับเก็บ 🔼</button>
+        </div>
+    </div>
+    <div class="summary-content" id="summaryContentText">
+        กำลังประมวลผล...
+    </div>
+    <textarea id="allSummaryRaw" style="display:none;"></textarea>
 </div>
 
 <div class="filter-bar">
@@ -245,8 +354,21 @@
 
 <script>
 let lim = 0;
-// ค่ารากเริ่มต้น 10 ชุดตามที่สั่งตายตัว (ชุดที่ 1-10: 1.2, 1.3, 1.4, 1.5, 1.7, 2, 3, 3.9, 2.9, 5.4)
 let customRootDegrees = [1.2, 1.3, 1.4, 1.5, 1.7, 2, 3, 3.9, 2.9, 5.4];
+let isSummaryCollapsed = false;
+
+function toggleSummaryBox() {
+    let content = document.getElementById('summaryContentText');
+    let btn = document.getElementById('collapseBtn');
+    isSummaryCollapsed = !isSummaryCollapsed;
+    if (isSummaryCollapsed) {
+        content.style.display = 'none';
+        btn.textContent = 'ขยาย 🔽';
+    } else {
+        content.style.display = 'block';
+        btn.textContent = 'พับเก็บ 🔼';
+    }
+}
 
 function initMenu() {
     const s = document.getElementById('sel');
@@ -275,14 +397,13 @@ function initMenu() {
         ["รูดตัวเดียว (บนล่าง)","both_2d",1], ["รูด 2 ตัว (บนล่าง)","both_all",2], ["รูดบน 2 ตัว","top_2d",2], ["รูดล่าง 2 ตัว","bot_2d",2]
     ]);
 
-    makeGroup("—— 🍊 เลขวิน VIP (คู่คี่ / สูงต่ำ) 🍊 ——", [
+    makeGroup("—— 🍊 เลขวิน VIP  🍊 ——", [
         ["วินบน 5 ตัว","win_top_2d",5], ["วินบน 6 ตัว","win_top_2d",6], ["วินบน 7 ตัว","win_top_2d",7], ["วินบน 8 ตัว","win_top_2d",8], ["วินบน 9 ตัว","win_top_2d",9],
         ["วินล่าง 5 ตัว","win_bot_2d",5], ["วินล่าง 6 ตัว","win_bot_2d",6], ["วินล่าง 7 ตัว","win_bot_2d",7], ["วินล่าง 8 ตัว","win_bot_2d",8], ["วินล่าง 9 ตัว","win_bot_2d",9],
         ["วินบนล่าง 5 ตัว","win_both_2d",5], ["วินบนล่าง 6 ตัว","win_both_2d",6], ["วินบนล่าง 7 ตัว","win_both_2d",7], ["วินบนล่าง 8 ตัว","win_both_2d",8], ["วินบนล่าง 9 ตัว","win_both_2d",9]
     ]);
 
-    // จัดกลุ่ม คู่/คี่ และ สูง/ต่ำ ให้ครอบคลุมทุกหลัก เพื่อให้แสดงครบ 10 การ์ด
-    makeGroup("—— 🎯 คู่ / คี่ แยกรายหลัก (แสดง 10 การ์ดครบทุกหลัก) 🎯 ——", [
+    makeGroup("—— 🎯 คู่ / คี่ แยกรายหลัก  🎯 ——", [
         ["คู่ ร้อย", "roi", 5, "odd_even"], 
         ["คู่ สิบบน", "sib_top", 5, "odd_even"], 
         ["คู่ หน่วยบน", "noi_top", 5, "odd_even"], 
@@ -295,7 +416,7 @@ function initMenu() {
         ["คี่ หน่วยล่าง", "noi_bot", 5, "odd_even"]
     ]);
 
-    makeGroup("—— 🎯 สูง / ต่ำ แยกรายหลัก (แสดง 10 การ์ดครบทุกหลัก) 🎯 ——", [
+    makeGroup("—— 🎯 สูง / ต่ำ แยกรายหลัก  🎯 ——", [
         ["สูง ร้อย", "roi", 5, "high_low"], 
         ["สูง สิบบน", "sib_top", 5, "high_low"], 
         ["สูง หน่วยบน", "noi_top", 5, "high_low"], 
@@ -331,7 +452,6 @@ function aiSmartScan() {
         alert("💖 กรุณาวางผลสถิติก่อนใช้งาน AI สแกนสูตรจ้า! 💰");
         return;
     }
-    // สุ่มหาค่ารากใหม่ในช่วง 0.1 ถึง 999.99 ให้ทั้ง 10 การ์ด
     customRootDegrees = [];
     for(let i=0; i<10; i++) {
         let randVal = Math.random() * (999.99 - 0.1) + 0.1;
@@ -372,38 +492,70 @@ function generateFrequencySortedDigits(baseVal, rootDegree, length) {
     for(let i = 0; i <= 9; i++) freqMap[String(i)] = 0;
 
     for(let char of strNum) {
-        if(freqMap[char] !== undefined) {
-            freqMap[char]++;
-        }
+        if(freqMap[char] !== undefined) freqMap[char]++;
     }
 
-    let sortedDigits = Object.keys(freqMap).sort((a, b) => {
-        if(freqMap[b] !== freqMap[a]) {
-            return freqMap[b] - freqMap[a];
-        }
-        return 0; 
-    });
-
+    let sortedDigits = Object.keys(freqMap).sort((a, b) => freqMap[b] - freqMap[a]);
     let finalDigits = [];
     for(let d of sortedDigits) {
-        if(!finalDigits.includes(d)) {
-            finalDigits.push(d);
-        }
+        if(!finalDigits.includes(d)) finalDigits.push(d);
     }
-
     for(let i = 0; i <= 9; i++) {
         let sNum = String(i);
-        if(!finalDigits.includes(sNum)) {
-            finalDigits.push(sNum);
-        }
+        if(!finalDigits.includes(sNum)) finalDigits.push(sNum);
     }
-
     return finalDigits.slice(0, length);
+}
+
+function processCombinedFrequency(formulasList) {
+    let twoDigitCounts = {};
+    let threeDigitCounts = {};
+    let totalSets = formulasList.length;
+
+    formulasList.forEach(item => {
+        let numStr = item.formula;
+        if (!numStr || numStr.length < 2) return;
+        let digits = numStr.split('');
+        let unique2D = new Set();
+        let unique3D = new Set();
+
+        for(let i = 0; i < digits.length; i++) {
+            for(let j = i + 1; j < digits.length; j++) {
+                let pair = [digits[i], digits[j]].sort().join('');
+                unique2D.add(pair);
+            }
+        }
+
+        for(let i = 0; i < digits.length; i++) {
+            for(let j = i + 1; j < digits.length; j++) {
+                for(let k = j + 1; k < digits.length; k++) {
+                    let trio = [digits[i], digits[j], digits[k]].sort().join('');
+                    unique3D.add(trio);
+                }
+            }
+        }
+
+        unique2D.forEach(pair => {
+            twoDigitCounts[pair] = (twoDigitCounts[pair] || 0) + 1;
+        });
+        unique3D.forEach(trio => {
+            threeDigitCounts[trio] = (threeDigitCounts[trio] || 0) + 1;
+        });
+    });
+
+    let sorted2D = Object.entries(twoDigitCounts).sort((a, b) => b[1] - a[1]);
+    let sorted3D = Object.entries(threeDigitCounts).sort((a, b) => b[1] - a[1]);
+
+    return { sorted2D, sorted3D, totalSets };
 }
 
 function calc() {
     let txt = document.getElementById('inp').value.trim(); 
-    if (!txt) { document.getElementById('out').innerHTML = ''; return; }
+    if (!txt) { 
+        document.getElementById('out').innerHTML = ''; 
+        document.getElementById('summaryBoxContainer').style.display = 'none';
+        return; 
+    }
     
     let [tName, mode, lenStr, type] = document.getElementById('sel').value.split('|');
     let length = parseInt(lenStr) || 4;
@@ -450,14 +602,13 @@ function calc() {
     g.innerHTML = '';
 
     let resultsArray = [];
+    let summaryFormulasList = [];
 
-    // ถ้าเป็นโหมด คู่/คี่ หรือ สูง/ต่ำ ให้สร้าง 10 การ์ด ครอบคลุมทั้ง 10 หลัก (ร้อย, สิบบน, หน่วยบน, สิบล่าง, หน่วยล่าง ทั้งคู่/คี่ หรือ สูง/ต่ำ)
     if (type === "odd_even" || type === "high_low") {
         let isEvenTarget = tName.includes("คู่");
         let isHighTarget = tName.includes("สูง");
         let prefixText = isEvenTarget ? "คู่" : (tName.includes("คี่") ? "คี่" : (isHighTarget ? "สูง" : "ต่ำ"));
         
-        // 10 รายการหลักสำหรับแสดงครบ 10 การ์ด
         let subTargets = [
             { name: `${prefixText} ร้อย`, mode: "roi" },
             { name: `${prefixText} สิบบน`, mode: "sib_top" },
@@ -472,9 +623,7 @@ function calc() {
         ];
 
         subTargets.forEach((subT, sId) => {
-            let win = 0, html = '', raw = '', subLast = '';
-            let groupStr = (prefixText === "คู่" || prefixText === "คี่") ? (prefixText === "คู่" ? "[0,2,4,6,8]" : "[1,3,5,7,9]") : (prefixText === "สูง" ? "[5,6,7,8,9]" : "[0,1,2,3,4]");
-
+            let win = 0, html = '', subLast = '';
             dLines.forEach((item) => {
                 subLast = item.r;
                 let top3d = item.top;
@@ -499,18 +648,12 @@ function calc() {
                     isMatch = (isHigh === isHighTarget);
                 }
 
-                if (isMatch) { 
-                    win++; 
-                    html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; 
-                    raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ✅\n`; 
-                } else { 
-                    html += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; 
-                    raw += `${item.r} = ${groupStr} = ${item.top} - ${item.bot} = ❌\n`; 
-                }
+                if (isMatch) { win++; html += `${item.r} = ✅\n`; } 
+                else { html += `${item.r} = ❌\n`; }
             });
 
             let rate = dLines.length > 0 ? parseFloat(((win / dLines.length) * 100).toFixed(1)) : 0;
-            let next = subLast !== '' ? `💰 แนวทาง = ${groupStr} 💸` : '';
+            summaryFormulasList.push({ setId: sId + 1, formulaName: subT.name, formula: "01234", rate: rate, degree: "หลักสูตร" });
 
             resultsArray.push({
                 id: sId + 1,
@@ -519,14 +662,13 @@ function calc() {
                 total: dLines.length,
                 rate: rate,
                 html: html,
-                raw: `${customHeader}${title}\nแนวทาง: ${subT.name}\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${html}\n${next}`,
-                groupStr: groupStr,
+                raw: `${customHeader}${title}\nแนวทาง: ${subT.name}\nถูก/ผิด = ${win}/${dLines.length - win} (${rate}%)\n\n${html}`,
+                groupStr: "หลักสูตร",
                 isFormulaGroup: false
             });
         });
 
     } else {
-        // โหมดปกติทั่วไป: แสดงผล 10 การ์ด ด้วยค่ารากที่ฟิกไว้
         for (let sId = 0; sId < 10; sId++) {
             let subWin = 0, subHtml = '', subRaw = '', subLast = '';
             let specificDegree = customRootDegrees[sId];
@@ -620,7 +762,14 @@ function calc() {
                 let lastDigits = generateFrequencySortedDigits(baseVal, specificDegree, length);
                 lastFormula = lastDigits.join('');
             }
-            let next = subLast !== '' ? `💰 รอบถัดไปเด่น = ${lastFormula} 💸` : '';
+
+            summaryFormulasList.push({ 
+                setId: sId + 1, 
+                formulaName: `ชุดที่ ${sId + 1} (สูตรที่ ${specificDegree})`, 
+                formula: lastFormula, 
+                rate: subRate,
+                degree: specificDegree
+            });
 
             resultsArray.push({
                 id: sId + 1,
@@ -629,21 +778,75 @@ function calc() {
                 total: dLines.length,
                 rate: subRate,
                 html: subHtml,
-                raw: `${customHeader}${title}\nแนวทาง: ${tName} (สูตรที่ ${specificDegree})\nสูตรชุดที่ ${sId + 1} [${lastFormula}]\nถูก/ผิด = ${subWin}/${dLines.length - subWin} (${subRate}%)\n\n${subHtml}\n${next}`,
+                raw: `${customHeader}${title}\nแนวทาง: ${tName} (สูตรที่ ${specificDegree})\nสูตรชุดที่ ${sId + 1} [${lastFormula}]\nถูก/ผิด = ${subWin}/${dLines.length - subWin} (${subRate}%)\n\n${subHtml}\n`,
                 groupStr: `[${lastFormula}]`,
-                isFormulaGroup: true
+                isFormulaGroup: true,
+                originalSetId: sId + 1
             });
         }
     }
 
-    // เรียงลำดับการ์ดตามความแม่นยำ (%) จากมากไปน้อย
+    // จัดเรียงลำดับการ์ดและรายการสรุปตาม % ความแม่นยำ จากมากไปน้อย
+    summaryFormulasList.sort((a, b) => b.rate - a.rate || a.setId - b.setId);
     resultsArray.sort((a, b) => b.rate - a.rate || (a.id || 0) - (b.id || 0));
 
+    // สร้างกล่องสรุปผลรวมด้านบน
+    if (summaryFormulasList.length > 0 && type !== "odd_even" && type !== "high_low") {
+        let freqData = processCombinedFrequency(summaryFormulasList);
+        let latestDateStr = dLines.length > 0 ? dLines[dLines.length - 1].r : "รอบล่าสุด";
+        
+        let html10Sets = "";
+        let rawTextList = `🔥 📊 สรุปความถี่และเปอร์เซ็นต์เลขเด่นจากทั้ง 10 ชุด (${userLottery || 'หวย'} | ${tName} | ${latestDateStr})\n-------------------\n`;
+
+        summaryFormulasList.forEach((item, idx) => {
+            let isTop3 = idx < 3;
+            let itemStyle = isTop3 ? "font-weight: bold; color: #ad1457;" : "";
+            html10Sets += `<div style="${itemStyle}">• <b>ชุดที่ ${item.setId}</b> สูตรที่ = ${item.formula} (${item.rate}%)</div>`;
+            rawTextList += `ชุดที่ ${item.setId} สูตรที่ = ${item.formula} (${item.rate}%)\n`;
+        });
+
+        let html2D = "";
+        let raw2DText = "\n🔹 เลข 2 ตัวเด่นสุด :\n";
+        freqData.sorted2D.slice(0, 8).forEach(([num, count], idx) => {
+            let pct = Math.round((count / freqData.totalSets) * 100);
+            let badgeClass = idx < 3 ? "badge-num badge-glow" : "badge-num";
+            html2D += `<span class="${badgeClass}">${num} (${pct}%)</span> `;
+            raw2DText += `${num} (${pct}%) `;
+        });
+
+        let html3D = "";
+        let raw3DText = "\n🔹 เลข 3 ตัวเด่นสุด :\n";
+        freqData.sorted3D.slice(0, 8).forEach(([num, count], idx) => {
+            let pct = Math.round((count / freqData.totalSets) * 100);
+            let badgeClass = idx < 3 ? "badge-num badge-glow" : "badge-num";
+            html3D += `<span class="${badgeClass}">${num} (${pct}%)</span> `;
+            raw3DText += `${num} (${pct}%) `;
+        });
+
+        rawTextList += raw2DText + "\n" + raw3DText;
+
+        document.getElementById('summaryContentText').innerHTML = `
+            <div style="margin-bottom: 6px; color: #ad1457; font-weight: bold;">🎯 แนวทาง: ${tName} | 📅 งวดล่าสุด: ${latestDateStr}</div>
+            <div style="margin-bottom: 8px;"><b>📋 รายการเลขรอบถัดไปทั้ง 10 ชุด:</b><div style="margin-top: 4px;">${html10Sets}</div></div>
+            <hr style="border: 0; border-top: 1px dashed #ffe0b2; margin: 8px 0;">
+            <div style="margin-bottom: 6px;"><b>🔹 เลข 2 ตัวเด่นสุด :</b><br>${html2D || '-'}</div>
+            <div><b>🔹 เลข 3 ตัวเด่นสุด (ชนบ่อยจาก 10 ชุด):</b><br>${html3D || '-'}</div>
+        `;
+        document.getElementById('allSummaryRaw').value = rawTextList;
+        document.getElementById('summaryBoxContainer').style.display = 'block';
+    } else {
+        document.getElementById('summaryBoxContainer').style.display = 'none';
+    }
+
+    // แสดงการ์ดในกริดครบทั้ง 10 การ์ด โดย 3 อันดับแรกในตารางจะกระพริบวิบวับตามเกณฑ์ (%)
     resultsArray.forEach((item, index) => {
         let cardId = item.id ? item.id : `target_${index}`;
         let d = document.createElement('div'); 
         d.className = 'card';
         let headTitle = `✨ 💰 [${item.groupStr.replace(/[\[\]]/g, '')}] - ${item.name}`;
+        
+        let isTop3Card = index < 3;
+        let nextClass = isTop3Card ? "next next-glow" : "next";
         let nextText = `💰 รอบถัดไป/แนวทาง = ${item.groupStr} 💸`;
 
         d.innerHTML = `
@@ -656,12 +859,27 @@ function calc() {
                 <div class="list">${item.html}</div>
                 <textarea id="raw-${cardId}" style="display:none">${item.raw}</textarea>
             </div>
-            <div class="next">${nextText}</div>
+            <div class="${nextClass}">${nextText}</div>
         `;
         g.appendChild(d);
     });
 }
     
+function copyAllSummary() {
+    let ta = document.getElementById('allSummaryRaw');
+    if (!ta || !ta.value) return;
+    ta.style.display = "block"; 
+    ta.select(); 
+    ta.setSelectionRange(0, 99999);
+    try { 
+        document.execCommand('copy'); 
+        alert("💖 คัดลอกสรุปรายการ 10 ชุดและความถี่ทั้งหมดสำเร็จแล้วจ้า! 💰🎉"); 
+    } catch (err) { 
+        navigator.clipboard.writeText(ta.value).then(() => alert("💖 คัดลอกสำเร็จ! 💰")); 
+    }
+    ta.style.display = "none";
+}
+
 function cp(id) {
     let ta = document.getElementById(`raw-${id}`);
     if (!ta) return;
