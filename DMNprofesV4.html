@@ -653,7 +653,7 @@ function calc() {
             });
 
             let rate = dLines.length > 0 ? parseFloat(((win / dLines.length) * 100).toFixed(1)) : 0;
-            summaryFormulasList.push({ setId: sId + 1, formulaName: subT.name, formula: "01234", rate: rate, degree: "หลักสูตร" });
+            summaryFormulasList.push({ setId: sId + 1, formula: "01234", rate: rate, degreeText: subT.name });
 
             resultsArray.push({
                 id: sId + 1,
@@ -765,10 +765,9 @@ function calc() {
 
             summaryFormulasList.push({ 
                 setId: sId + 1, 
-                formulaName: `ชุดที่ ${sId + 1} (สูตรที่ ${specificDegree})`, 
                 formula: lastFormula, 
                 rate: subRate,
-                degree: specificDegree
+                degreeText: `สูตรที่ ${specificDegree}`
             });
 
             resultsArray.push({
@@ -801,8 +800,8 @@ function calc() {
         summaryFormulasList.forEach((item, idx) => {
             let isTop3 = idx < 3;
             let itemStyle = isTop3 ? "font-weight: bold; color: #ad1457;" : "";
-            html10Sets += `<div style="${itemStyle}">• <b>ชุดที่ ${item.setId}</b> สูตรที่ = ${item.formula} (${item.rate}%)</div>`;
-            rawTextList += `ชุดที่ ${item.setId} สูตรที่ = ${item.formula} (${item.rate}%)\n`;
+            html10Sets += `<div style="${itemStyle}">• <b>ชุดที่ ${item.setId}</b> (${item.degreeText}) = ${item.formula} (${item.rate}%)</div>`;
+            rawTextList += `ชุดที่ ${item.setId} (${item.degreeText}) = ${item.formula} (${item.rate}%)\n`;
         });
 
         let html2D = "";
@@ -830,7 +829,7 @@ function calc() {
             <div style="margin-bottom: 8px;"><b>📋 รายการเลขรอบถัดไปทั้ง 10 ชุด:</b><div style="margin-top: 4px;">${html10Sets}</div></div>
             <hr style="border: 0; border-top: 1px dashed #ffe0b2; margin: 8px 0;">
             <div style="margin-bottom: 6px;"><b>🔹 เลข 2 ตัวเด่นสุด :</b><br>${html2D || '-'}</div>
-            <div><b>🔹 เลข 3 ตัวเด่นสุด (ชนบ่อยจาก 10 ชุด):</b><br>${html3D || '-'}</div>
+            <div><b>🔹 เลข 3 ตัวเด่นสุด :</b><br>${html3D || '-'}</div>
         `;
         document.getElementById('allSummaryRaw').value = rawTextList;
         document.getElementById('summaryBoxContainer').style.display = 'block';
