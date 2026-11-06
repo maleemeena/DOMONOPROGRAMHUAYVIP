@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ สูตรวิเคราะห์เลขเด็ด ✨</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #fff0f5 0%, #fffbf0 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+        .main-container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.18);
+            margin-bottom: 15px;
+            overflow: hidden;
+            background: #ffffff;
+            border: 2px solid #fbcfe8;
+            color: #333;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+            color: white;
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .form-label {
+            color: #be185d;
+            font-weight: 600;
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 14px;
+            border: 2px solid #fbcfe8;
+            background-color: #fffaf5;
+            color: #1f2937;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+            border-color: #ec4899;
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+        .form-control::placeholder {
+            color: #cbd5e1;
+        }
+        .btn-ai {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            transition: all 0.2s;
+            font-size: 1.05rem;
+        }
+        .btn-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+            color: white;
+        }
+        .btn-action {
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 2px solid #fbcfe8;
+            background: #fff1f2;
+            color: #be185d;
+            transition: all 0.2s;
+        }
+        .btn-action:hover {
+            background: #ffe4e6;
+            color: #9d174d;
+            transform: translateY(-1px);
+        }
+
+        .result-panel {
+            background: linear-gradient(180deg, #fff1f2 0%, #fffbeb 50%, #f0fdf4 100%);
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: inset 0 0 25px rgba(236, 72, 153, 0.12);
+            border: 2px solid #f472b6;
+        }
+        .section-title {
+            background: rgba(236, 72, 153, 0.12);
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 12px;
+            border: 1.5px solid #f472b6;
+            color: #be185d;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        .circle-badge-red {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: radial-gradient(circle, #fca5a5 0%, #ef4444 60%, #b91c1c 100%);
+            border-radius: 50%;
+            margin: 0 5px;
+            font-weight: 800;
+            font-size: 1.9rem;
+            color: #fef08a;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5), inset 0 3px 8px rgba(255,255,255,0.7);
+            border: 3px solid #fecaca;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            animation: pulse-glow 2s infinite;
+        }
+        .circle-badge-green {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: radial-gradient(circle, #86efac 0%, #10b981 60%, #047857 100%);
+            border-radius: 50%;
+            margin: 4px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5), inset 0 2px 6px rgba(255,255,255,0.7);
+            border: 2.5px solid #bbf7d0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+            100% { transform: scale(1); }
+        }
+        .score-order {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            font-weight: 800;
+            color: #d97706;
+            margin-top: 10px;
+            margin-bottom: 12px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .table-custom {
+            background: transparent;
+            color: #1f2937;
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+        .table-custom th, .table-custom td {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #fbcfe8;
+            color: #1f2937;
+            text-align: center;
+            vertical-align: middle;
+            padding: 12px 6px;
+            font-weight: 700;
+        }
+        .table-custom th {
+            background: linear-gradient(135deg, #fbcfe8 0%, #fed7aa 100%);
+            font-size: 0.9rem;
+            color: #9d174d;
+            font-weight: 800;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 2px dashed #f59e0b;
+            border-radius: 14px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #b45309;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- ส่วนป้อนข้อมูล -->
+    <div class="card">
+        <div class="card-header-custom">
+            <span><i class="fa-solid fa-wand-magic-sparkles me-2"></i> ระบบวิเคราะห์เลขสูตร 🎯</span>
+        </div>
+        <div class="card-body p-3">
+            <div class="mb-2">
+                <label class="form-label small">🏷️ ชื่อหวย / ประเภทหวย:</label>
+                <input type="text" id="lotteryName" class="form-control" placeholder="เช่น 🇻🇳 ฮานอยพิเศษ, 🇱🇦 หวยลาว">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label small">📊 กรอกผลหวยย้อนหลัง (3ตัวบน - 2ตัวล่าง):</label>
+                <textarea id="lotteryData" class="form-control" rows="3" placeholder="เช่น 387-21 หรือหลายผลรวมกัน"></textarea>
+            </div>
+
+            <button type="button" class="btn btn-ai w-100 mb-2" onclick="analyzeData()">
+                <i class="fa-solid fa-calculator me-2"></i> คำนวณสูตร 🚀
+            </button>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <button type="button" class="btn btn-action w-100" onclick="clearData()">
+                        <i class="fa-solid fa-trash-can me-1 text-danger"></i> ล้างข้อมูล 🗑️
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn btn-action w-100" onclick="copyResult()">
+                        <i class="fa-solid fa-copy me-1 text-primary"></i> คัดลอกผล 📋
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ส่วนแสดงผลหลัก -->
+    <div class="card">
+        <div class="result-panel">
+            <div class="row mb-2">
+                <div class="col-6">
+                    <div class="section-title">🔥 เด่น 2 ตัว</div>
+                    <div>
+                        <span class="circle-badge-red" id="topTwo1">-</span>
+                        <span class="circle-badge-red" id="topTwo2">-</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="section-title">⭐ ฟันเด่น 1 ตัว</div>
+                    <div>
+                        <span class="circle-badge-red" id="funOne">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr style="border-color: #f472b6; margin: 15px 0;">
+
+            <div class="mb-2">
+                <div class="section-title">🎯 วิน 5 ตัวเด่น</div>
+                <div id="winDigitsContainer">
+                    <span class="circle-badge-green">-</span>
+                    <span class="circle-badge-green">-</span>
+                    <span class="circle-badge-green">-</span>
+                    <span class="circle-badge-green">-</span>
+                    <span class="circle-badge-green">-</span>
+                </div>
+                <div class="score-order" id="scoreOrderText">-</div>
+            </div>
+
+            <hr style="border-color: #f472b6; margin: 15px 0;">
+
+            <div class="table-responsive mb-3">
+                <table class="table table-custom table-bordered">
+                    <thead>
+                        <tr>
+                            <th>🎯 เจาะ 2 ตัว 5 ชุด</th>
+                            <th>🎯 เจาะ 3 ตัว 5 ชุด</th>
+                            <th>🎯 เจาะ 4 ตัว 5 ชุด</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pierceTableBody">
+                        <tr><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>-</td><td>-</td><td>-</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- กล่องคำเตือนแสดงหน้าเว็บ -->
+            <div class="warning-box">
+                <b>⚠️ คำเตือนสถิติ:</b> ข้อมูลนี้จัดทำขึ้นเพื่อใช้เป็นแนวทางในการศึกษาเชิงสถิติทางคณิตศาสตร์เท่านั้น ไม่สนับสนุนการพนันทุกรูปแบบ 💡✨
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center text-muted small pb-3">
+        <p class="mb-1 text-secondary" style="font-size: 0.85rem;">✨ พัฒนาโดย: <strong>DOMINOPROGRAM</strong> 💻🔥</p>
+    </div>
+</div>
+
+<script>
+    function playSuccessSound() {
+        try {
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } catch(e) {}
+    }
+
+    function generateStrictCombo(sourcePool, length) {
+        let result = [];
+        for (let num of sourcePool) {
+            if (!result.includes(num)) {
+                result.push(num);
+            }
+            if (result.length === length) break;
+        }
+        let idx = 0;
+        while (result.length < length && idx < sourcePool.length) {
+            let candidate = sourcePool[idx];
+            if (!result.includes(candidate)) {
+                result.push(candidate);
+            }
+            idx++;
+        }
+        return result.join('');
+    }
+
+    function analyzeData() {
+        let lotteryName = document.getElementById('lotteryName').value.trim() || "หวยเด็ด";
+        let rawText = document.getElementById('lotteryData').value.trim();
+        
+        if (!rawText) {
+            alert('❌ กรุณากรอกผลหวยก่อนวิเคราะห์ค่ะ!');
+            return;
+        }
+
+        let parsedResults = [];
+        let matches = rawText.match(/\d{3}[-\s]?\d{2}/g); 
+
+        if (!matches || matches.length === 0) {
+            let allNums = rawText.match(/\d+/g) || [];
+            allNums = allNums.filter(n => n.length >= 3);
+            
+            if (allNums.length === 0) {
+                alert('❌ ไม่พบรูปแบบผลรางวัลที่ถูกต้อง!');
+                return;
+            }
+            
+            allNums.forEach(numStr => {
+                if(numStr.length >= 5) {
+                    parsedResults.push({ top: numStr.slice(0, 3), bot: numStr.slice(3, 5) });
+                } else if(numStr.length === 3 || numStr.length === 4) {
+                    parsedResults.push({ top: numStr, bot: "00" });
+                }
+            });
+        } else {
+            matches.forEach(m => {
+                let cleanNums = m.match(/\d+/g);
+                if (cleanNums && cleanNums.length >= 2) {
+                    parsedResults.push({ top: cleanNums[0], bot: cleanNums[1] });
+                }
+            });
+        }
+
+        if (parsedResults.length === 0) {
+            alert('❌ ระบบไม่สามารถแยกแยะผลรางวัลได้');
+            return;
+        }
+
+        localStorage.setItem('saved_lotteryName', lotteryName);
+        localStorage.setItem('saved_lotteryData', rawText);
+
+        let totalFreq = {};
+        for(let i=0; i<=9; i++) totalFreq[i] = 0;
+
+        parsedResults.forEach(item => {
+            let topVal = parseInt(item.top);
+            let botVal = parseInt(item.bot);
+            
+            let resultVal = (topVal * botVal) / 0.39;
+            let rawStr = resultVal.toString().replace('.', '');
+            let strResult = rawStr.slice(0, 15);
+
+            for(let char of strResult) {
+                let n = parseInt(char);
+                if(!isNaN(n)) totalFreq[n]++;
+            }
+        });
+
+        let sortedDigits = Object.keys(totalFreq).sort((a,b) => {
+            if (totalFreq[b] !== totalFreq[a]) return totalFreq[b] - totalFreq[a];
+            return b - a;
+        });
+
+        let top1 = sortedDigits[0];
+        let top2 = sortedDigits[1];
+
+        document.getElementById('topTwo1').innerText = top1;
+        document.getElementById('topTwo2').innerText = top2;
+        document.getElementById('funOne').innerText = top1;
+
+        let win5 = sortedDigits.slice(0, 5);
+        let winHtml = '';
+        win5.forEach(d => {
+            winHtml += `<span class="circle-badge-green">${d}</span>`;
+        });
+        document.getElementById('winDigitsContainer').innerHTML = winHtml;
+        document.getElementById('scoreOrderText').innerText = win5.join(' - ');
+
+        // สร้างชุดเจาะ 2 ตัว แบบกรองเลขเบิ้ลออก (d1 !== d2)
+        let p2List = [], p3List = [], p4List = [];
+        
+        let possiblePairs = [
+            top1 + top2,
+            top1 + win5[0],
+            top1 + win5[1],
+            top1 + win5[2],
+            top1 + win5[3],
+            top2 + win5[0],
+            top2 + win5[1],
+            win5[0] + win5[1],
+            win5[0] + win5[2],
+            win5[1] + win5[3],
+            win5[2] + win5[4]
+        ];
+
+        for(let pair of possiblePairs) {
+            if(pair.length === 2 && pair[0] !== pair[1]) {
+                if(!p2List.includes(pair) && p2List.length < 5) {
+                    p2List.push(pair);
+                }
+            }
+        }
+
+        // กรณีสึงผลไม่พอ ให้วนจับคู่จากวิน 5 ตัวแบบไม่เอาเบิ้ล
+        let idx1 = 0, idx2 = 1;
+        while(p2List.length < 5 && idx1 < win5.length) {
+            idx2 = (idx1 + 1) % win5.length;
+            while(idx2 < win5.length && p2List.length < 5) {
+                let candidate = win5[idx1] + win5[idx2];
+                if(candidate[0] !== candidate[1] && !p2List.includes(candidate)) {
+                    p2List.push(candidate);
+                }
+                idx2++;
+            }
+            idx1++;
+        }
+
+        for(let i = 0; i < 5; i++) {
+            let shiftedPool = win5.slice(i % win5.length).concat(win5.slice(0, i % win5.length));
+            p3List.push(generateStrictCombo(shiftedPool, 3));
+            p4List.push(generateStrictCombo(shiftedPool, 4));
+        }
+
+        let tbody = document.getElementById('pierceTableBody');
+        tbody.innerHTML = '';
+        for(let i=0; i<5; i++) {
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span class="text-danger fw-bold">${p2List[i] || "--"}</span></td>
+                <td><span class="text-primary fw-bold">${p3List[i]}</span></td>
+                <td><span class="text-success fw-bold">${p4List[i]}</span></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        playSuccessSound();
+    }
+
+    function clearData() {
+        document.getElementById('lotteryName').value = '';
+        document.getElementById('lotteryData').value = '';
+        localStorage.removeItem('saved_lotteryName');
+        localStorage.removeItem('saved_lotteryData');
+
+        document.getElementById('topTwo1').innerText = '-';
+        document.getElementById('topTwo2').innerText = '-';
+        document.getElementById('funOne').innerText = '-';
+        
+        let winHtml = '';
+        for(let i=0; i<5; i++) winHtml += `<span class="circle-badge-green">-</span>`;
+        document.getElementById('winDigitsContainer').innerHTML = winHtml;
+        document.getElementById('scoreOrderText').innerText = '-';
+
+        let tbody = document.getElementById('pierceTableBody');
+        tbody.innerHTML = '';
+        for(let i=0; i<5; i++) {
+            tbody.innerHTML += `<tr><td>-</td><td>-</td><td>-</td></tr>`;
+        }
+        alert('🗑️ ล้างข้อมูลเรียบร้อยแล้วค่ะ!');
+    }
+
+    function copyResult() {
+        let lName = document.getElementById('lotteryName').value.trim() || "หวยเด็ด";
+        let t1 = document.getElementById('topTwo1').innerText;
+        let t2 = document.getElementById('topTwo2').innerText;
+        let fun = document.getElementById('funOne').innerText;
+        let winText = document.getElementById('scoreOrderText').innerText.replace(/\s+/g, '');
+
+        if (t1 === '-') {
+            alert('⚠️ กรุณากดคำนวณผลวิเคราะห์ก่อนคัดลอกค่ะ!');
+            return;
+        }
+
+        let now = new Date();
+        let options = { day: 'numeric', month: 'short', year: 'numeric' };
+        let dateStr = now.toLocaleDateString('th-TH', options);
+
+        let pierceRows = document.querySelectorAll('#pierceTableBody tr');
+        let pierce2DArr = [], pierce3DArr = [], pierce4DArr = [];
+        
+        pierceRows.forEach(row => {
+            let col2 = row.cells[0];
+            let col3 = row.cells[1];
+            let col4 = row.cells[2];
+            if(col2 && col2.innerText.trim() !== '-') pierce2DArr.push(col2.innerText.trim());
+            if(col3 && col3.innerText.trim() !== '-') pierce3DArr.push(col3.innerText.trim());
+            if(col4 && col4.innerText.trim() !== '-') pierce4DArr.push(col4.innerText.trim());
+        });
+
+        let textToCopy = `✨ 🔮 สูตรวิเคราะห์สถิติ ✨ 🔮\nชื่อหวย : ${lName}\n📅 ${dateStr}\n\n🔹 เด่น 2 ตัว: ${t1} ${t2}\n🔹 เด่น 1 ตัว: ${fun}\n\n🔥 วิน 5 ตัว: ${winText}\n🎯 เจาะ 2 ตัว: ${pierce2DArr.join(' ')}\n🎯 เจาะ 3 ตัว: ${pierce3DArr.join(' ')}\n🎯 เจาะ 4 ตัว: ${pierce4DArr.join(' ')}\n------------------\n📌 หมายเหตุ: ข้อมูลนี้จัดทำขึ้นเพื่อใช้เป็นแนวทางในการศึกษาเชิงสถิติทางคณิตศาสตร์เท่านั้น ไม่สนับสนุนการพนันทุกรูปแบบ 💡✨\n\n💻 Developer: DOMINOPROGRAM 🔥`;
+
+        let textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.style.position = 'fixed';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand('copy');
+            alert('📋 คัดลอกผลลัพธ์พร้อมข้อความเตือนเรียบร้อยแล้วค่ะ! ✨');
+        } catch (err) {
+            prompt("คัดลอกข้อความด้านล่างนี้:", textToCopy);
+        }
+        document.body.removeChild(textarea);
+    }
+
+    window.onload = function() {
+        let savedName = localStorage.getItem('saved_lotteryName');
+        let savedData = localStorage.getItem('saved_lotteryData');
+        if (savedData) {
+            document.getElementById('lotteryName').value = savedName || '';
+            document.getElementById('lotteryData').value = savedData;
+            analyzeData();
+        }
+    };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
