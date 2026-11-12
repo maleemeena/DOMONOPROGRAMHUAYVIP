@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมคำนวณหวย & ตรวจผล</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Tahoma', sans-serif;
+        }
+        body {
+            background-color: #0b1120;
+            color: #fff;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* ส่วนการ์ดภาพพื้นหลังหลัก */
+        .lotto-card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 720 / 1280;
+            background-image: url('https://i.postimg.cc/g28Ykn8x/bg.jpg');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+        }
+
+        /* บล็อกแสดงเลข 7 ตัว (สิบบน, หน่วยบน, สิบล่าง, หน่วยล่าง) */
+        .info-row {
+            position: absolute;
+            font-weight: bold;
+            font-size: 15px;
+            color: #000;
+            letter-spacing: 3.5px;
+            padding-left: 5px;
+            left: 42%;
+            white-space: nowrap;
+        }
+        #topTens { top: 26.4%; }
+        #topUnits { top: 30.1%; }
+
+        #bottomTens { top: 62.8%; }
+        #bottomUnits { top: 66.8%; }
+
+        /* ตารางเลข 49 ตัว */
+        .grid-numbers {
+            position: absolute;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            width: 88%;
+            left: 5.7%;
+            text-align: center;
+        }
+        #topGrid {
+            top: 33.5%;
+        }
+        #bottomGrid {
+            top: 70.2%;
+        }
+
+        .grid-numbers div {
+            background: rgba(30, 41, 59, 0.95);
+            color: #f1f5f9; /* สีขาวนวลสะอาดตา */
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 0;
+            border-radius: 3px;
+            border: 1px solid #475569;
+        }
+        .grid-numbers div.hit {
+            background: #22c55e !important;
+            color: #000 !important;
+            border-color: #4ade80;
+        }
+
+        /* จำนวน 49 ตัว สีแดงตัวใหญ่บนหัวข้อ */
+        .badge-count-top {
+            position: absolute;
+            top: 20.8%;
+            left: 79%;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 1px 1px 1px #fff;
+        }
+        .badge-count-bottom {
+            position: absolute;
+            top: 57.2%;
+            left: 79%;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 1px 1px 1px #fff;
+        }
+
+        /* วันที่และผลออกจริงบนการ์ด */
+        .display-date {
+            position: absolute;
+            bottom: 5.8%;
+            left: 29%;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .display-result {
+            position: absolute;
+            bottom: 5.8%;
+            right: 22%;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* ปุ่มคัดลอกทับบนภาพ */
+        .btn-overlay-copy-top {
+            position: absolute;
+            top: 24.8%;
+            right: 9%;
+            background: #eab308;
+            color: #000;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-overlay-copy-bottom {
+            position: absolute;
+            top: 61.3%;
+            right: 9%;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* แผงกรอกข้อมูล (อยู่ล่างสุด นอกภาพ พับเก็บได้) */
+        .control-panel {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px dashed #64748b;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+        .toggle-bar {
+            text-align: center;
+            font-weight: bold;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 4px;
+        }
+        .input-section {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-section.collapsed { display: none; }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .input-group label { font-size: 12px; color: #cbd5e1; }
+        .input-group input {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #fff;
+            font-size: 14px;
+        }
+        .btn-clear {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="lotto-card">
+        <button class="btn-overlay-copy-top" onclick="copyTop()">📋 คัดลอก</button>
+        <button class="btn-overlay-copy-bottom" onclick="copyBottom()">📋 คัดลอก</button>
+
+        <!-- จำนวน 49 ตัว สีแดง -->
+        <div class="badge-count-top" id="badgeTop"></div>
+        <div class="badge-count-bottom" id="badgeBottom"></div>
+
+        <!-- แถวเลขสิบบน / หน่วยบน -->
+        <div class="info-row" id="topTens"></div>
+        <div class="info-row" id="topUnits"></div>
+        <div class="grid-numbers" id="topGrid"></div>
+
+        <!-- แถวเลขสิบล่าง / หน่วยล่าง -->
+        <div class="info-row" id="bottomTens"></div>
+        <div class="info-row" id="bottomUnits"></div>
+        <div class="grid-numbers" id="bottomGrid"></div>
+
+        <!-- วันที่และผลออกจริง -->
+        <div class="display-date" id="displayDate">-</div>
+        <div class="display-result" id="displayResult">-</div>
+    </div>
+
+    <!-- แผงกรอกข้อมูล -->
+    <div class="control-panel">
+        <div class="toggle-bar" onclick="toggleInputSection()">
+            <span id="toggleIcon">▼ ซ่อน/เปิดช่องกรอกข้อมูล</span>
+        </div>
+        <div class="input-section" id="inputSection">
+            <div class="input-group">
+                <label>🔮 ชื่อหวย (เช่น ฮานอย, ลาว):</label>
+                <input type="text" id="lottoName" placeholder="ระบุชื่อหวย..." oninput="calculate()">
+            </div>
+            <div class="input-group">
+                <label>📅 วันที่:</label>
+                <input type="text" id="lottoDate" placeholder="ว/ด/ป..." oninput="calculate()">
+            </div>
+            <div class="input-group">
+                <label>🔢 กรอกผลรอบก่อนหน้า (สำหรับคำนวณ):</label>
+                <input type="text" id="prevResult" maxlength="6" placeholder="เช่น 54635" oninput="calculate()">
+            </div>
+            <div class="input-group">
+                <label>🎯 ผลออกจริง 5 ตัว:</label>
+                <input type="text" id="actualResult" maxlength="5" placeholder="เช่น 19321" oninput="calculate()">
+            </div>
+            <button class="btn-clear" onclick="clearData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        if(localStorage.getItem('lottoName')) document.getElementById('lottoName').value = localStorage.getItem('lottoName');
+        if(localStorage.getItem('lottoDate')) document.getElementById('lottoDate').value = localStorage.getItem('lottoDate');
+        if(localStorage.getItem('prevResult')) document.getElementById('prevResult').value = localStorage.getItem('prevResult');
+        if(localStorage.getItem('actualResult')) document.getElementById('actualResult').value = localStorage.getItem('actualResult');
+        
+        let pStr = document.getElementById('prevResult').value.trim();
+        if(pStr) {
+            calculate();
+        } else {
+            clearDisplayOnly();
+        }
+    }
+
+    function toggleInputSection() {
+        let sec = document.getElementById('inputSection');
+        let icon = document.getElementById('toggleIcon');
+        sec.classList.toggle('collapsed');
+        icon.innerText = sec.classList.contains('collapsed') ? "▲ เปิดแสดงช่องกรอกข้อมูล" : "▼ ซ่อน/เปิดช่องกรอกข้อมูล";
+    }
+
+    function saveToStorage() {
+        localStorage.setItem('lottoName', document.getElementById('lottoName').value);
+        localStorage.setItem('lottoDate', document.getElementById('lottoDate').value);
+        localStorage.setItem('prevResult', document.getElementById('prevResult').value);
+        localStorage.setItem('actualResult', document.getElementById('actualResult').value);
+    }
+
+    // ฟังก์ชันปรับปรุงใหม่: ไม่ตัดตัวเลขซ้ำทิ้ง และการันตีให้แสดงผลครบ 7 ตัวเสมอ
+    function getTop7Freq(pool) {
+        let counts = {};
+        pool.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+        
+        let sorted = Object.keys(counts).sort((a, b) => {
+            if (counts[b] !== counts[a]) return counts[b] - counts[a];
+            return parseInt(a) - parseInt(b);
+        }).map(Number);
+
+        let result = [...sorted];
+        let index = 0;
+        while (result.length < 7) {
+            result.push(sorted[index % sorted.length]);
+            index++;
+        }
+
+        return result.slice(0, 7);
+    }
+
+    function clearDisplayOnly() {
+        document.getElementById('topTens').innerText = '';
+        document.getElementById('topUnits').innerText = '';
+        document.getElementById('bottomTens').innerText = '';
+        document.getElementById('bottomUnits').innerText = '';
+        document.getElementById('topGrid').innerHTML = '';
+        document.getElementById('bottomGrid').innerHTML = '';
+        document.getElementById('displayDate').innerText = '-';
+        document.getElementById('displayResult').innerText = '-';
+        document.getElementById('badgeTop').innerText = '';
+        document.getElementById('badgeBottom').innerText = '';
+    }
+
+    function calculate() {
+        saveToStorage();
+        let dStr = document.getElementById('lottoDate').value.trim();
+        let pStr = document.getElementById('prevResult').value.trim();
+        let aStr = document.getElementById('actualResult').value.trim();
+        
+        document.getElementById('displayDate').innerText = dStr ? dStr : '-';
+        document.getElementById('displayResult').innerText = aStr ? aStr : '-';
+
+        if(!pStr) {
+            clearDisplayOnly();
+            return;
+        }
+
+        document.getElementById('badgeTop').innerText = '49';
+        document.getElementById('badgeBottom').innerText = '49';
+
+        let parseDigits = (str) => {
+            if(str.length < 5) return {h:0, t:0, u:0, td:0, ud:0};
+            let arr = str.padStart(5, '0').split('').map(Number);
+            return { h: arr[2], t: arr[3], u: arr[4], td: arr[0], ud: arr[1] };
+        };
+
+        let last = parseDigits(pStr); 
+        let prev = parseDigits(pStr);
+
+        let topTarget = "";
+        let bottomTarget = "";
+        if(aStr.length >= 4) {
+            let paddedA = aStr.padStart(5, '0');
+            topTarget = paddedA.substring(1, 3); 
+            bottomTarget = paddedA.substring(3, 5); 
+        }
+
+        // --- สิบบน ---
+        let poolTopTens = [];
+        poolTopTens.push((last.h + last.t) % 10);
+        poolTopTens.push((last.t + last.u) % 10);
+        poolTopTens.push((last.td + last.ud) % 10);
+        poolTopTens.push((last.h + last.ud) % 10);
+        poolTopTens.push((last.h * last.u) % 10);
+        poolTopTens.push((last.t * last.td) % 10);
+        poolTopTens.push((last.h + last.t + last.u) % 10);
+        poolTopTens.push((last.td + last.ud + 5) % 10);
+        poolTopTens.push(Math.abs(last.h - last.ud) % 10);
+        poolTopTens.push((last.h + prev.u) % 10);
+        poolTopTens.push((last.t + prev.td) % 10);
+        poolTopTens.push((last.u + prev.ud) % 10);
+        poolTopTens.push((last.h + last.td + 9) % 10);
+        poolTopTens.push((last.t * 3) % 10);
+        let topTensArr = getTop7Freq(poolTopTens);
+
+        // --- หน่วยบน ---
+        let poolTopUnits = [];
+        poolTopUnits.push((last.u * 7) % 10);
+        poolTopUnits.push((last.td + 2) % 10);
+        poolTopUnits.push((last.ud + 8) % 10);
+        poolTopUnits.push((last.h + last.u + prev.h) % 10);
+        poolTopUnits.push((last.t + last.ud + 1) % 10);
+        poolTopUnits.push((last.h * last.td + 4) % 10);
+        poolTopUnits.push((last.h + last.t + last.u + last.td + last.ud) % 10);
+        poolTopUnits.push((last.h * last.t * last.u) % 10);
+        poolTopUnits.push((last.td * last.ud * 3) % 10);
+        poolTopUnits.push(Math.abs(last.t - last.td) % 10);
+        poolTopUnits.push(Math.abs(last.u - last.ud) % 10);
+        poolTopUnits.push((last.h + 7) % 10);
+        poolTopUnits.push((last.t + 5) % 10);
+        poolTopUnits.push((last.u + 3) % 10);
+        let topUnitsArr = getTop7Freq(poolTopUnits);
+
+        // --- สิบล่าง ---
+        let poolBotTens = [];
+        poolBotTens.push((last.ud + 9) % 10);
+        poolBotTens.push((prev.h + last.h) % 10);
+        poolBotTens.push((prev.t + last.t) % 10);
+        poolBotTens.push((prev.u + last.u) % 10);
+        poolBotTens.push((prev.td + last.td) % 10);
+        poolBotTens.push((prev.ud + last.ud) % 10);
+        poolBotTens.push((last.h + last.u + 2) % 10);
+        poolBotTens.push((last.t + last.td + 4) % 10);
+        poolBotTens.push((last.u + last.ud + 6) % 10);
+        poolBotTens.push((last.h * 2 + last.t) % 10);
+        poolBotTens.push((last.t * 2 + last.u) % 10);
+        poolBotTens.push((last.u * 2 + last.td) % 10);
+        poolBotTens.push((last.td * 2 + last.ud) % 10);
+        poolBotTens.push((last.ud * 2 + last.h) % 10);
+        let botTensArr = getTop7Freq(poolBotTens);
+
+        // --- หน่วยล่าง ---
+        let poolBotUnits = [];
+        poolBotUnits.push((last.h + last.td + prev.t) % 10);
+        poolBotUnits.push((last.t + last.ud + prev.u) % 10);
+        poolBotUnits.push(Math.abs(last.h - last.t) % 10);
+        poolBotUnits.push(Math.abs(last.t - last.u) % 10);
+        poolBotUnits.push(Math.abs(last.td - last.ud) % 10);
+        poolBotUnits.push((last.h + last.t + last.td) % 10);
+        poolBotUnits.push((last.t + last.u + last.ud) % 10);
+        poolBotUnits.push((last.h + last.u + last.td) % 10);
+        poolBotUnits.push((last.t + last.td + last.ud) % 10);
+        poolBotUnits.push((last.h * last.td) % 10);
+        poolBotUnits.push((last.u * last.ud) % 10);
+        poolBotUnits.push((last.t * last.ud) % 10);
+        poolBotUnits.push((last.h * last.u + 5) % 10);
+        poolBotUnits.push((last.t * last.td + 7) % 10);
+        let botUnitsArr = getTop7Freq(poolBotUnits);
+
+        document.getElementById('topTens').innerText = topTensArr.join(' ');
+        document.getElementById('topUnits').innerText = topUnitsArr.join(' ');
+        document.getElementById('bottomTens').innerText = botTensArr.join(' ');
+        document.getElementById('bottomUnits').innerText = botUnitsArr.join(' ');
+
+        generateGrid('topGrid', topTensArr, topUnitsArr, topTarget);
+        generateGrid('bottomGrid', botTensArr, botUnitsArr, bottomTarget);
+    }
+
+    function generateGrid(elementId, tens, units, targetPair) {
+        let grid = document.getElementById(elementId);
+        grid.innerHTML = '';
+        tens.forEach(t => {
+            units.forEach(u => {
+                let pair = `${t}${u}`;
+                let div = document.createElement('div');
+                div.innerText = pair;
+                if (targetPair && pair === targetPair) {
+                    div.classList.add('hit');
+                }
+                grid.appendChild(div);
+            });
+        });
+    }
+
+    function copyTop() {
+        let name = document.getElementById('lottoName').value || 'หวย';
+        let date = document.getElementById('lottoDate').value || '-';
+        let actual = document.getElementById('actualResult').value.trim();
+        let tens = document.getElementById('topTens').innerText;
+        let units = document.getElementById('topUnits').innerText;
+        
+        let pairs = [];
+        let hitList = [];
+        document.querySelectorAll('#topGrid div').forEach(el => {
+            pairs.push(el.innerText);
+            if(el.classList.contains('hit')) {
+                hitList.push(el.innerText);
+            }
+        });
+
+        let resultText = actual ? `🎯 ผลออกจริง: ${actual}` : `🎯 ผลออกจริง: -`;
+        let checkText = hitList.length > 0 ? `✅ เข้าเต็มๆ: [ ${hitList.join(', ')} ]` : (actual ? `❌ หลุด` : `⏳ รอผลตรวจ`);
+
+        let text = `🔥 ${name} (${date}) 🔥\n[ ชุดบนตรง 49 ตัว ]\nสิบบน: ${tens}\nหน่วยบน: ${units}\n\n${resultText}\n${checkText}\n\n${pairs.join(', ')}\n\n(ทุน 49 บาท)`;
+        navigator.clipboard.writeText(text).then(() => alert('คัดลอกชุดบนตรง พร้อมผลตรวจเรียบร้อย!'));
+    }
+
+    function copyBottom() {
+        let name = document.getElementById('lottoName').value || 'หวย';
+        let date = document.getElementById('lottoDate').value || '-';
+        let actual = document.getElementById('actualResult').value.trim();
+        let tens = document.getElementById('bottomTens').innerText;
+        let units = document.getElementById('bottomUnits').innerText;
+        
+        let pairs = [];
+        let hitList = [];
+        document.querySelectorAll('#bottomGrid div').forEach(el => {
+            pairs.push(el.innerText);
+            if(el.classList.contains('hit')) {
+                hitList.push(el.innerText);
+            }
+        });
+
+        let resultText = actual ? `🎯 ผลออกจริง: ${actual}` : `🎯 ผลออกจริง: -`;
+        let checkText = hitList.length > 0 ? `✅ เข้าเต็มๆ: [ ${hitList.join(', ')} ]` : (actual ? `❌ หลุด` : `⏳ รอผลตรวจ`);
+
+        let text = `🔥 ${name} (${date}) 🔥\n[ ชุดล่างตรง 49 ตัว ]\nสิบบ่าง: ${tens}\nหน่วยล่าง: ${units}\n\n${resultText}\n${checkText}\n\n${pairs.join(', ')}\n\n(ทุน 49 บาท)`;
+        navigator.clipboard.writeText(text).then(() => alert('คัดลอกชุดล่างตรง พร้อมผลตรวจเรียบร้อย!'));
+    }
+
+    function clearData() {
+        if(confirm('ต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) {
+            localStorage.clear();
+            document.getElementById('lottoName').value = '';
+            document.getElementById('lottoDate').value = '';
+            document.getElementById('prevResult').value = '';
+            document.getElementById('actualResult').value = '';
+            clearDisplayOnly();
+        }
+    }
+</script>
+
+</body>
+</html>
